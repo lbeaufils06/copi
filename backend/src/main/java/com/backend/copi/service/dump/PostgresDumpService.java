@@ -20,15 +20,15 @@ public class PostgresDumpService implements DatabaseDumpService {
 
     private final CryptoService cryptoService;
 
-    @Value("${app.pg_dump.path:pg_dump}")
+    @Value("${app.pgdump.path:pg_dump}")
     private String pgDumpPath;
 
-    @Value("${app.pg_dumpall.path:pg_dumpall}")
+    @Value("${app.pgdumpall.path:pg_dumpall}")
     private String pgDumpAllPath;
 
     @Override
     public boolean supports(String dbType) {
-        return "POSTGRES".equalsIgnoreCase(dbType);
+        return "POSTGRESQL".equalsIgnoreCase(dbType);
     }
 
     @Override
@@ -77,7 +77,7 @@ public class PostgresDumpService implements DatabaseDumpService {
 
         if (!finished) {
             process.destroy();
-            throw new RuntimeException("Postgres dump timeout");
+            throw new RuntimeException("Postgresql dump timeout");
         }
 
         int exitCode = process.exitValue();
@@ -85,7 +85,7 @@ public class PostgresDumpService implements DatabaseDumpService {
         if (exitCode != 0) {
             String error = readStream(process);
             throw new RuntimeException(
-                    "Postgres dump failed: " + error);
+                    "Postgresql dump failed: " + error);
         }
 
         return filePath;

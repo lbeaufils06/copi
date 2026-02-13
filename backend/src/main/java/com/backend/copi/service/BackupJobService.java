@@ -6,6 +6,7 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 
 import com.backend.copi.entity.BackupJob;
+import com.backend.copi.repository.BackupExecutionRepository;
 import com.backend.copi.repository.BackupJobRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -15,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 public class BackupJobService {
 
     private final BackupJobRepository repository;
+    private final BackupExecutionRepository repositoryExecution;
     private final CryptoService cryptoService;
 
     public List<BackupJob> getAllJobs() {
@@ -65,10 +67,9 @@ public class BackupJobService {
     }
     
     public void deleteJob(UUID id) {
-        if (!repository.existsById(id)) {
-            throw new RuntimeException("Job not found");
-        }
-        repository.deleteById(id);
+    	BackupJob existing = repository.findById(id).orElseThrow(() -> new RuntimeException("Job not found"));
+    	repositoryExecution.deleteByJob(existing);
+        repository.delete(existing);
     }
     
 

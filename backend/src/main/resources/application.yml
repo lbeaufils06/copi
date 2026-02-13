@@ -7,13 +7,20 @@ spring:
     database-platform: com.backend.copi.config.SQLiteDialect
     hibernate:
       ddl-auto: update
-    show-sql: true
+    show-sql: false
+
+  flyway:
+    enabled: true
 
 app:
   crypto:
     secret: ${MASTER_KEY}
   mysqldump:
     path: "C:/Program Files/MySQL/MySQL Server 8.0/bin/mysqldump.exe"
+  pgdump:
+    path: "C:/Program Files/PostgreSQL/18/bin/pg_dump.exe"
+  pgdumpall:
+    path: "C:/Program Files/PostgreSQL/18/bin/pg_dumpall.exe"
 
 server:
   port: 8080

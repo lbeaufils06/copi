@@ -4,6 +4,8 @@ import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.scheduling.support.CronExpression;
 import org.springframework.stereotype.Service;
@@ -23,10 +25,19 @@ public class SchedulerService {
     private final Clock clock;
 
     private boolean running = false;
+    private boolean applicationReady = false;
+
+    @EventListener(ApplicationReadyEvent.class)
+    public void onApplicationReady() {
+        applicationReady = true;
+    }
 
     @Scheduled(fixedRate = 1000)
     public void checkJobs() {
 
+        if (!applicationReady) {
+            return;
+        }
         if (running) {
             return;
         }

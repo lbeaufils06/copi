@@ -19,6 +19,10 @@ public class BackupExecutionService {
 
     private final BackupExecutionRepository repository;
     
+    public List<BackupExecution> getAllExecutions() {
+        return repository.findAllByOrderByStartTimeDesc();
+    }
+    
     public List<BackupExecution> getExecutionsByJob(UUID jobId) {
         return repository.findByJobIdOrderByStartTimeDesc(jobId);
     }
