@@ -1,0 +1,58 @@
+name: Build Docker Image
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set variables
+        run: |
+          REPO_NAME=$(basename "$GITHUB_REPOSITORY")
+          echo "IMAGE_NAME=$REPO_NAME" >> $GITHUB_ENV
+
+      - name: Check if Dockerfile exists
+        id: dockerfile_check
+        run: |
+          if [ -f "Dockerfile" ]; then
+            echo "DOCKERFILE_EXISTS=true" >> $GITHUB_ENV
+          else
+            echo "DOCKERFILE_EXISTS=false" >> $GITHUB_ENV
+          fi
+
+      - name: Build image
+        if: env.DOCKERFILE_EXISTS == 'true'
+        run: |
+          echo "Dockerfile found. Building image: $IMAGE_NAME:latest"
+          docker build -t $IMAGE_NAME:latest .
+
+      - name: Skip build
+        if: env.DOCKERFILE_EXISTS == 'false'
+        run: echo "No Dockerfile found. Skipping Docker build."
+
+      - name: Copy repo to export folder
+        run: |
+          TARGET="/export/$IMAGE_NAME"
+
+          echo "Project name: $IMAGE_NAME"
+          echo "Target: $TARGET"
+
+          mkdir -p "$TARGET"
+          find "$TARGET" -mindepth 1 -delete
+          cp -a . "$TARGET/"
+
+          echo "Export completed:"
+          ls -lah "$TARGET"
+
+      - name: Debug export mount
+        run: |
+          echo "Inside container:"
+          pwd
+          ls -lah /
+          ls -lah /export || echo "/export does not exist"
