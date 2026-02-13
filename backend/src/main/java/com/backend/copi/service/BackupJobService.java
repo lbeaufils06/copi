@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.backend.copi.entity.BackupJob;
 import com.backend.copi.repository.BackupExecutionRepository;
@@ -66,6 +67,7 @@ public class BackupJobService {
                 .toList();
     }
     
+    @Transactional
     public void deleteJob(UUID id) {
     	BackupJob existing = repository.findById(id).orElseThrow(() -> new RuntimeException("Job not found"));
     	repositoryExecution.deleteByJob(existing);
