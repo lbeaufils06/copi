@@ -1,0 +1,13 @@
+spring:
+  datasource:
+    url: jdbc:sqlite:copi.db
+    driver-class-name: org.sqlite.JDBC
+
+  jpa:
+    database-platform: com.backend.copi.config.SQLiteDialect
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+server:
+  port: 8080
