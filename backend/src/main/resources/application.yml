@@ -9,5 +9,9 @@ spring:
       ddl-auto: update
     show-sql: true
 
+app:
+  crypto:
+    secret: ${MASTER_KEY}
+
 server:
   port: 8080
