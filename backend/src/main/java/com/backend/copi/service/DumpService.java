@@ -1,42 +1,26 @@
 package com.backend.copi.service;
 
-import com.backend.copi.entity.BackupExecution;
 import com.backend.copi.entity.BackupJob;
-import com.backend.copi.repository.BackupExecutionRepository;
+import com.backend.copi.service.dump.DatabaseDumpService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class DumpService {
 
-    private final BackupExecutionRepository executionRepository;
+    private final List<DatabaseDumpService> strategies;
 
-    public void executeJob(BackupJob job) {
+    public String executeJob(BackupJob job) throws Exception {
 
-        BackupExecution execution = new BackupExecution();
-        execution.setJobId(job.getId());
-        execution.setStartTime(LocalDateTime.now());
-        execution.setStatus("RUNNING");
-
-        execution = executionRepository.save(execution);
-
-        try {
-            // Simulation du dump (pour l'instant)
-            Thread.sleep(2000);
-
-            execution.setStatus("SUCCESS");
-            execution.setLogMessage("Backup simulé avec succès");
-
-        } catch (Exception e) {
-
-            execution.setStatus("FAILED");
-            execution.setLogMessage(e.getMessage());
-        }
-
-        execution.setEndTime(LocalDateTime.now());
-        executionRepository.save(execution);
+        return strategies.stream()
+                .filter(strategy ->
+                        strategy.supports(job.getDbType().name()))
+                .findFirst()
+                .orElseThrow(() ->
+                        new RuntimeException("Unsupported DB type"))
+                .executeDump(job);
     }
 }

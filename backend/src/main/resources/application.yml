@@ -12,6 +12,8 @@ spring:
 app:
   crypto:
     secret: ${MASTER_KEY}
+  mysqldump:
+    path: "C:/Program Files/MySQL/MySQL Server 8.0/bin/mysqldump.exe"
 
 server:
   port: 8080

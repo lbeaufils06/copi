@@ -25,7 +25,7 @@ public class BackupJob {
     private String name;
 
     @Column(nullable = false)
-    private String dbType;
+    private DatabaseType dbType;
 
     @Column(nullable = false)
     private String host;
@@ -33,7 +33,6 @@ public class BackupJob {
     @Column(nullable = false)
     private Integer port;
 
-    @Column(nullable = false)
     private String dbName;
 
     @Column(nullable = false)
@@ -47,10 +46,6 @@ public class BackupJob {
     
     @Column(nullable = false)
     private String cronExpression;
-    
-    private LocalDateTime startExecutionTime;
-    
-    private LocalDateTime endExecutionTime;
-    
+        
     private LocalDateTime nextExecutionTime;
 }
