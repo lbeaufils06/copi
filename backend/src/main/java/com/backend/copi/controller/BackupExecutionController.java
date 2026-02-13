@@ -21,4 +21,9 @@ public class BackupExecutionController {
 
         return executionService.getExecutionsByJob(jobId);
     }
+    
+    @GetMapping
+    public List<BackupExecution> getAll() {
+        return executionService.getAllExecutions();
+    }
 }
