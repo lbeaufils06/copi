@@ -42,8 +42,6 @@ public class BackupJobService {
         }
         existing.setCronExpression(updatedJob.getCronExpression());
         existing.setEnabled(updatedJob.getEnabled());
-        existing.setStartExecutionTime(updatedJob.getStartExecutionTime());
-        existing.setEndExecutionTime(updatedJob.getEndExecutionTime());
         existing.setNextExecutionTime(updatedJob.getNextExecutionTime());
 
         return repository.save(existing);
@@ -54,8 +52,6 @@ public class BackupJobService {
         BackupJob existing = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Job not found"));
 
-        existing.setStartExecutionTime(updatedJob.getStartExecutionTime());
-        existing.setEndExecutionTime(updatedJob.getEndExecutionTime());
         existing.setNextExecutionTime(updatedJob.getNextExecutionTime());
 
         return repository.save(existing);

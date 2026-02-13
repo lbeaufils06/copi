@@ -1,8 +1,7 @@
 package com.backend.copi.entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -10,21 +9,30 @@ import java.util.UUID;
 @Entity
 @Getter
 @Setter
-@Table(name = "backup_execution")
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class BackupExecution {
 
     @Id
     @GeneratedValue
     private UUID id;
 
-    private UUID jobId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "job_id", nullable = false)
+    private BackupJob job;
 
     private LocalDateTime startTime;
 
     private LocalDateTime endTime;
 
-    private String status; // SUCCESS / FAILED
+    private Long durationInSeconds;
 
-    @Column(length = 2000)
+    @Enumerated(EnumType.STRING)
+    private ExecutionStatus status;
+
+    @Column(length = 4000)
     private String logMessage;
+
+    private String filePath;
 }
