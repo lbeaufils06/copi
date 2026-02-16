@@ -49,6 +49,8 @@ public class BackupJob {
     
     @Column(nullable = false)
     private String cronExpression;
+    
+    private String cronRetention;
         
     private LocalDateTime nextExecutionTime;
     
