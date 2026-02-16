@@ -31,36 +31,76 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 p-10">
-      <div className="max-w-4xl mx-auto bg-white shadow-xl rounded-2xl p-6">
-        <h1 className="text-2xl font-bold mb-6">
-          Test API Backup Jobs
-        </h1>
+    <div className="min-h-screen bg-slate-900 text-slate-100 p-4 lg:p-8">
+      <div className="max-w-7xl mx-auto">
 
-        <button
-          onClick={openAddModal}
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg mb-6"
-        >
-          Ajouter DB
-        </button>
+        {/* HEADER */}
+        <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center mb-6 gap-4">
+          <h1 className="text-xl lg:text-2xl font-semibold tracking-tight">
+            Backup-db / Dashboard
+          </h1>
 
-        <div className="space-y-4">
-          {jobs.map((job) => (
-            <div key={job.id} className="border rounded-xl p-4 bg-gray-50">
-              <p><strong>Nom:</strong> {job.name}</p>
-              <p><strong>Type:</strong> {job.dbType}</p>
-              <p><strong>Db:</strong> {job.host}:{job.port}</p>
-              <p><strong>Next:</strong> {job.nextExecutionTime}</p>
-
-              <button
-                onClick={() => openEditModal(job)}
-                className="mt-3 px-3 py-1 bg-yellow-500 text-white rounded"
-              >
-                Modifier
-              </button>
-            </div>
-          ))}
+          <button
+            onClick={openAddModal}
+            className="bg-indigo-600 hover:bg-indigo-500 px-4 py-2 rounded-lg transition font-medium"
+          >
+            Ajouter DB
+          </button>
         </div>
+
+        {/* JOB LIST */}
+        <section className="bg-slate-800 rounded-2xl p-6 shadow-lg">
+          <h2 className="text-lg font-semibold mb-4">Backup Jobs</h2>
+
+          <div className="space-y-4">
+            {jobs.length === 0 && (
+              <p className="text-slate-400 text-sm">Aucun job configuré</p>
+            )}
+
+            {jobs.map((job) => (
+              <div
+                key={job.id}
+                className="bg-slate-900 rounded-xl p-4 border border-slate-700 hover:border-indigo-500 transition"
+              >
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
+
+                  <div>
+                    <p className="text-xs uppercase text-slate-400">Nom</p>
+                    <p className="font-semibold">{job.name}</p>
+                  </div>
+
+                  <div>
+                    <p className="text-xs uppercase text-slate-400">Type</p>
+                    <p className="font-semibold">{job.dbType}</p>
+                  </div>
+
+                  <div>
+                    <p className="text-xs uppercase text-slate-400">Host</p>
+                    <p className="font-semibold">
+                      {job.host}:{job.port}
+                    </p>
+                  </div>
+
+                  <div>
+                    <p className="text-xs uppercase text-slate-400">Next Run</p>
+                    <p className="font-semibold">
+                      {job.nextExecutionTime || "-"}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="mt-4">
+                  <button
+                    onClick={() => openEditModal(job)}
+                    className="bg-slate-700 hover:bg-slate-600 px-3 py-1 rounded-lg text-sm transition"
+                  >
+                    Modifier
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
       </div>
 
       <JobModal
