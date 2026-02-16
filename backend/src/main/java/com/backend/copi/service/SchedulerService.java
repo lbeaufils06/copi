@@ -3,6 +3,7 @@ package com.backend.copi.service;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
@@ -42,44 +43,37 @@ public class SchedulerService {
             return;
         }
 
-        LocalDateTime now = LocalDateTime.now(clock).withNano(0);
         List<BackupJob> jobs = jobService.getEnabledJobs();
 
         for (BackupJob job : jobs) {
+        	
+        	boolean isGood = initializeNextExecutionIfNeeded(job);
 
-            initializeNextExecutionIfNeeded(job, now);
-
-            if (shouldExecute(job, now)) {
+            if (isGood) {
                 executeSequentially(job);
                 break; // séquentiel
             }
         }
     }
 
-    private void initializeNextExecutionIfNeeded(BackupJob job,
-	            LocalDateTime now) {
-	
-		if (job.getNextExecutionTime() != null) {
-		return;
-		}
-		
-		CronExpression cron =
-		CronExpression.parse(job.getCronExpression());
-		
-		// Force strictement futur
-		LocalDateTime next =
-		cron.next(now.plusSeconds(1));
-		
-		job.setNextExecutionTime(next.withNano(0));
-		jobService.updateJobScheduler(job.getId(), job);
-	}
+    private boolean initializeNextExecutionIfNeeded(BackupJob job) {
 
-    private boolean shouldExecute(BackupJob job,
-                                  LocalDateTime now) {
+        LocalDateTime now = LocalDateTime.now(clock).withNano(0);
 
-        return job.getNextExecutionTime() != null &&
-               !job.getNextExecutionTime().isAfter(now);
+        LocalDateTime next = CronExpression
+                .parse(job.getCronExpression())
+                .next(now)
+                .withNano(0);
+
+        if (!Objects.equals(job.getNextExecutionTime(), next)) {
+            job.setNextExecutionTime(next);
+            jobService.updateJobScheduler(job.getId(), job);
+            return true;
+        }
+
+        return false;
     }
+
 
     private void executeSequentially(BackupJob job) {
 
@@ -102,16 +96,6 @@ public class SchedulerService {
             executionService.markFailed(execution, e.getMessage());
 
         } finally {
-
-            // Calcul du prochain créneau APRÈS exécution
-            CronExpression cron =
-                    CronExpression.parse(job.getCronExpression());
-
-            LocalDateTime next =
-                    cron.next(job.getNextExecutionTime());
-
-            job.setNextExecutionTime(next.withNano(0));
-            jobService.updateJobScheduler(job.getId(), job);
 
             running = false;
         }
