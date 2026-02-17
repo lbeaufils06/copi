@@ -66,8 +66,12 @@ public class SchedulerService {
                 .withNano(0);
 
         if (!Objects.equals(job.getNextExecutionTime(), next)) {
+            Long occurences = countMissedOccurrences(job.getNextExecutionTime(), next, job.getCronExpression());
             job.setNextExecutionTime(next);
             jobService.updateJobScheduler(job.getId(), job);
+        	if(occurences > 2) {
+        		return false;
+        	}
             return true;
         }
 
@@ -100,4 +104,35 @@ public class SchedulerService {
             running = false;
         }
     }
+    
+    public long countMissedOccurrences(
+            LocalDateTime storedNextExecutionTime,
+            LocalDateTime next,
+            String cronExpression) {
+
+        if (storedNextExecutionTime == null) {
+            return 0;
+        }
+
+        if (storedNextExecutionTime.isAfter(next)) {
+            return 0;
+        }
+
+        CronExpression cron = CronExpression.parse(cronExpression);
+
+        long count = 0;
+        LocalDateTime occurrence = storedNextExecutionTime;
+
+        while (!occurrence.isAfter(next)) {
+            count++;
+            occurrence = cron.next(occurrence);
+
+            if (occurrence == null) {
+                break; // sécurité si cron invalide
+            }
+        }
+
+        return count;
+    }
+
 }
