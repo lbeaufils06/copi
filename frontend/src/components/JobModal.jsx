@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 function JobModal({ isOpen, onClose, onSaved, jobToEdit }) {
   const isEditMode = !!jobToEdit;
   const [isCustomCron, setIsCustomCron] = useState(false);
+  const [isCustomCronRetention, setIsCustomCronRetention] = useState(false);
 
   const initialForm = {
     name: "",
@@ -13,6 +14,8 @@ function JobModal({ isOpen, onClose, onSaved, jobToEdit }) {
     username: "",
     passwordEncrypted: "",
     cronExpression: "0 0 * * * *",
+    cronRetention: "",
+    retentionCount: 5,
     enabled: true,
   };
 
@@ -77,6 +80,7 @@ function JobModal({ isOpen, onClose, onSaved, jobToEdit }) {
         body: JSON.stringify({
           ...form,
           port: Number(form.port),
+          retentionCount: Number(form.retentionCount),
         }),
       });
 
@@ -213,6 +217,65 @@ function JobModal({ isOpen, onClose, onSaved, jobToEdit }) {
             <option value="0 0 20 * * *">20h</option>
             <option value="0 0 22 * * *">22h</option>
           </select>
+
+          {isCustomCronRetention && (
+          <input
+            name="cronRetention"
+            value={form.cronRetention}
+            placeholder="Cron Retention (ex: 0 */10 * * * *)"
+            className="w-full bg-slate-900 border border-slate-700 p-2 rounded-lg focus:outline-none focus:border-indigo-500"
+            onChange={handleChange}
+          />
+          )}
+
+          <select
+            className="w-full bg-slate-900 border border-slate-700 p-2 rounded-lg focus:outline-none focus:border-indigo-500"
+            value={isCustomCronRetention ? "customRetention" : form.cronRetention}
+            onChange={(e) => {
+              const value = e.target.value;
+
+              if (value === "customRetention") {
+                setIsCustomCronRetention(true);
+                setForm({ ...form, cronRetention: "" });
+              } else {
+                setIsCustomCronRetention(false);
+                setForm({ ...form, cronRetention: value });
+              }
+            }}
+          >
+            <option value="">Choisir une fréquence</option>
+            <option value="customRetention">Choisir sa cron</option>
+
+            <option value="*/30 * * * * *">30 secondes</option>
+            <option value="0 * * * * *">1 minute</option>
+            <option value="0 */30 * * * *">30 minutes</option>
+            <option value="0 0 * * * *">1 heure</option>
+            <option value="0 0 */3 * * *">3 heures</option>
+            <option value="0 0 */6 * * *">6 heures</option>
+            <option value="0 0 */12 * * *">12 heures</option>
+            <option value="0 0 0 * * *">00h</option>
+            <option value="0 0 2 * * *">02h</option>
+            <option value="0 0 4 * * *">04h</option>
+            <option value="0 0 6 * * *">06h</option>
+            <option value="0 0 8 * * *">08h</option>
+            <option value="0 0 10 * * *">10h</option>
+            <option value="0 0 12 * * *">12h</option>
+            <option value="0 0 14 * * *">14h</option>
+            <option value="0 0 16 * * *">16h</option>
+            <option value="0 0 20 * * *">20h</option>
+            <option value="0 0 22 * * *">22h</option>
+          </select>
+
+          <input
+            name="retentionCount"
+            type="number"
+            value={form.retentionCount}
+            placeholder="Nombre de backups à garder"
+            min="1"
+            className="w-full bg-slate-900 border border-slate-700 p-2 rounded-lg focus:outline-none focus:border-indigo-500"
+            onChange={handleChange}
+          />
+
 
           <label className="flex items-center gap-2 text-sm text-slate-300">
             <input
