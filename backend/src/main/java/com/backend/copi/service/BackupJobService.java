@@ -43,9 +43,15 @@ public class BackupJobService {
         if (updatedJob.getPasswordEncrypted() != null && !updatedJob.getPasswordEncrypted().isBlank()) {
         	existing.setPasswordEncrypted(cryptoService.encrypt(updatedJob.getPasswordEncrypted()));
         }
-        existing.setCronExpression(updatedJob.getCronExpression());
+        if(existing.getCronRetention() != null && updatedJob.getCronRetention() != null && existing.getCronRetention().equals(updatedJob.getCronRetention())) {
+        	existing.setNextRetentionTime(updatedJob.getNextRetentionTime());
+        } else {
+        	existing.setNextRetentionTime(null);
+        }
+        existing.setCronRetention(updatedJob.getCronRetention());
         existing.setEnabled(updatedJob.getEnabled());
         existing.setNextExecutionTime(updatedJob.getNextExecutionTime());
+        existing.setRetentionCount(updatedJob.getRetentionCount());
 
         return repository.save(existing);
     }
@@ -56,6 +62,11 @@ public class BackupJobService {
                 .orElseThrow(() -> new RuntimeException("Job not found"));
 
         existing.setNextExecutionTime(updatedJob.getNextExecutionTime());
+        if(existing.getCronRetention() != null && updatedJob.getCronRetention() != null && existing.getCronRetention().equals(updatedJob.getCronRetention())) {
+        	existing.setNextRetentionTime(updatedJob.getNextRetentionTime());
+        } else {
+        	existing.setNextRetentionTime(null);
+        }
 
         return repository.save(existing);
     }
