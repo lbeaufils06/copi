@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.backend.copi.entity.BackupExecution;
 import com.backend.copi.entity.BackupJob;
+import com.backend.copi.entity.ExecutionStatus;
 
 public interface BackupExecutionRepository extends JpaRepository<BackupExecution, UUID> {
 	
@@ -15,5 +16,7 @@ public interface BackupExecutionRepository extends JpaRepository<BackupExecution
 	List<BackupExecution> findAllByOrderByStartTimeDesc();
 	
 	void deleteByJob(BackupJob job);
+	
+	List<BackupExecution> findByJobOrderByStartTimeDesc(BackupJob job);
 
 }

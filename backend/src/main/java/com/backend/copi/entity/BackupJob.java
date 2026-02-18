@@ -54,4 +54,8 @@ public class BackupJob {
         
     private LocalDateTime nextExecutionTime;
     
+    private LocalDateTime nextRetentionTime;
+    
+    private Integer retentionCount;
+    
 }

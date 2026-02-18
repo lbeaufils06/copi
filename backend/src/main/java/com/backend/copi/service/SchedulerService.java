@@ -94,6 +94,9 @@ public class SchedulerService {
             String filePath = dumpService.executeJob(job);
 
             executionService.markSuccess(execution, filePath);
+            if (job.getCronRetention() == null || job.getCronRetention().isEmpty() ) {
+            	executionService.applyRetention(job);
+            }
 
         } catch (Exception e) {
 
