@@ -42,19 +42,19 @@ public class SchedulerServiceRetention {
 
         for (BackupJob job : jobs) {
 
-            if (job.getCronRetention() == null || job.getCronRetention().isBlank()) {
+            if (job.getCronPurgeExpression() == null || job.getCronPurgeExpression().isBlank()) {
                 continue;
             }
 
-            if (job.getNextRetentionTime() == null) {
+            if (job.getNextPurgeTime() == null) {
                 initializeRetention(job, now);
                 continue;
             }
 
-            if (!job.getNextRetentionTime().isAfter(now)) {
+            if (!job.getNextPurgeTime().isAfter(now)) {
 
                 // 1️⃣ On purge d'abord avec la date actuelle
-                LocalDateTime purgeLimit = job.getNextRetentionTime();
+                LocalDateTime purgeLimit = job.getNextPurgeTime();
 
                 executionService.applyPurgeByCron(job, purgeLimit);
 
@@ -67,22 +67,22 @@ public class SchedulerServiceRetention {
     private void initializeRetention(BackupJob job, LocalDateTime now) {
 
         LocalDateTime next = CronExpression
-                .parse(job.getCronRetention())
+                .parse(job.getCronPurgeExpression())
                 .next(now)
                 .withNano(0);
 
-        job.setNextRetentionTime(next);
+        job.setNextPurgeTime(next);
         jobService.updateJobScheduler(job.getId(), job);
     }
 
     private void advanceRetention(BackupJob job) {
 
         LocalDateTime next = CronExpression
-                .parse(job.getCronRetention())
-                .next(job.getNextRetentionTime())
+                .parse(job.getCronPurgeExpression())
+                .next(job.getNextPurgeTime())
                 .withNano(0);
 
-        job.setNextRetentionTime(next);
+        job.setNextPurgeTime(next);
         jobService.updateJobScheduler(job.getId(), job);
     }
 }

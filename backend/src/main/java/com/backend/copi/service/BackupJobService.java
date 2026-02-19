@@ -43,15 +43,17 @@ public class BackupJobService {
         if (updatedJob.getPasswordEncrypted() != null && !updatedJob.getPasswordEncrypted().isBlank()) {
         	existing.setPasswordEncrypted(cryptoService.encrypt(updatedJob.getPasswordEncrypted()));
         }
-        if(existing.getCronRetention() != null && updatedJob.getCronRetention() != null && existing.getCronRetention().equals(updatedJob.getCronRetention())) {
-        	existing.setNextRetentionTime(updatedJob.getNextRetentionTime());
+        if(existing.getCronPurgeExpression() != null && updatedJob.getCronPurgeExpression() != null && existing.getCronPurgeExpression().equals(updatedJob.getCronPurgeExpression())) {
+        	existing.setNextPurgeTime(updatedJob.getNextPurgeTime());
         } else {
-        	existing.setNextRetentionTime(null);
+        	existing.setNextPurgeTime(null);
         }
-        existing.setCronRetention(updatedJob.getCronRetention());
+        existing.setCronExpression(updatedJob.getCronExpression());
+        existing.setCronPurgeExpression(updatedJob.getCronPurgeExpression());
         existing.setEnabled(updatedJob.getEnabled());
         existing.setNextExecutionTime(updatedJob.getNextExecutionTime());
         existing.setRetentionCount(updatedJob.getRetentionCount());
+        existing.setRetentionPolicy(updatedJob.getRetentionPolicy());
 
         return repository.save(existing);
     }
@@ -62,10 +64,10 @@ public class BackupJobService {
                 .orElseThrow(() -> new RuntimeException("Job not found"));
 
         existing.setNextExecutionTime(updatedJob.getNextExecutionTime());
-        if(existing.getCronRetention() != null && updatedJob.getCronRetention() != null && existing.getCronRetention().equals(updatedJob.getCronRetention())) {
-        	existing.setNextRetentionTime(updatedJob.getNextRetentionTime());
+        if(existing.getCronPurgeExpression() != null && updatedJob.getCronPurgeExpression() != null && existing.getCronPurgeExpression().equals(updatedJob.getCronPurgeExpression())) {
+        	existing.setNextPurgeTime(updatedJob.getNextPurgeTime());
         } else {
-        	existing.setNextRetentionTime(null);
+        	existing.setNextPurgeTime(null);
         }
 
         return repository.save(existing);

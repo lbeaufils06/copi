@@ -80,7 +80,7 @@ public class BackupExecutionService {
 
         Integer retentionCount = job.getRetentionCount();
         
-        if (job.getCronRetention() != null && !job.getCronRetention().isBlank()) {
+        if (job.getCronPurgeExpression() != null && !job.getCronPurgeExpression().isBlank()) {
             return;
         }
 
@@ -89,7 +89,7 @@ public class BackupExecutionService {
         }
 
         List<BackupExecution> executions =
-        		repository.findByJobOrderByStartTimeDesc(job);
+        		repository.findByJobAndStatusOrderByStartTimeDesc(job, ExecutionStatus.SUCCESS);
 
         if (executions.size() <= retentionCount) {
             return;
