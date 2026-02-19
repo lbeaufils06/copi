@@ -76,9 +76,13 @@ public class BackupExecutionService {
     }
     
     @Transactional
-    public void applyRetention(BackupJob job) {
+    public void applyRetentionByCount(BackupJob job) {
 
         Integer retentionCount = job.getRetentionCount();
+        
+        if (job.getCronRetention() != null && !job.getCronRetention().isBlank()) {
+            return;
+        }
 
         if (retentionCount == null || retentionCount <= 0) {
             return;
@@ -101,6 +105,38 @@ public class BackupExecutionService {
             repository.delete(execution);
         }
     }
+    
+    @Transactional
+    public void applyPurgeByCron(BackupJob job, LocalDateTime purgeLimit) {
+
+        if (job == null || purgeLimit == null) {
+            return;
+        }
+
+        List<BackupExecution> toDelete =
+                repository.findByJobAndStartTimeAfter(job, purgeLimit);
+
+        if (toDelete == null || toDelete.isEmpty()) {
+            return;
+        }
+
+        for (BackupExecution execution : toDelete) {
+
+            // Sécurité supplémentaire
+            if (execution.getStartTime() == null) {
+                continue;
+            }
+
+            // Suppression fichier physique si présent
+            if (execution.getFilePath() != null) {
+                deleteFileIfExists(execution.getFilePath());
+            }
+
+            // Suppression en base
+            repository.delete(execution);
+        }
+    }
+
     
     private void deleteFileIfExists(String filePath) {
 

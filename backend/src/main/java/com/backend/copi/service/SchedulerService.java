@@ -95,7 +95,7 @@ public class SchedulerService {
 
             executionService.markSuccess(execution, filePath);
             if (job.getCronRetention() == null || job.getCronRetention().isEmpty() ) {
-            	executionService.applyRetention(job);
+            	executionService.applyRetentionByCount(job);
             }
 
         } catch (Exception e) {

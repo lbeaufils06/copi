@@ -53,8 +53,13 @@ public class SchedulerServiceRetention {
 
             if (!job.getNextRetentionTime().isAfter(now)) {
 
+                // 1️⃣ On purge d'abord avec la date actuelle
+                LocalDateTime purgeLimit = job.getNextRetentionTime();
+
+                executionService.applyPurgeByCron(job, purgeLimit);
+
+                // 2️⃣ Ensuite seulement on avance la prochaine date
                 advanceRetention(job);
-                executionService.applyRetention(job);
             }
         }
     }
@@ -81,3 +86,4 @@ public class SchedulerServiceRetention {
         jobService.updateJobScheduler(job.getId(), job);
     }
 }
+
