@@ -1,15 +1,14 @@
 package com.backend.copi.entity;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.UUID;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
@@ -50,12 +49,15 @@ public class BackupJob {
     @Column(nullable = false)
     private String cronExpression;
     
-    private String cronRetention;
+    private String cronPurgeExpression;
         
     private LocalDateTime nextExecutionTime;
     
-    private LocalDateTime nextRetentionTime;
+    private LocalDateTime nextPurgeTime;
     
     private Integer retentionCount;
+    
+    @Enumerated(EnumType.STRING)
+    private RetentionPolicy retentionPolicy;
     
 }
