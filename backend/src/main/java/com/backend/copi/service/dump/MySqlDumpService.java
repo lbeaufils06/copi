@@ -32,9 +32,7 @@ public class MySqlDumpService implements DatabaseDumpService {
     @Override
     public String executeDump(BackupJob job) throws Exception {
 
-        String password =
-                cryptoService.decrypt(job.getPasswordEncrypted());
-
+        String password = cryptoService.decrypt(job.getPasswordEncrypted());
         String filePath = buildFilePath(job);
 
         List<String> command = new ArrayList<>();
@@ -47,12 +45,11 @@ public class MySqlDumpService implements DatabaseDumpService {
         command.add("-u");
         command.add(job.getUsername());
 
-        // Options recommandées (important en prod)
         command.add("--single-transaction");
         command.add("--routines");
         command.add("--events");
         command.add("--triggers");
-        command.add("--no-tablespaces"); // <-- IMPORTANT
+        command.add("--no-tablespaces");
         command.add("--set-gtid-purged=OFF");
 
         if (job.getDbName() == null || job.getDbName().trim().isEmpty()) {
@@ -61,26 +58,33 @@ public class MySqlDumpService implements DatabaseDumpService {
             command.add(job.getDbName());
         }
 
-        ProcessBuilder pb = new ProcessBuilder(command);
+        File file = new File(filePath);
+        file.getParentFile().mkdirs();
 
+        ProcessBuilder pb = new ProcessBuilder(command);
         pb.environment().put("MYSQL_PWD", password);
-        pb.redirectOutput(new File(filePath));
-        pb.redirectError(ProcessBuilder.Redirect.INHERIT);
+        pb.redirectOutput(file);
+        pb.redirectErrorStream(true);
 
         Process process = pb.start();
 
-        if (!process.waitFor(5, TimeUnit.MINUTES)) {
+        boolean finished = process.waitFor(15, TimeUnit.MINUTES);
+
+        if (!finished) {
             process.destroyForcibly();
-            throw new RuntimeException("Dump timeout");
+            file.delete();
+            throw new RuntimeException("MySQL dump timeout");
         }
 
-        if (process.exitValue() != 0) {
-            throw new RuntimeException("MySQL dump failed");
+        int exitCode = process.exitValue();
+
+        if (exitCode != 0 || !file.exists() || file.length() == 0) {
+            file.delete();
+            throw new RuntimeException("MySQL dump failed (exitCode=" + exitCode + ")");
         }
 
         return filePath;
     }
-
 
     private String buildFilePath(BackupJob job) {
         String timestamp = LocalDateTime.now()
