@@ -1,6 +1,7 @@
 package com.backend.copi.controller;
 
-import java.util.List;
+import java.time.Clock;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 import org.springframework.http.ResponseEntity;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.backend.copi.dto.JobsResponse;
 import com.backend.copi.entity.BackupJob;
 import com.backend.copi.service.BackupJobService;
 import com.backend.copi.service.SchedulerService;
@@ -26,10 +28,14 @@ public class BackupJobController {
 
     private final BackupJobService service;
     private final SchedulerService schedulerService;
+    private final Clock clock;
 
     @GetMapping
-    public List<BackupJob> getAll() {
-        return service.getAllJobs();
+    public JobsResponse getJobs() {
+        return new JobsResponse(
+                LocalDateTime.now(clock),
+                service.getAllJobs()
+        );
     }
 
     @PostMapping
