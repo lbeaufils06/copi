@@ -88,6 +88,14 @@ public class BackupJobService {
     	repositoryExecution.deleteByJob(existing);
         repository.delete(existing);
     }
+
+    public BackupJob getJobById(UUID id) {
+
+        BackupJob existing = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Job not found"));
+
+        return existing;
+    }
     
 
 }

@@ -3,6 +3,7 @@ package com.backend.copi.controller;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.backend.copi.entity.BackupJob;
 import com.backend.copi.service.BackupJobService;
+import com.backend.copi.service.SchedulerService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -23,6 +25,7 @@ import lombok.RequiredArgsConstructor;
 public class BackupJobController {
 
     private final BackupJobService service;
+    private final SchedulerService schedulerService;
 
     @GetMapping
     public List<BackupJob> getAll() {
@@ -43,5 +46,11 @@ public class BackupJobController {
     @DeleteMapping("/{id}")
     public void delete(@PathVariable UUID id) {
         service.deleteJob(id);
+    }
+    
+    @PostMapping("/{id}/start")
+    public ResponseEntity<Void> startJob(@PathVariable UUID id) {
+        schedulerService.runManually(id);
+        return ResponseEntity.accepted().build();
     }
 }

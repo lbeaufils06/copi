@@ -34,12 +34,14 @@ public class BackupExecutionService {
         return repository.findByJobIdOrderByStartTimeDesc(jobId);
     }
 
+    @Transactional
     public BackupExecution startExecution(BackupExecution execution) {
         execution.setStatus(ExecutionStatus.RUNNING);
         execution.setStartTime(LocalDateTime.now().withNano(0));
         return repository.save(execution);
     }
 
+    @Transactional
     public void markSuccess(BackupExecution execution,
                             String filePath) {
 
@@ -58,6 +60,7 @@ public class BackupExecutionService {
         repository.save(execution);
     }
 
+    @Transactional
     public void markFailed(BackupExecution execution,
                            String errorMessage) {
 

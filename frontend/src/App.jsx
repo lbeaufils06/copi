@@ -8,6 +8,7 @@ function App() {
   const [jobs, setJobs] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [jobToEdit, setJobToEdit] = useState(null);
+  const [errorMessage, setErrorMessage] = useState(null);
 
   const fetchJobs = async () => {
     try {
@@ -16,6 +17,28 @@ function App() {
       setJobs(data);
     } catch (error) {
       console.error("Erreur API:", error);
+    }
+  };
+
+  const startJob = async (id) => {
+    try {
+      const response = await fetch(
+        `http://localhost:8080/api/jobs/${id}/start`,
+        { method: "POST" }
+      );
+
+      if (response.status === 409) {
+        setErrorMessage("Ce job est déjà en cours");
+        setTimeout(() => setErrorMessage(null), 3000);
+        return;
+      }
+
+      if (!response.ok) {
+        throw new Error("Erreur serveur");
+      }
+
+    } catch (error) {
+      console.error("Erreur start:", error);
     }
   };
 
@@ -56,6 +79,12 @@ function App() {
             Ajouter DB
           </button>
         </div>
+
+        {errorMessage && (
+          <div className="mb-4 bg-red-900/40 text-red-400 px-4 py-2 rounded-lg">
+            {errorMessage}
+          </div>
+        )}
 
         {/* JOB LIST */}
         <section className="bg-slate-800 rounded-2xl p-6 shadow-lg">
@@ -133,8 +162,16 @@ function App() {
 
                     {/* Actions */}
                     <div className="flex items-center gap-2">
-                      <button className="bg-slate-800 hover:bg-slate-700 border border-slate-600 px-4 py-2 rounded-lg text-sm transition">
-                        Start
+                      <button
+                        onClick={() => startJob(job.id)}
+                        disabled={job.lastStatus === "RUNNING"}
+                        className={`px-4 py-2 rounded-lg text-sm transition ${
+                          job.lastStatus === "RUNNING"
+                            ? "bg-slate-700 cursor-not-allowed"
+                            : "bg-indigo-600 hover:bg-indigo-500"
+                        }`}
+                      >
+                        {job.lastStatus === "RUNNING" ? "Running..." : "Start"}
                       </button>
 
                       <button
