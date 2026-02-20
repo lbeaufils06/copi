@@ -82,6 +82,9 @@ public class SchedulerService {
 
 
     private void executeSequentially(BackupJob job) {
+    	
+    	job.setLastStatus(ExecutionStatus.RUNNING);
+    	jobService.updateJobScheduler(job.getId(), job);
 
         BackupExecution execution =
                 BackupExecution.builder()
@@ -97,22 +100,19 @@ public class SchedulerService {
 
             executionService.markSuccess(execution, filePath);
             
-            job.setVersionCount((job.getVersionCount() != null) ? job.getVersionCount() + 1 : 1); //count version for this job       
+            job.setVersionCount((job.getVersionCount() != null) ? job.getVersionCount() + 1 : 1); //count version for this job     
+            job.setLastStatus(ExecutionStatus.SUCCESS);
             job.setLastSuccessTime(execution.getStartTime()); //update last success time in backupJob
-            
-            jobService.updateJobScheduler(job.getId(), job);
-            
+                        
             //apply retention by count of dump
             if (job.getCronPurgeExpression() == null || job.getCronPurgeExpression().isEmpty() ) {
             	executionService.applyRetentionByCount(job);
             }
-
         } catch (Exception e) {
-
+        	job.setLastStatus(ExecutionStatus.FAILED);
             executionService.markFailed(execution, e.getMessage());
-
         } finally {
-
+        	jobService.updateJobScheduler(job.getId(), job);
             running = false;
         }
     }

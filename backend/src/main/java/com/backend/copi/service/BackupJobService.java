@@ -70,6 +70,7 @@ public class BackupJobService {
         }
         existing.setLastSuccessTime(updatedJob.getLastSuccessTime());
         existing.setVersionCount(updatedJob.getVersionCount());
+        existing.setLastStatus(updatedJob.getLastStatus());
 
         return repository.save(existing);
     }

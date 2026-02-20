@@ -3,5 +3,6 @@ package com.backend.copi.entity;
 public enum ExecutionStatus {
     RUNNING,
     SUCCESS,
-    FAILED
+    FAILED,
+    NEVER_RUN
 }

@@ -65,4 +65,7 @@ public class BackupJob {
     @Column(nullable = false)
     private Integer versionCount = 0;
     
+    @Enumerated(EnumType.STRING)
+    private ExecutionStatus lastStatus;
+    
 }

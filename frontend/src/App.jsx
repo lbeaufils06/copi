@@ -1,5 +1,8 @@
 import { useEffect, useState } from "react";
 import JobModal from "./components/JobModal";
+import { formatRelativeTime } from "./utils/time";
+import { formatFutureTime } from "./utils/time";
+import { statusStyle } from "./utils/badge";
 
 function App() {
   const [jobs, setJobs] = useState([]);
@@ -43,7 +46,7 @@ function App() {
         {/* HEADER */}
         <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center mb-6 gap-4">
           <h1 className="text-xl lg:text-2xl font-semibold tracking-tight">
-            Backup-db / Dashboard
+            Copi
           </h1>
 
           <button
@@ -90,14 +93,14 @@ function App() {
                         <span className="text-slate-300 font-medium">
                           Dernière sauvegarde :
                         </span>{" "}
-                        {job.lastSuccessTime || "—"}
+                        {formatRelativeTime(job.lastSuccessTime)}
                       </p>
 
                       <p>
                         <span className="text-slate-300 font-medium">
                           Prochaine exécution :
                         </span>{" "}
-                        {job.nextExecutionTime || "—"}
+                        {formatFutureTime(job.nextExecutionTime)}
                       </p>
 
                       <p>
@@ -106,6 +109,17 @@ function App() {
                         </span>{" "}
                         {job.host}:{job.port}
                       </p>
+
+                      <span
+                        className={`inline-flex items-center gap-2 text-xs px-3 py-1 rounded-full font-medium ${statusStyle(
+                          job.lastStatus
+                        )}`}
+                      >
+                        {job.lastStatus === "RUNNING" && (
+                          <span className="w-2 h-2 rounded-full bg-current animate-pulse"></span>
+                        )}
+                        {job.lastStatus || "NEVER_RUN"}
+                      </span>
                     </div>
                   </div>
 
