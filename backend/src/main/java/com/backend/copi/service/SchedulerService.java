@@ -4,6 +4,7 @@ import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import com.backend.copi.entity.BackupExecution;
 import com.backend.copi.entity.BackupJob;
+import com.backend.copi.entity.ExecutionStatus;
 
 import lombok.RequiredArgsConstructor;
 
@@ -94,6 +96,13 @@ public class SchedulerService {
             String filePath = dumpService.executeJob(job);
 
             executionService.markSuccess(execution, filePath);
+            
+            job.setVersionCount((job.getVersionCount() != null) ? job.getVersionCount() + 1 : 1); //count version for this job       
+            job.setLastSuccessTime(execution.getStartTime()); //update last success time in backupJob
+            
+            jobService.updateJobScheduler(job.getId(), job);
+            
+            //apply retention by count of dump
             if (job.getCronPurgeExpression() == null || job.getCronPurgeExpression().isEmpty() ) {
             	executionService.applyRetentionByCount(job);
             }

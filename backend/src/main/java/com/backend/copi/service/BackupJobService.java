@@ -54,7 +54,6 @@ public class BackupJobService {
         existing.setNextExecutionTime(updatedJob.getNextExecutionTime());
         existing.setRetentionCount(updatedJob.getRetentionCount());
         existing.setRetentionPolicy(updatedJob.getRetentionPolicy());
-
         return repository.save(existing);
     }
     
@@ -69,6 +68,8 @@ public class BackupJobService {
         } else {
         	existing.setNextPurgeTime(null);
         }
+        existing.setLastSuccessTime(updatedJob.getLastSuccessTime());
+        existing.setVersionCount(updatedJob.getVersionCount());
 
         return repository.save(existing);
     }

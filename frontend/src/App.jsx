@@ -17,7 +17,13 @@ function App() {
   };
 
   useEffect(() => {
-    fetchJobs();
+    fetchJobs(); // premier chargement immédiat
+
+    const interval = setInterval(() => {
+      fetchJobs();
+    }, 1000); // 1000 ms = 1 seconde
+
+    return () => clearInterval(interval); // nettoyage
   }, []);
 
   const openAddModal = () => {
@@ -50,52 +56,86 @@ function App() {
 
         {/* JOB LIST */}
         <section className="bg-slate-800 rounded-2xl p-6 shadow-lg">
-          <h2 className="text-lg font-semibold mb-4">Backup Jobs</h2>
+          <h2 className="text-lg font-semibold mb-6">My backups</h2>
 
           <div className="space-y-4">
             {jobs.length === 0 && (
-              <p className="text-slate-400 text-sm">Aucun job configuré</p>
+              <p className="text-slate-400 text-sm">
+                Aucun job configuré
+              </p>
             )}
 
             {jobs.map((job) => (
               <div
                 key={job.id}
-                className="bg-slate-900 rounded-xl p-4 border border-slate-700 hover:border-indigo-500 transition"
+                className="bg-slate-900 rounded-2xl p-6 border border-slate-700 hover:border-indigo-500 transition-all duration-200"
               >
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
+                <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+                  
+                  {/* LEFT SIDE */}
+                  <div className="space-y-2 text-sm">
 
-                  <div>
-                    <p className="text-xs uppercase text-slate-400">Nom</p>
-                    <p className="font-semibold">{job.name}</p>
+                    <div className="flex items-center gap-3">
+                      <h3 className="text-base font-semibold">
+                        {job.name}
+                      </h3>
+
+                      <span className="text-xs bg-slate-700 px-2 py-1 rounded-md">
+                        {job.dbType}
+                      </span>
+                    </div>
+
+                    <div className="text-slate-400 space-y-1">
+                      <p>
+                        <span className="text-slate-300 font-medium">
+                          Dernière sauvegarde :
+                        </span>{" "}
+                        {job.lastSuccessTime || "—"}
+                      </p>
+
+                      <p>
+                        <span className="text-slate-300 font-medium">
+                          Prochaine exécution :
+                        </span>{" "}
+                        {job.nextExecutionTime || "—"}
+                      </p>
+
+                      <p>
+                        <span className="text-slate-300 font-medium">
+                          Host :
+                        </span>{" "}
+                        {job.host}:{job.port}
+                      </p>
+                    </div>
                   </div>
 
-                  <div>
-                    <p className="text-xs uppercase text-slate-400">Type</p>
-                    <p className="font-semibold">{job.dbType}</p>
-                  </div>
+                  {/* RIGHT SIDE */}
+                  <div className="flex items-center gap-4">
 
-                  <div>
-                    <p className="text-xs uppercase text-slate-400">Host</p>
-                    <p className="font-semibold">
-                      {job.host}:{job.port}
-                    </p>
-                  </div>
+                    {/* Versions badge */}
+                    <span className="bg-emerald-900/40 text-emerald-400 text-sm px-3 py-1 rounded-full">
+                      {job.versionCount ?? 0} Versions
+                    </span>
 
-                  <div>
-                    <p className="text-xs uppercase text-slate-400">Next Run</p>
-                    <p className="font-semibold">
-                      {job.nextExecutionTime || "-"}
-                    </p>
-                  </div>
-                </div>
+                    {/* Actions */}
+                    <div className="flex items-center gap-2">
+                      <button className="bg-slate-800 hover:bg-slate-700 border border-slate-600 px-4 py-2 rounded-lg text-sm transition">
+                        Start
+                      </button>
 
-                <div className="mt-4">
-                  <button
-                    onClick={() => openEditModal(job)}
-                    className="bg-slate-700 hover:bg-slate-600 px-3 py-1 rounded-lg text-sm transition"
-                  >
-                    Modifier
-                  </button>
+                      <button
+                        onClick={() => openEditModal(job)}
+                        className="bg-slate-800 hover:bg-slate-700 border border-slate-600 px-3 py-2 rounded-lg text-sm transition"
+                      >
+                        ✏
+                      </button>
+
+                      <button className="bg-slate-800 hover:bg-slate-700 border border-slate-600 px-3 py-2 rounded-lg text-sm transition">
+                        ⋮
+                      </button>
+                    </div>
+
+                  </div>
                 </div>
               </div>
             ))}

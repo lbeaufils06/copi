@@ -60,4 +60,9 @@ public class BackupJob {
     @Enumerated(EnumType.STRING)
     private RetentionPolicy retentionPolicy;
     
+    private LocalDateTime lastSuccessTime;
+    
+    @Column(nullable = false)
+    private Integer versionCount = 0;
+    
 }
