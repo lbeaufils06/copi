@@ -309,7 +309,6 @@ function JobModal({ isOpen, onClose, onSaved, jobToEdit }) {
             >
               <option value="NONE">Aucune rétention automatique</option>
               <option value="COUNT">Limiter le nombre de sauvegardes</option>
-              <option value="CRON">Planifier le nettoyage</option>
             </select>
             <label className="absolute left-3 top-2 text-xs text-slate-400">
               Mode de rétention
@@ -405,27 +404,6 @@ function JobModal({ isOpen, onClose, onSaved, jobToEdit }) {
               </div>
             </>
           )}
-
-          <div className="relative">
-            <select
-              name="enabled"
-              value={form.enabled ? "true" : "false"}
-              onChange={(e) =>
-                setForm((prev) => ({
-                  ...prev,
-                  enabled: e.target.value === "true",
-                }))
-              }
-              className="w-full bg-slate-900 border border-slate-700 p-3 pt-5 rounded-lg focus:outline-none focus:border-indigo-500"
-            >
-              <option value="true">Activé</option>
-              <option value="false">Désactivé</option>
-            </select>
-
-            <label className="absolute left-3 top-1.5 text-xs text-slate-400">
-              Statut du job
-            </label>
-          </div>
 
 
         </form>
