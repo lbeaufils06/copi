@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:sqlite:copi.db
+    url: jdbc:sqlite:data/copi.db
     driver-class-name: org.sqlite.JDBC
 
   jpa:
