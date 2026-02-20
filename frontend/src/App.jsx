@@ -9,6 +9,7 @@ function App() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [jobToEdit, setJobToEdit] = useState(null);
   const [errorMessage, setErrorMessage] = useState(null);
+  const [serverTime, setServerTime] = useState(null);
 
   const fetchJobs = async () => {
     try {
@@ -18,6 +19,18 @@ function App() {
     } catch (error) {
       console.error("Erreur API:", error);
     }
+  };
+
+  const formatClock = (date) => {
+    return date.toLocaleString("fr-FR", {
+      weekday: "short",
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+    });
   };
 
   const startJob = async (id) => {
@@ -41,6 +54,26 @@ function App() {
       console.error("Erreur start:", error);
     }
   };
+
+  useEffect(() => {
+    const fetchTime = async () => {
+      const res = await fetch("http://localhost:8080/api/time");
+      const data = await res.json();
+      setServerTime(new Date(data));
+    };
+
+    fetchTime();
+  }, []);
+
+  useEffect(() => {
+    if (!serverTime) return;
+
+    const interval = setInterval(() => {
+      setServerTime(prev => new Date(prev.getTime() + 1000));
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [serverTime]);
 
   useEffect(() => {
     fetchJobs(); // premier chargement immédiat
@@ -88,7 +121,15 @@ function App() {
 
         {/* JOB LIST */}
         <section className="bg-slate-800 rounded-2xl p-6 shadow-lg">
-          <h2 className="text-lg font-semibold mb-6">My backups</h2>
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-lg font-semibold">My backups</h2>
+
+            {serverTime &&
+              <div className="text-sm text-slate-300 font-mono bg-slate-900/70 backdrop-blur px-4 py-2 rounded-xl border border-slate-700 shadow">
+                ⏱ {formatClock(serverTime)}
+              </div>
+            }
+          </div>
 
           <div className="space-y-4">
             {jobs.length === 0 && (
