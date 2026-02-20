@@ -15,7 +15,8 @@ function App() {
     try {
       const response = await fetch("http://localhost:8080/api/jobs");
       const data = await response.json();
-      setJobs(data);
+      setJobs(data.jobs);
+      setServerTime(new Date(data.serverTime));
     } catch (error) {
       console.error("Erreur API:", error);
     }
@@ -54,16 +55,6 @@ function App() {
       console.error("Erreur start:", error);
     }
   };
-
-  useEffect(() => {
-    const fetchTime = async () => {
-      const res = await fetch("http://localhost:8080/api/time");
-      const data = await res.json();
-      setServerTime(new Date(data));
-    };
-
-    fetchTime();
-  }, []);
 
   useEffect(() => {
     if (!serverTime) return;
