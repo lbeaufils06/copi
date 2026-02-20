@@ -104,7 +104,7 @@ public class BackupExecutionService {
 
         for (BackupExecution execution : toDelete) {
         	
-        	job.setVersionCount((job.getVersionCount() != null) ? job.getVersionCount() - 1 : 0); //count version for this job       
+        	job.setVersionCount((int) getVersionCountByJob(job.getId()) - 1);      
         	jobService.updateJobScheduler(job.getId(), job);
 
             deleteFileIfExists(execution.getFilePath());
@@ -139,7 +139,7 @@ public class BackupExecutionService {
                 deleteFileIfExists(execution.getFilePath());
             }
             
-            job.setVersionCount((job.getVersionCount() != null) ? job.getVersionCount() - 1 : 0); //count version for this job       
+            job.setVersionCount((int) getVersionCountByJob(job.getId()) - 1);   
         	jobService.updateJobScheduler(job.getId(), job);
 
             // Suppression en base
@@ -160,6 +160,10 @@ public class BackupExecutionService {
         } catch (IOException e) {
             System.err.println("Erreur suppression fichier : " + filePath);
         }
+    }
+    
+    public long getVersionCountByJob(UUID jobId) {
+        return repository.countByJob_IdAndStatus(jobId, ExecutionStatus.SUCCESS);
     }
 
 

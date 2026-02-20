@@ -118,10 +118,7 @@ public class SchedulerService {
 
             executionService.markSuccess(execution, filePath);
 
-            job.setVersionCount(
-                    job.getVersionCount() == null ? 1 : job.getVersionCount() + 1
-            );
-
+            job.setVersionCount((int) executionService.getVersionCountByJob(job.getId()) - 1);
             job.setLastStatus(ExecutionStatus.SUCCESS);
             job.setLastSuccessTime(execution.getStartTime());
 

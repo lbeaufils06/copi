@@ -27,6 +27,8 @@ public interface BackupExecutionRepository extends JpaRepository<BackupExecution
 	        BackupJob job,
 	        LocalDateTime startTime
 	);
+	
+	long countByJob_IdAndStatus(UUID jobId, ExecutionStatus status);
 
 
 }
