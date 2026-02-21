@@ -11,7 +11,7 @@ spring:
 
 app:
   crypto:
-    secret: ${MASTER_KEY}
+    secret: ${MASTER_KEY:test-secret}
 
   mysqldump:
     path: ${MYSQLDUMP_PATH:C:/Program Files/MySQL/MySQL Server 8.0/bin/mysqldump.exe}
