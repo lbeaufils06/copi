@@ -14,13 +14,13 @@ app:
     secret: ${MASTER_KEY:test-secret}
 
   mysqldump:
-    path: ${MYSQLDUMP_PATH:C:/Program Files/MySQL/MySQL Server 8.0/bin/mysqldump.exe}
+    path: ${MYSQLDUMP_PATH:mysqldump}
 
   pgdump:
-    path: ${PGDUMP_PATH:C:/Program Files/PostgreSQL/18/bin/pg_dump.exe}
+    path: ${PGDUMP_PATH:pg_dump}
 
   pgdumpall:
-    path: ${PGDUMPALL_PATH:C:/Program Files/PostgreSQL/18/bin/pg_dumpall.exe}
+    path: ${PGDUMPALL_PATH:pg_dumpall}
 
   backup:
     directory: ${APP_BACKUP_DIR:backups}
