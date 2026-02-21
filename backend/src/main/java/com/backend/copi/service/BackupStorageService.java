@@ -1,11 +1,16 @@
 package com.backend.copi.service;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.zip.GZIPOutputStream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.backend.copi.config.AppProperties;
 import com.backend.copi.entity.BackupExecution;
 import com.backend.copi.entity.BackupJob;
+import com.backend.copi.entity.CompressionType;
 import com.backend.copi.entity.ExecutionStatus;
 import com.backend.copi.repository.BackupExecutionRepository;
 
@@ -167,5 +173,52 @@ public class BackupStorageService {
         }
     }
     
+    public String compress(String inputFilePath, CompressionType type) throws IOException {
+    	
+    	if(type == null) return inputFilePath;
+	
+		return switch (type) {
+			case NONE -> inputFilePath;
+			case GZIP -> compressGzip(inputFilePath);
+			case ZIP -> compressZip(inputFilePath);
+		};
+	}
     
+    private String compressGzip(String inputFilePath) throws IOException {
+
+        Path inputFile = Path.of(inputFilePath);
+        Path outputFile = Path.of(inputFilePath + ".gz");
+
+        try (
+                InputStream in = Files.newInputStream(inputFile);
+                OutputStream out = new GZIPOutputStream(
+                        Files.newOutputStream(outputFile))
+        ) {
+            in.transferTo(out);
+        }
+
+        return outputFile.toString();
+    }
+    
+    private String compressZip(String inputFilePath) throws IOException {
+
+        Path inputFile = Path.of(inputFilePath);
+        Path outputFile = Path.of(inputFilePath + ".zip");
+
+        try (
+                ZipOutputStream zos = new ZipOutputStream(
+                        Files.newOutputStream(outputFile));
+                InputStream in = Files.newInputStream(inputFile)
+        ) {
+            ZipEntry entry = new ZipEntry(
+                    inputFile.getFileName().toString()
+            );
+
+            zos.putNextEntry(entry);
+            in.transferTo(zos);
+            zos.closeEntry();
+        }
+
+        return outputFile.toString();
+    }
 }
