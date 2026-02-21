@@ -54,7 +54,7 @@ function JobModal({ isOpen, onClose, onSaved, jobToEdit }) {
     if (!confirmDelete) return;
 
     try {
-      await fetch(`http://localhost:8080/api/jobs/${jobToEdit.id}`, {
+      await fetch(`/api/jobs/${jobToEdit.id}`, {
         method: "DELETE",
       });
 
@@ -71,8 +71,8 @@ function JobModal({ isOpen, onClose, onSaved, jobToEdit }) {
 
     try {
       const url = isEditMode
-        ? `http://localhost:8080/api/jobs/${jobToEdit.id}`
-        : "http://localhost:8080/api/jobs";
+        ? `/api/jobs/${jobToEdit.id}`
+        : "/api/jobs";
 
       const method = isEditMode ? "PUT" : "POST";
 
