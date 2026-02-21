@@ -1,9 +1,6 @@
 package com.backend.copi.service;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -11,7 +8,6 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.backend.copi.config.AppProperties;
 import com.backend.copi.entity.BackupJob;
 import com.backend.copi.repository.BackupExecutionRepository;
 import com.backend.copi.repository.BackupJobRepository;
