@@ -39,6 +39,12 @@
   <Config Name="HIBERNATE_DDL_AUTO" Target="HIBERNATE_DDL_AUTO" Default="update" Mode="" Description="Hibernate ddl-auto" Type="Variable" Display="advanced" Required="false" Mask="false">update</Config>
 
   <Config Name="JPA_SHOW_SQL" Target="JPA_SHOW_SQL" Default="false" Mode="" Description="Show SQL logs" Type="Variable" Display="advanced" Required="false" Mask="false">false</Config>
+  
+  <Config Name="MySQL Dump Path" Target="MYSQLDUMP_PATH" Default="mysqldump" Description="Path to mysqldump binary (Linux default: mysqldump)" Type="Variable" Display="advanced" Required="false" Mask="false">mysqldump</Config>
+
+  <Config Name="PostgreSQL Dump Path" Target="PGDUMP_PATH" Default="pg_dump" Description="Path to pg_dump binary (Linux default: pg_dump)" Type="Variable" Display="advanced" Required="false" Mask="false">pg_dump</Config>
+
+  <Config Name="PostgreSQL DumpAll Path" Target="PGDUMPALL_PATH" Default="pg_dumpall" Description="Path to pg_dumpall binary (Linux default: pg_dumpall)" Type="Variable" Display="advanced" Required="false" Mask="false">pg_dumpall</Config>
 
   <RestartPolicy>unless-stopped</RestartPolicy>
 </Container>
