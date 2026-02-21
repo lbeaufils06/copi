@@ -58,7 +58,6 @@ public class MySqlDumpService implements DatabaseDumpService {
         command.add("--events");
         command.add("--triggers");
         command.add("--no-tablespaces");
-        command.add("--set-gtid-purged=OFF");
 
         if (job.getDbName() == null || job.getDbName().trim().isEmpty()) {
             command.add("--all-databases");
