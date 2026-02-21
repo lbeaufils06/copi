@@ -155,8 +155,9 @@ public class SchedulerService {
         } catch (Exception e) {
 
             job.setLastStatus(ExecutionStatus.FAILED);
-            job.setLastStatusMessage(e.getMessage());
-            log.error("Dump ERROR => ", e.getMessage());
+            String messageError = e.getMessage();
+            job.setLastStatusMessage(messageError);
+            log.error("Dump ERROR => ", e);
             executionService.markFailed(execution, e.getMessage());
 
         } finally {
