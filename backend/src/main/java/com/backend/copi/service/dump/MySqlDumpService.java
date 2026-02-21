@@ -59,7 +59,6 @@ public class MySqlDumpService implements DatabaseDumpService {
         command.add("--triggers");
         command.add("--no-tablespaces");
         command.add("--set-gtid-purged=OFF");
-        command.add("--skip-ssl");
 
         if (job.getDbName() == null || job.getDbName().trim().isEmpty()) {
             command.add("--all-databases");
@@ -85,18 +84,16 @@ public class MySqlDumpService implements DatabaseDumpService {
             throw new RuntimeException("MySQL dump timeout");
         }
         
-        String stdout = new String(process.getInputStream().readAllBytes());
         String stderr = new String(process.getErrorStream().readAllBytes());
 
-        int exitCode = process.exitValue();
+        int exitCode = process.waitFor();
 
         if (exitCode != 0 || !file.exists() || file.length() == 0) {
             file.delete();
             log.error("mysqldump command: {}", String.join(" ", command));
-            log.error("mysqldump stdout: {}", stdout);
             log.error("mysqldump stderr: {}", stderr);
             log.error("mysqldump exitCode: {}", exitCode);
-            throw new RuntimeException("MySQL dump failed (exitCode=" + exitCode + ") -> " + stderr);
+            throw new RuntimeException("MySQL dump failed (exitCode=" + exitCode + ")");
         }
 
         return filePath;
