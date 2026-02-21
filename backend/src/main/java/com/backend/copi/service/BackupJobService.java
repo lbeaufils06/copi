@@ -32,7 +32,6 @@ public class BackupJobService {
     	List<BackupJob> backupJobsUpdate = new ArrayList<BackupJob>();
     	for(BackupJob job : backupJobs) {
     		job.setVersionCount((int) executionService.getVersionCountByJob(job.getId()));
-    		job.setPasswordEncrypted("");
     		backupJobsUpdate.add(job);
     	}
     	
