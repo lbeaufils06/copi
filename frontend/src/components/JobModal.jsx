@@ -18,6 +18,7 @@ function JobModal({ isOpen, onClose, onSaved, jobToEdit }) {
     cronPurgeExpression: "",
     retentionCount: 5,
     enabled: true,
+    compressionType: "NONE",
   };
 
   const [form, setForm] = useState(initialForm);
@@ -59,6 +60,7 @@ function JobModal({ isOpen, onClose, onSaved, jobToEdit }) {
 
       onSaved();
       onClose();
+      setForm(initialForm);
     } catch (error) {
       console.error("Erreur suppression:", error);
     }
@@ -96,6 +98,7 @@ function JobModal({ isOpen, onClose, onSaved, jobToEdit }) {
 
       onSaved();
       onClose();
+      setForm(initialForm);
     } catch (error) {
       console.error("Erreur API:", error);
     }
@@ -125,9 +128,10 @@ function JobModal({ isOpen, onClose, onSaved, jobToEdit }) {
               name="name"
               value={form.name}
               onChange={handleChange}
+              disabled={isEditMode}
               required
               placeholder=" "
-              className="peer w-full bg-slate-900 border border-slate-700 p-3 pt-5 rounded-lg focus:outline-none focus:border-indigo-500"
+              className={`peer w-full bg-slate-900 border border-slate-700 p-3 pt-5 rounded-lg focus:outline-none focus:border-indigo-500 ${isEditMode ? "opacity-50 cursor-not-allowed pointer-events-none" : ""}`}
             />
             <label className="absolute left-3 top-2 text-xs text-slate-400 transition-all 
               peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-sm peer-placeholder-shown:text-slate-500
@@ -142,7 +146,8 @@ function JobModal({ isOpen, onClose, onSaved, jobToEdit }) {
               name="dbType"
               value={form.dbType}
               onChange={handleChange}
-              className="w-full bg-slate-900 border border-slate-700 p-3 pt-5 rounded-lg focus:outline-none focus:border-indigo-500"
+              disabled={isEditMode}
+              className={`w-full bg-slate-900 border border-slate-700 p-3 pt-5 rounded-lg focus:outline-none focus:border-indigo-500 ${isEditMode ? "opacity-50 cursor-not-allowed pointer-events-none" : ""}`}
             >
               <option value="MYSQL">MySQL</option>
               <option value="POSTGRESQL">PostgreSQL</option>
@@ -152,15 +157,35 @@ function JobModal({ isOpen, onClose, onSaved, jobToEdit }) {
             </label>
           </div>
 
+          {/* Compression */}
+          <div className="relative">
+            <select
+              name="compressionType"
+              value={form.compressionType}
+              onChange={handleChange}
+              disabled={isEditMode}
+              className={`w-full bg-slate-900 border border-slate-700 p-3 pt-5 rounded-lg focus:outline-none focus:border-indigo-500 ${isEditMode ? "opacity-50 cursor-not-allowed pointer-events-none" : ""}`}
+            >
+              <option value="NONE">Aucune</option>
+              <option value="GZIP">GZIP (.gz)</option>
+              <option value="ZIP">ZIP (.zip)</option>
+            </select>
+
+            <label className="absolute left-3 top-2 text-xs text-slate-400">
+              Type de compression
+            </label>
+          </div>
+
           {/* Host */}
           <div className="relative">
             <input
               name="host"
               value={form.host}
               onChange={handleChange}
+              disabled={isEditMode}
               required
               placeholder=" "
-              className="peer w-full bg-slate-900 border border-slate-700 p-3 pt-5 rounded-lg focus:outline-none focus:border-indigo-500"
+              className={`peer w-full bg-slate-900 border border-slate-700 p-3 pt-5 rounded-lg focus:outline-none focus:border-indigo-500 ${isEditMode ? "opacity-50 cursor-not-allowed pointer-events-none" : ""}`}
             />
             <label className="absolute left-3 top-2 text-xs text-slate-400 transition-all 
               peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-sm peer-placeholder-shown:text-slate-500
@@ -176,9 +201,10 @@ function JobModal({ isOpen, onClose, onSaved, jobToEdit }) {
               name="port"
               value={form.port}
               onChange={handleChange}
+              disabled={isEditMode}
               required
               placeholder=" "
-              className="peer w-full bg-slate-900 border border-slate-700 p-3 pt-5 rounded-lg focus:outline-none focus:border-indigo-500"
+              className={`peer w-full bg-slate-900 border border-slate-700 p-3 pt-5 rounded-lg focus:outline-none focus:border-indigo-500 ${isEditMode ? "opacity-50 cursor-not-allowed pointer-events-none" : ""}`}
             />
             <label className="absolute left-3 top-2 text-xs text-slate-400 transition-all 
               peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-sm peer-placeholder-shown:text-slate-500
