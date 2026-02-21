@@ -14,13 +14,16 @@ import org.springframework.stereotype.Service;
 import com.backend.copi.config.AppProperties;
 import com.backend.copi.entity.BackupJob;
 import com.backend.copi.entity.CompressionType;
+import com.backend.copi.service.BackupJobService;
 import com.backend.copi.service.BackupStorageService;
 import com.backend.copi.service.CryptoService;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class MySqlDumpService implements DatabaseDumpService {
 
     private final CryptoService cryptoService;
@@ -81,12 +84,19 @@ public class MySqlDumpService implements DatabaseDumpService {
             file.delete();
             throw new RuntimeException("MySQL dump timeout");
         }
+        
+        String stdout = new String(process.getInputStream().readAllBytes());
+        String stderr = new String(process.getErrorStream().readAllBytes());
 
         int exitCode = process.exitValue();
 
         if (exitCode != 0 || !file.exists() || file.length() == 0) {
             file.delete();
-            throw new RuntimeException("MySQL dump failed (exitCode=" + exitCode + ")");
+            log.error("mysqldump command: {}", String.join(" ", command));
+            log.error("mysqldump stdout: {}", stdout);
+            log.error("mysqldump stderr: {}", stderr);
+            log.error("mysqldump exitCode: {}", exitCode);
+            throw new RuntimeException("MySQL dump failed (exitCode=" + exitCode + ") -> " + stderr);
         }
 
         return filePath;
