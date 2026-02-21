@@ -11,11 +11,14 @@ RUN mvn clean package -DskipTests
 
 
 # ---------- Runtime stage ----------
-FROM eclipse-temurin:21-jre-alpine
+FROM eclipse-temurin:21-jre
 
 WORKDIR /app
 
-RUN apk add --no-cache mysql-client postgresql-client bash
+RUN apt-get update && \
+    apt-get install -y default-mysql-client postgresql-client && \
+    rm -rf /var/lib/apt/lists/*
+
 RUN mkdir -p /app/data /app/backups
 
 COPY --from=build /app/target/*.jar app.jar
