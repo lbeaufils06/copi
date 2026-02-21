@@ -99,7 +99,7 @@ public class SchedulerService {
             job.setNextExecutionTime(next);
             jobService.updateJobScheduler(job.getId(), job);
 
-            return occurrences <= 2;
+            return occurrences == 1 || occurrences == 2;
         }
 
         return false;
