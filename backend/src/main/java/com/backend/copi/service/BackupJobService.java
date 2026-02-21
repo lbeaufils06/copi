@@ -87,6 +87,7 @@ public class BackupJobService {
         existing.setLastSuccessTime(updatedJob.getLastSuccessTime());
         existing.setVersionCount(updatedJob.getVersionCount());
         existing.setLastStatus(updatedJob.getLastStatus());
+        existing.setLastStatusMessage(updatedJob.getLastStatusMessage());
 
         return repository.save(existing);
     }
