@@ -121,6 +121,7 @@ public class SchedulerService {
         log.info("Dump => name=" + job.getName() + ", now=" + now + ", nextExecutionTime=" + job.getNextExecutionTime());
 
         job.setLastStatus(ExecutionStatus.RUNNING);
+        job.setLastStatusMessage("");
         jobService.updateJobScheduler(job.getId(), job);
 
         BackupExecution execution = BackupExecution.builder()
@@ -142,6 +143,7 @@ public class SchedulerService {
             executionService.markSuccess(execution, finalPath);
 
             job.setLastStatus(ExecutionStatus.SUCCESS);
+            job.setLastStatusMessage(execution.getLogMessage());
             job.setLastSuccessTime(execution.getStartTime());
                       
             if (job.getCronPurgeExpression() == null
@@ -153,7 +155,8 @@ public class SchedulerService {
         } catch (Exception e) {
 
             job.setLastStatus(ExecutionStatus.FAILED);
-            log.error("Dump ERROR => ",e);
+            job.setLastStatusMessage(e.getMessage());
+            log.error("Dump ERROR => ", e.getMessage());
             executionService.markFailed(execution, e.getMessage());
 
         } finally {
