@@ -19,6 +19,7 @@ import com.backend.copi.entity.BackupJob;
 import com.backend.copi.entity.ExecutionStatus;
 import com.backend.copi.service.BackupExecutionService;
 import com.backend.copi.service.BackupJobService;
+import com.backend.copi.service.BackupStorageService;
 import com.backend.copi.service.DumpService;
 
 import lombok.RequiredArgsConstructor;
@@ -31,6 +32,7 @@ public class SchedulerService {
     private final DumpService dumpService;
     private final BackupExecutionService executionService;
     private final Clock clock;
+    private final BackupStorageService backupStorageService;
 
     private final Set<UUID> runningJobs = ConcurrentHashMap.newKeySet();
     private boolean applicationReady = false;
@@ -122,6 +124,8 @@ public class SchedulerService {
 
             job.setLastStatus(ExecutionStatus.SUCCESS);
             job.setLastSuccessTime(execution.getStartTime());
+            
+            backupStorageService.synchronize();
 
             if (job.getCronPurgeExpression() == null
                     || job.getCronPurgeExpression().isEmpty()) {

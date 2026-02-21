@@ -94,8 +94,9 @@ public class BackupJobService {
     }
     
     @Transactional
-    public void deleteJob(UUID id) {
+    public void deleteJob(UUID id) throws IOException {
     	BackupJob existing = repository.findById(id).orElseThrow(() -> new RuntimeException("Job not found"));
+    	backupStorageService.deleteJobRepository(existing);
     	repositoryExecution.deleteByJob(existing);
         repository.delete(existing);
     }
