@@ -10,6 +10,7 @@ import java.util.concurrent.TimeUnit;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import com.backend.copi.config.AppProperties;
 import com.backend.copi.entity.BackupJob;
 import com.backend.copi.service.CryptoService;
 
@@ -20,9 +21,7 @@ import lombok.RequiredArgsConstructor;
 public class MySqlDumpService implements DatabaseDumpService {
 
     private final CryptoService cryptoService;
-
-    @Value("${app.mysqldump.path:mysqldump}")
-    private String mysqldumpPath;
+    private final AppProperties appProperties;
 
     @Override
     public boolean supports(String dbType) {
@@ -31,6 +30,8 @@ public class MySqlDumpService implements DatabaseDumpService {
 
     @Override
     public String executeDump(BackupJob job) throws Exception {
+    	
+    	String mysqldumpPath = appProperties.getMysqldump().getPath();
 
         String password = cryptoService.decrypt(job.getPasswordEncrypted());
         String filePath = buildFilePath(job);
@@ -87,8 +88,10 @@ public class MySqlDumpService implements DatabaseDumpService {
     }
 
     private String buildFilePath(BackupJob job) {
+    	String backupPath = appProperties.getBackup().getDirectory();
         String timestamp = LocalDateTime.now()
                 .format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
-        return "backups/" + job.getName() + "_" + timestamp + ".sql";
+        
+        return backupPath + "/" + job.getName() + "_" + timestamp + ".sql";
     }
 }

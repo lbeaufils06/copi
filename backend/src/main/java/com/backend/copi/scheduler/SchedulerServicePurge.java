@@ -1,4 +1,4 @@
-package com.backend.copi.service;
+package com.backend.copi.scheduler;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
@@ -11,12 +11,14 @@ import org.springframework.scheduling.support.CronExpression;
 import org.springframework.stereotype.Service;
 
 import com.backend.copi.entity.BackupJob;
+import com.backend.copi.service.BackupExecutionService;
+import com.backend.copi.service.BackupJobService;
 
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class SchedulerServiceRetention {
+public class SchedulerServicePurge {
 
     private final BackupJobService jobService;
     private final BackupExecutionService executionService;

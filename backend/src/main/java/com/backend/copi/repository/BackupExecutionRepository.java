@@ -29,6 +29,8 @@ public interface BackupExecutionRepository extends JpaRepository<BackupExecution
 	);
 	
 	long countByJob_IdAndStatus(UUID jobId, ExecutionStatus status);
+	
+	List<BackupExecution> findByStatusIn(List<ExecutionStatus> statuses);
 
 
 }
