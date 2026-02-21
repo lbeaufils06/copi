@@ -27,6 +27,7 @@ public class StartupSync {
     public void onStartup() {
         backupStorageService.synchronize();
         backupJobService.recoverInterruptedExecutions();
+        backupStorageService.deleteFailedExecutionsAndFiles();
         log.info("START");
     }
 }

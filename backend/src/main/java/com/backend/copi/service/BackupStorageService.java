@@ -3,9 +3,11 @@ package com.backend.copi.service;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.zip.GZIPOutputStream;
@@ -220,6 +222,47 @@ public class BackupStorageService {
         }
 
         return outputFile.toString();
+    }
+    
+    @Transactional
+    public void deleteFailedExecutionsAndFiles() {
+
+        List<BackupExecution> failedExecutions =
+        		backupExecutionRepository.findByStatus(ExecutionStatus.FAILED);
+
+        for (BackupExecution exec : failedExecutions) {
+
+            try {
+                deleteExecutionFiles(exec);
+            } catch (Exception e) {
+                log.error("Failed to delete files for execution {}", exec.getId(), e);
+            }
+
+            backupExecutionRepository.delete(exec);
+        }
+
+        log.info("Deleted {} failed executions", failedExecutions.size());
+    }
+    
+    private void deleteExecutionFiles(BackupExecution exec) throws IOException {
+
+        BackupJob job = exec.getJob();
+
+        Path jobDirectory = resolveJobDirectory(job);
+
+        String timestamp = exec.getStartTime()
+                .format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
+
+        String baseName = job.getName() + "_" + timestamp;
+
+        try (DirectoryStream<Path> stream =
+                     Files.newDirectoryStream(jobDirectory, baseName + "*")) {
+
+            for (Path file : stream) {
+                Files.deleteIfExists(file);
+                log.info("Deleted file {}", file.getFileName());
+            }
+        }
     }
     
 }
