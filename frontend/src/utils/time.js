@@ -1,83 +1,74 @@
-export function formatRelativeTime(dateString) {
-  if (!dateString) return "—";
-
-  const now = new Date();
-  const past = new Date(dateString);
-
-  const diffInSeconds = Math.floor((now - past) / 1000);
-
-  if (diffInSeconds < 60) {
-    return `il y a ${diffInSeconds} seconde${diffInSeconds > 1 ? "s" : ""}`;
-  }
-
-  const diffInMinutes = Math.floor(diffInSeconds / 60);
-  if (diffInMinutes < 60) {
-    return `il y a ${diffInMinutes} minute${diffInMinutes > 1 ? "s" : ""}`;
-  }
-
-  const diffInHours = Math.floor(diffInMinutes / 60);
-  if (diffInHours < 24) {
-    return `il y a ${diffInHours} heure${diffInHours > 1 ? "s" : ""}`;
-  }
-
-  const diffInDays = Math.floor(diffInHours / 24);
-  if (diffInDays < 7) {
-    return `il y a ${diffInDays} jour${diffInDays > 1 ? "s" : ""}`;
-  }
-
-  const diffInWeeks = Math.floor(diffInDays / 7);
-  if (diffInWeeks < 4) {
-    return `il y a ${diffInWeeks} semaine${diffInWeeks > 1 ? "s" : ""}`;
-  }
-
-  const diffInMonths = Math.floor(diffInDays / 30);
-  if (diffInMonths < 12) {
-    return `il y a ${diffInMonths} mois`;
-  }
-
-  const diffInYears = Math.floor(diffInDays / 365);
-  return `il y a ${diffInYears} an${diffInYears > 1 ? "s" : ""}`;
+function plural(value, unit) {
+  if (unit === "mois") return `${value} mois`;
+  if (unit === "an") return `${value} an${value > 1 ? "s" : ""}`;
+  return `${value} ${unit}${value > 1 ? "s" : ""}`;
 }
 
-export function formatFutureTime(dateString) {
+function buildTimeParts(diffInSeconds) {
+  const units = [
+    { name: "an", seconds: 365 * 24 * 60 * 60 },
+    { name: "mois", seconds: 30 * 24 * 60 * 60 },
+    { name: "semaine", seconds: 7 * 24 * 60 * 60 },
+    { name: "jour", seconds: 24 * 60 * 60 },
+    { name: "heure", seconds: 60 * 60 },
+    { name: "minute", seconds: 60 },
+    { name: "seconde", seconds: 1 },
+  ];
+
+  let remaining = diffInSeconds;
+  const parts = [];
+
+  for (const unit of units) {
+    const value = Math.floor(remaining / unit.seconds);
+    if (value > 0) {
+      parts.push({ unit: unit.name, value });
+      remaining -= value * unit.seconds;
+    }
+  }
+
+  return parts;
+}
+
+function formatTime(dateString, isFuture = false) {
   if (!dateString) return "—";
 
   const now = new Date();
-  const future = new Date(dateString);
+  const target = new Date(dateString);
 
-  const diffInSeconds = Math.floor((future - now) / 1000);
+  const diffInSeconds = Math.floor(
+    isFuture ? (target - now) / 1000 : (now - target) / 1000
+  );
 
   if (diffInSeconds <= 0) return "maintenant";
 
-  if (diffInSeconds < 60) {
-    return `dans ${diffInSeconds} seconde${diffInSeconds > 1 ? "s" : ""}`;
+  let parts = buildTimeParts(diffInSeconds);
+
+  if (!parts.length) return "maintenant";
+
+  // 🔥 Supprimer les secondes si on a au moins 1 minute
+  const hasMinuteOrMore = parts.some(
+    p => ["minute", "heure", "jour", "semaine", "mois", "an"].includes(p.unit)
+  );
+
+  if (hasMinuteOrMore) {
+    parts = parts.filter(p => p.unit !== "seconde");
   }
 
-  const diffInMinutes = Math.floor(diffInSeconds / 60);
-  if (diffInMinutes < 60) {
-    return `dans ${diffInMinutes} minute${diffInMinutes > 1 ? "s" : ""}`;
-  }
+  // 🔥 Passé = 1 unité, Futur = 2 unités
+  const limit = isFuture ? 2 : 1;
 
-  const diffInHours = Math.floor(diffInMinutes / 60);
-  if (diffInHours < 24) {
-    return `dans ${diffInHours} heure${diffInHours > 1 ? "s" : ""}`;
-  }
+  const formatted = parts
+    .slice(0, limit)
+    .map(p => plural(p.value, p.unit))
+    .join(" ");
 
-  const diffInDays = Math.floor(diffInHours / 24);
-  if (diffInDays < 7) {
-    return `dans ${diffInDays} jour${diffInDays > 1 ? "s" : ""}`;
-  }
+  return isFuture ? `dans ${formatted}` : `il y a ${formatted}`;
+}
 
-  const diffInWeeks = Math.floor(diffInDays / 7);
-  if (diffInWeeks < 4) {
-    return `dans ${diffInWeeks} semaine${diffInWeeks > 1 ? "s" : ""}`;
-  }
+export function formatRelativeTime(dateString) {
+  return formatTime(dateString, false);
+}
 
-  const diffInMonths = Math.floor(diffInDays / 30);
-  if (diffInMonths < 12) {
-    return `dans ${diffInMonths} mois`;
-  }
-
-  const diffInYears = Math.floor(diffInDays / 365);
-  return `dans ${diffInYears} an${diffInYears > 1 ? "s" : ""}`;
+export function formatFutureTime(dateString) {
+  return formatTime(dateString, true);
 }

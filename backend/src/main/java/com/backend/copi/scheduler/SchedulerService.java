@@ -27,9 +27,11 @@ import com.backend.copi.service.BackupStorageService;
 import com.backend.copi.service.DumpService;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class SchedulerService {
 
     private final BackupJobService jobService;
@@ -86,30 +88,39 @@ public class SchedulerService {
     private boolean initializeNextExecutionIfNeeded(BackupJob job) {
 
         LocalDateTime now = LocalDateTime.now(clock).withNano(0);
-
-        LocalDateTime next = CronExpression
+        LocalDateTime nextTentative = CronExpression
                 .parse(job.getCronExpression())
                 .next(now)
-                .withNano(0);
-
-        if (!Objects.equals(job.getNextExecutionTime(), next)) {
+                .withNano(0);        
+        LocalDateTime nextExecutionTime = job.getNextExecutionTime();
+        
+        if (!Objects.equals(job.getNextExecutionTime(), nextTentative)) {
 
             Long occurrences = countMissedOccurrences(
-                    job.getNextExecutionTime(),
-                    next,
+            		nextExecutionTime,
+                    nextTentative,
                     job.getCronExpression()
-            );
-
-            job.setNextExecutionTime(next);
+            );          
+            
+            if(occurrences == 0 && !now.isBefore(nextExecutionTime)) {
+                job.setNextExecutionTime(nextTentative);
+                jobService.updateJobScheduler(job.getId(), job);
+            	return true;
+            }
+            
+            job.setNextExecutionTime(nextTentative);
             jobService.updateJobScheduler(job.getId(), job);
 
-            return occurrences == 1 || occurrences == 2;
+            return false;
         }
 
         return false;
     }
 
     private void executeSequentially(BackupJob job) {
+    	
+    	LocalDateTime now = LocalDateTime.now(clock).withNano(0);
+        log.info("Dump => name=" + job.getName() + ", now=" + now + ", nextExecutionTime=" + job.getNextExecutionTime());
 
         job.setLastStatus(ExecutionStatus.RUNNING);
         jobService.updateJobScheduler(job.getId(), job);
@@ -172,19 +183,18 @@ public class SchedulerService {
             LocalDateTime next,
             String cronExpression) {
 
-        if (storedNextExecutionTime == null || storedNextExecutionTime.isAfter(next)) {
+        if (storedNextExecutionTime == null || !storedNextExecutionTime.isBefore(next)) {
             return 0;
         }
 
         CronExpression cron = CronExpression.parse(cronExpression);
 
         long count = 0;
-        LocalDateTime occurrence = storedNextExecutionTime;
+        LocalDateTime occurrence = cron.next(storedNextExecutionTime);
 
-        while (!occurrence.isAfter(next)) {
+        while (occurrence != null && occurrence.isBefore(next)) {
             count++;
             occurrence = cron.next(occurrence);
-            if (occurrence == null) break;
         }
 
         return count;

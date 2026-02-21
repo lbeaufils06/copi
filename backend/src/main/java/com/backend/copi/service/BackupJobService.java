@@ -11,11 +11,14 @@ import org.springframework.transaction.annotation.Transactional;
 import com.backend.copi.entity.BackupJob;
 import com.backend.copi.repository.BackupExecutionRepository;
 import com.backend.copi.repository.BackupJobRepository;
+import com.backend.copi.scheduler.SchedulerService;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class BackupJobService {
 
     private final BackupJobRepository repository;
@@ -29,6 +32,7 @@ public class BackupJobService {
     	List<BackupJob> backupJobsUpdate = new ArrayList<BackupJob>();
     	for(BackupJob job : backupJobs) {
     		job.setVersionCount((int) executionService.getVersionCountByJob(job.getId()));
+    		job.setPasswordEncrypted("");
     		backupJobsUpdate.add(job);
     	}
     	
