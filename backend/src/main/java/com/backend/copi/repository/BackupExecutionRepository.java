@@ -33,6 +33,7 @@ public interface BackupExecutionRepository extends JpaRepository<BackupExecution
 	List<BackupExecution> findByStatusIn(List<ExecutionStatus> statuses);
 	
 	List<BackupExecution> findByStatus(ExecutionStatus status);
-
+	
+	long deleteByStatus(ExecutionStatus status);
 
 }
