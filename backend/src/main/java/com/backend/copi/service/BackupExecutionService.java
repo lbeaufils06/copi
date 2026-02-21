@@ -24,7 +24,6 @@ import lombok.RequiredArgsConstructor;
 public class BackupExecutionService {
 
     private final BackupExecutionRepository repository;
-    private final BackupJobService jobService;
     
     public List<BackupExecution> getAllExecutions() {
         return repository.findAllByOrderByStartTimeDesc();
@@ -102,10 +101,7 @@ public class BackupExecutionService {
         List<BackupExecution> toDelete =
                 executions.subList(retentionCount, executions.size());
 
-        for (BackupExecution execution : toDelete) {
-        	
-        	job.setVersionCount((int) getVersionCountByJob(job.getId()) - 1);      
-        	jobService.updateJobScheduler(job.getId(), job);
+        for (BackupExecution execution : toDelete) {        
 
             deleteFileIfExists(execution.getFilePath());
 
@@ -137,10 +133,7 @@ public class BackupExecutionService {
             // Suppression fichier physique si présent
             if (execution.getFilePath() != null) {
                 deleteFileIfExists(execution.getFilePath());
-            }
-            
-            job.setVersionCount((int) getVersionCountByJob(job.getId()) - 1);   
-        	jobService.updateJobScheduler(job.getId(), job);
+            }          
 
             // Suppression en base
             repository.delete(execution);

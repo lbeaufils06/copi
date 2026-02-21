@@ -1,5 +1,6 @@
 package com.backend.copi.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -19,9 +20,17 @@ public class BackupJobService {
     private final BackupJobRepository repository;
     private final BackupExecutionRepository repositoryExecution;
     private final CryptoService cryptoService;
+    private final BackupExecutionService executionService;
 
     public List<BackupJob> getAllJobs() {
-        return repository.findAll();
+    	List<BackupJob> backupJobs = repository.findAll();
+    	List<BackupJob> backupJobsUpdate = new ArrayList<BackupJob>();
+    	for(BackupJob job : backupJobs) {
+    		job.setVersionCount((int) executionService.getVersionCountByJob(job.getId()));
+    		backupJobsUpdate.add(job);
+    	}
+    	
+        return backupJobsUpdate;
     }
 
     public BackupJob createJob(BackupJob job) {
