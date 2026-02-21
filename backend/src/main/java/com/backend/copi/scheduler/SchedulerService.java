@@ -124,9 +124,7 @@ public class SchedulerService {
 
             job.setLastStatus(ExecutionStatus.SUCCESS);
             job.setLastSuccessTime(execution.getStartTime());
-            
-            backupStorageService.synchronize();
-
+                      
             if (job.getCronPurgeExpression() == null
                     || job.getCronPurgeExpression().isEmpty()) {
 
@@ -139,7 +137,7 @@ public class SchedulerService {
             executionService.markFailed(execution, e.getMessage());
 
         } finally {
-
+        	backupStorageService.synchronize();
             jobService.updateJobScheduler(job.getId(), job);
         }
     }
