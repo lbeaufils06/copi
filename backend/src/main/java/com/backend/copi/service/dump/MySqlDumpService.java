@@ -73,7 +73,7 @@ public class MySqlDumpService implements DatabaseDumpService {
         ProcessBuilder pb = new ProcessBuilder(command);
         pb.environment().put("MYSQL_PWD", password);
         pb.redirectOutput(file);
-        pb.redirectErrorStream(true);
+        pb.redirectErrorStream(false);
 
         Process process = pb.start();
 
