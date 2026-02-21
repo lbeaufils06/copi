@@ -59,7 +59,7 @@ public class MySqlDumpService implements DatabaseDumpService {
         command.add("--triggers");
         command.add("--no-tablespaces");
         command.add("--set-gtid-purged=OFF");
-        command.add("--ssl-mode=DISABLED");
+        command.add("--skip-ssl");
 
         if (job.getDbName() == null || job.getDbName().trim().isEmpty()) {
             command.add("--all-databases");
