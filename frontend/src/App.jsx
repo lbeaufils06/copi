@@ -14,7 +14,7 @@ function App() {
 
   const fetchJobs = async () => {
     try {
-      const response = await fetch("http://localhost:8080/api/jobs");
+      const response = await fetch("/api/jobs");
       const data = await response.json();
       setJobs(data.jobs);
       setServerTime(new Date(data.serverTime));
@@ -38,7 +38,7 @@ function App() {
   const startJob = async (id) => {
     try {
       const response = await fetch(
-        `http://localhost:8080/api/jobs/${id}/start`,
+        `/api/jobs/${id}/start`,
         { method: "POST" }
       );
 
