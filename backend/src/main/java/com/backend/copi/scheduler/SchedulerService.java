@@ -94,27 +94,25 @@ public class SchedulerService {
                 .withNano(0);        
         LocalDateTime nextExecutionTime = job.getNextExecutionTime();
         
+        if(nextExecutionTime == null) {
+        	return isGoodForDump(job, nextTentative, false);
+        }
+        
         if (!Objects.equals(job.getNextExecutionTime(), nextTentative)) {
-
-            Long occurrences = countMissedOccurrences(
-            		nextExecutionTime,
-                    nextTentative,
-                    job.getCronExpression()
-            );          
-            
+            Long occurrences = countMissedOccurrences(nextExecutionTime, nextTentative, job.getCronExpression());                      
             if(occurrences == 0 && !now.isBefore(nextExecutionTime)) {
-                job.setNextExecutionTime(nextTentative);
-                jobService.updateJobScheduler(job.getId(), job);
-            	return true;
-            }
-            
-            job.setNextExecutionTime(nextTentative);
-            jobService.updateJobScheduler(job.getId(), job);
-
-            return false;
+                return isGoodForDump(job, nextTentative, true);
+            }           
+            return isGoodForDump(job, nextTentative, false);
         }
 
         return false;
+    }
+    
+    private boolean isGoodForDump(BackupJob job, LocalDateTime nextTentative, boolean result) {
+    	job.setNextExecutionTime(nextTentative);
+        jobService.updateJobScheduler(job.getId(), job);
+    	return result;
     }
 
     private void executeSequentially(BackupJob job) {
