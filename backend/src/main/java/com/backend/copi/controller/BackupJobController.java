@@ -51,7 +51,7 @@ public class BackupJobController {
     }
     
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable UUID id) {
+    public void delete(@PathVariable UUID id) throws IOException {
         service.deleteJob(id);
     }
     
