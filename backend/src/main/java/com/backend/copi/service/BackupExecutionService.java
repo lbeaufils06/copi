@@ -12,6 +12,7 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.backend.copi.config.AppProperties;
 import com.backend.copi.entity.BackupExecution;
 import com.backend.copi.entity.BackupJob;
 import com.backend.copi.entity.ExecutionStatus;
@@ -158,6 +159,5 @@ public class BackupExecutionService {
     public long getVersionCountByJob(UUID jobId) {
         return repository.countByJob_IdAndStatus(jobId, ExecutionStatus.SUCCESS);
     }
-
 
 }

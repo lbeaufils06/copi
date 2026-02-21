@@ -1,7 +1,9 @@
 package com.backend.copi.service.dump;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.concurrent.TimeUnit;
@@ -10,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import com.backend.copi.config.AppProperties;
 import com.backend.copi.entity.BackupJob;
+import com.backend.copi.service.BackupStorageService;
 import com.backend.copi.service.CryptoService;
 
 import lombok.RequiredArgsConstructor;
@@ -20,6 +23,7 @@ public class PostgresDumpService implements DatabaseDumpService {
 
     private final CryptoService cryptoService;
     private final AppProperties appProperties;
+    private final BackupStorageService backupStorageService;
 
     @Override
     public boolean supports(String dbType) {
@@ -89,16 +93,16 @@ public class PostgresDumpService implements DatabaseDumpService {
         return filePath;
     }
 
-    private String buildFilePath(BackupJob job) {
+    private String buildFilePath(BackupJob job) throws IOException {
     	
-    	String backupPath = appProperties.getBackup().getDirectory();
+    	Path jobDirectory = backupStorageService.resolveJobDirectory(job);
 
         String timestamp =
                 LocalDateTime.now()
                         .format(DateTimeFormatter
                                 .ofPattern("yyyyMMdd_HHmmss"));
 
-        return backupPath + 
+        return jobDirectory.toString() + 
         		"/"
                 + job.getName()
                 + "_"
