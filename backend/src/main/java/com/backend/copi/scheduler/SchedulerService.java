@@ -1,5 +1,8 @@
 package com.backend.copi.scheduler;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -16,6 +19,7 @@ import org.springframework.stereotype.Service;
 
 import com.backend.copi.entity.BackupExecution;
 import com.backend.copi.entity.BackupJob;
+import com.backend.copi.entity.CompressionType;
 import com.backend.copi.entity.ExecutionStatus;
 import com.backend.copi.service.BackupExecutionService;
 import com.backend.copi.service.BackupJobService;
@@ -119,8 +123,14 @@ public class SchedulerService {
         try {
 
             String filePath = dumpService.executeJob(job);
+                
+            String finalPath = compressFilePath(filePath, job.getCompressionType());
 
-            executionService.markSuccess(execution, filePath);
+            if (job.getCompressionType() != null && job.getCompressionType() != CompressionType.NONE) {
+                Files.delete(Path.of(filePath));
+            }
+            
+            executionService.markSuccess(execution, finalPath);
 
             job.setLastStatus(ExecutionStatus.SUCCESS);
             job.setLastSuccessTime(execution.getStartTime());
@@ -179,4 +189,10 @@ public class SchedulerService {
 
         return count;
     }
+    
+    private String compressFilePath(String inputFilePath,
+	            CompressionType type) throws IOException {
+	
+    	return backupStorageService.compress(inputFilePath, type);
+	}
 }

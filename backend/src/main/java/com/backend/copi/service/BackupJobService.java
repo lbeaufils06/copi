@@ -38,6 +38,7 @@ public class BackupJobService {
     public BackupJob createJob(BackupJob job) {
     	job.setPasswordEncrypted(cryptoService.encrypt(job.getPasswordEncrypted()));
     	job.setName(backupStorageService.sanitizeFile(job.getName()));
+    	job.setCompressionType(job.getCompressionType());
         return repository.save(job);
     }
 

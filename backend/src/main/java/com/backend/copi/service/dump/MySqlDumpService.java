@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import com.backend.copi.config.AppProperties;
 import com.backend.copi.entity.BackupJob;
+import com.backend.copi.entity.CompressionType;
 import com.backend.copi.service.BackupStorageService;
 import com.backend.copi.service.CryptoService;
 
@@ -94,7 +95,7 @@ public class MySqlDumpService implements DatabaseDumpService {
     	Path jobDirectory = backupStorageService.resolveJobDirectory(job);
         String timestamp = LocalDateTime.now()
                 .format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
-        
         return jobDirectory.toString() + "/" + job.getName() + "_" + timestamp + ".sql";
     }
+
 }
