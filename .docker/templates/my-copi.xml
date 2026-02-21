@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<Container version="2">
+  <Name>Copi</Name>
+  <Repository>copi:latest</Repository>
+  <Registry></Registry>
+  <Network>bridge</Network>
+  <MyIP/>
+  <Shell>sh</Shell>
+  <Privileged>false</Privileged>
+  <Support></Support>
+  <Project></Project>
+  <Overview>Copi - Database backup scheduler (SQLite, MySQL, PostgreSQL)</Overview>
+  <Category>Backup:</Category>
+  <WebUI>http://[IP]:[PORT:8080]</WebUI>
+  <TemplateURL/>
+  <Icon>https://raw.githubusercontent.com/selfhosters/unraid-templates/master/icons/backup.png</Icon>
+  <ExtraParams/>
+  <PostArgs/>
+  <CPUset/>
+  <DateInstalled/>
+  <DonateText/>
+  <DonateLink/>
+  <Description>Copi - Lightweight database backup orchestrator</Description>
+
+  <!-- Port mapping -->
+  <Config Name="WebUI Port" Target="8080" Default="8080" Mode="tcp" Description="Port Web Copi" Type="Port" Display="always" Required="true" Mask="false">8080</Config>
+
+  <!-- SQLite Data -->
+  <Config Name="Database Data" Target="/app/data" Default="/mnt/user/appdata/copi/data" Mode="rw" Description="SQLite database directory" Type="Path" Display="always" Required="true" Mask="false">/mnt/user/appdata/copi/data</Config>
+
+  <!-- Backups Directory -->
+  <Config Name="Backups Directory" Target="/app/backups" Default="/mnt/user/backups/copi" Mode="rw" Description="Backup storage directory" Type="Path" Display="always" Required="true" Mask="false">/mnt/user/backups/copi</Config>
+
+  <!-- Environment Variables -->
+  <Config Name="SPRING_PROFILES_ACTIVE" Target="SPRING_PROFILES_ACTIVE" Default="docker" Mode="" Description="Spring profile" Type="Variable" Display="advanced" Required="false" Mask="false">docker</Config>
+
+  <Config Name="MASTER_KEY" Target="MASTER_KEY" Default="change-me" Mode="" Description="Encryption master key" Type="Variable" Display="advanced" Required="false" Mask="true">change-me</Config>
+
+  <Config Name="HIBERNATE_DDL_AUTO" Target="HIBERNATE_DDL_AUTO" Default="update" Mode="" Description="Hibernate ddl-auto" Type="Variable" Display="advanced" Required="false" Mask="false">update</Config>
+
+  <Config Name="JPA_SHOW_SQL" Target="JPA_SHOW_SQL" Default="false" Mode="" Description="Show SQL logs" Type="Variable" Display="advanced" Required="false" Mask="false">false</Config>
+
+  <RestartPolicy>unless-stopped</RestartPolicy>
+</Container>
