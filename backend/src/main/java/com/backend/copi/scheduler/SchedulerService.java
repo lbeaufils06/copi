@@ -153,6 +153,7 @@ public class SchedulerService {
         } catch (Exception e) {
 
             job.setLastStatus(ExecutionStatus.FAILED);
+            log.error("Dump ERROR => ",e);
             executionService.markFailed(execution, e.getMessage());
 
         } finally {
