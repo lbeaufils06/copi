@@ -1,4 +1,4 @@
-package com.backend.copi.service;
+package com.backend.copi.scheduler;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
@@ -18,6 +18,9 @@ import org.springframework.transaction.annotation.Transactional;
 import com.backend.copi.entity.BackupExecution;
 import com.backend.copi.entity.BackupJob;
 import com.backend.copi.entity.ExecutionStatus;
+import com.backend.copi.service.BackupExecutionService;
+import com.backend.copi.service.BackupJobService;
+import com.backend.copi.service.DumpService;
 
 import lombok.RequiredArgsConstructor;
 

@@ -35,4 +35,6 @@ public class BackupExecution {
     private String logMessage;
 
     private String filePath;
+    
+    private String fileName;
 }

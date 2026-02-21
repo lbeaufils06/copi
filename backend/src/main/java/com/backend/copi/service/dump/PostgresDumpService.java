@@ -9,6 +9,7 @@ import java.util.concurrent.TimeUnit;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import com.backend.copi.config.AppProperties;
 import com.backend.copi.entity.BackupJob;
 import com.backend.copi.service.CryptoService;
 
@@ -19,12 +20,7 @@ import lombok.RequiredArgsConstructor;
 public class PostgresDumpService implements DatabaseDumpService {
 
     private final CryptoService cryptoService;
-
-    @Value("${app.pgdump.path:pg_dump}")
-    private String pgDumpPath;
-
-    @Value("${app.pgdumpall.path:pg_dumpall}")
-    private String pgDumpAllPath;
+    private final AppProperties appProperties;
 
     @Override
     public boolean supports(String dbType) {
@@ -33,6 +29,9 @@ public class PostgresDumpService implements DatabaseDumpService {
 
     @Override
     public String executeDump(BackupJob job) throws Exception {
+    	
+    	String pgDumpAllPath = appProperties.getPgdumpall().getPath();
+    	String pgDumpPath = appProperties.getPgdump().getPath();
 
         String password =
                 cryptoService.decrypt(job.getPasswordEncrypted());
@@ -92,13 +91,16 @@ public class PostgresDumpService implements DatabaseDumpService {
     }
 
     private String buildFilePath(BackupJob job) {
+    	
+    	String backupPath = appProperties.getBackup().getDirectory();
 
         String timestamp =
                 LocalDateTime.now()
                         .format(DateTimeFormatter
                                 .ofPattern("yyyyMMdd_HHmmss"));
 
-        return "backups/"
+        return backupPath + 
+        		"/"
                 + job.getName()
                 + "_"
                 + timestamp
