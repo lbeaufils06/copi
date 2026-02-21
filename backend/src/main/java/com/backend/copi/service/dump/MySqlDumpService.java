@@ -1,6 +1,8 @@
 package com.backend.copi.service.dump;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -11,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import com.backend.copi.config.AppProperties;
 import com.backend.copi.entity.BackupJob;
+import com.backend.copi.service.BackupStorageService;
 import com.backend.copi.service.CryptoService;
 
 import lombok.RequiredArgsConstructor;
@@ -21,6 +24,7 @@ public class MySqlDumpService implements DatabaseDumpService {
 
     private final CryptoService cryptoService;
     private final AppProperties appProperties;
+    private final BackupStorageService backupStorageService;
 
     @Override
     public boolean supports(String dbType) {
@@ -86,11 +90,11 @@ public class MySqlDumpService implements DatabaseDumpService {
         return filePath;
     }
 
-    private String buildFilePath(BackupJob job) {
-    	String backupPath = appProperties.getBackup().getDirectory();
+    private String buildFilePath(BackupJob job) throws IOException {
+    	Path jobDirectory = backupStorageService.resolveJobDirectory(job);
         String timestamp = LocalDateTime.now()
                 .format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
         
-        return backupPath + "/" + job.getName() + "_" + timestamp + ".sql";
+        return jobDirectory.toString() + "/" + job.getName() + "_" + timestamp + ".sql";
     }
 }

@@ -1,5 +1,9 @@
 package com.backend.copi.service;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -7,6 +11,7 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.backend.copi.config.AppProperties;
 import com.backend.copi.entity.BackupJob;
 import com.backend.copi.repository.BackupExecutionRepository;
 import com.backend.copi.repository.BackupJobRepository;
@@ -21,6 +26,7 @@ public class BackupJobService {
     private final BackupExecutionRepository repositoryExecution;
     private final CryptoService cryptoService;
     private final BackupExecutionService executionService;
+    private final BackupStorageService backupStorageService;
 
     public List<BackupJob> getAllJobs() {
     	List<BackupJob> backupJobs = repository.findAll();
@@ -35,15 +41,15 @@ public class BackupJobService {
 
     public BackupJob createJob(BackupJob job) {
     	job.setPasswordEncrypted(cryptoService.encrypt(job.getPasswordEncrypted()));
+    	job.setName(backupStorageService.sanitizeFile(job.getName()));
         return repository.save(job);
     }
 
-    public BackupJob updateJob(UUID id, BackupJob updatedJob) {
+    public BackupJob updateJob(UUID id, BackupJob updatedJob) throws IOException {
 
         BackupJob existing = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Job not found"));
-
-        existing.setName(updatedJob.getName());
+        
         existing.setDbType(updatedJob.getDbType());
         existing.setHost(updatedJob.getHost());
         existing.setPort(updatedJob.getPort());
@@ -105,6 +111,5 @@ public class BackupJobService {
 
         return existing;
     }
-    
 
 }

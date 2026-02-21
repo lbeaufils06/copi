@@ -1,5 +1,6 @@
 package com.backend.copi.controller;
 
+import java.io.IOException;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -45,7 +46,7 @@ public class BackupJobController {
     
     @PutMapping("/{id}")
     public BackupJob update(@PathVariable UUID id,
-                            @RequestBody BackupJob job) {
+                            @RequestBody BackupJob job) throws IOException {
         return service.updateJob(id, job);
     }
     
