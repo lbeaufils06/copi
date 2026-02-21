@@ -3,6 +3,7 @@ import JobModal from "./components/JobModal";
 import { formatRelativeTime } from "./utils/time";
 import { formatFutureTime } from "./utils/time";
 import { statusStyle } from "./utils/badge";
+import { getReadableCron, getScheduleStyle } from "./utils/time";
 
 function App() {
   const [jobs, setJobs] = useState([]);
@@ -111,7 +112,7 @@ function App() {
         )}
 
         {/* JOB LIST */}
-        <section className="bg-slate-800 rounded-2xl p-6 shadow-lg">
+        <section className="bg-slate-800 rounded-2xl p-4 sm:p-6 shadow-lg">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-lg font-semibold">My backups</h2>
 
@@ -132,7 +133,7 @@ function App() {
             {jobs.map((job) => (
               <div
                 key={job.id}
-                className="bg-slate-900 rounded-2xl p-6 border border-slate-700 hover:border-indigo-500 transition-all duration-200"
+                className="bg-slate-900 rounded-2xl p-4 sm:p-6 border border-slate-700 hover:border-indigo-500 transition-all duration-200"
               >
                 <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
                   
@@ -150,6 +151,20 @@ function App() {
                     </div>
 
                     <div className="text-slate-400 space-y-1">
+
+                      <p>
+                        <span className="text-slate-300 font-medium text-sm">
+                          Planification :
+                        </span>
+                        <span
+                          className={`text-xs px-2 py-1 rounded-md ${getScheduleStyle(
+                            job.cronExpression
+                          )}`}
+                        >
+                          {getReadableCron(job.cronExpression)}
+                        </span>
+                      </p>
+
                       <p>
                         <span className="text-slate-300 font-medium">
                           Dernière sauvegarde :
@@ -188,8 +203,9 @@ function App() {
                   <div className="flex items-center gap-4">
 
                     {/* Versions badge */}
-                    <span className="bg-emerald-900/40 text-emerald-400 text-sm px-3 py-1 rounded-full">
-                      {job.versionCount ?? 0} Versions
+                    <span className="bg-emerald-900/40 text-emerald-400 text-sm px-3 py-2 rounded-full">
+                      {(job.versionCount ?? 0)}{" "}
+                      {(job.versionCount ?? 0) > 1 ? "Versions" : "Version"}
                     </span>
 
                     {/* Actions */}

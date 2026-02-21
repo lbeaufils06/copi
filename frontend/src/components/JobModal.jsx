@@ -109,7 +109,7 @@ function JobModal({ isOpen, onClose, onSaved, jobToEdit }) {
       <div className="bg-slate-800 text-slate-100 rounded-2xl w-full max-w-lg shadow-2xl border border-slate-700 max-h-[90vh] flex flex-col">
 
         {/* HEADER */}
-        <div className="p-6 border-b border-slate-700">
+        <div className="p-4 sm:p-6 border-b border-slate-700">
           <h2 className="text-xl font-semibold tracking-tight">
             {isEditMode ? "Modifier Backup Job" : "Ajouter Backup Job"}
           </h2>
@@ -119,7 +119,7 @@ function JobModal({ isOpen, onClose, onSaved, jobToEdit }) {
         <form
           id="job-form"
           onSubmit={handleSubmit}
-          className="flex-1 overflow-y-auto p-6 space-y-2"
+          className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-2"
         >
 
           {/* Nom */}
@@ -435,7 +435,7 @@ function JobModal({ isOpen, onClose, onSaved, jobToEdit }) {
         </form>
 
         {/* FOOTER FIXE */}
-        <div className="flex justify-between items-center p-6 border-t border-slate-700 bg-slate-800">
+        <div className="flex justify-between items-center p-4 sm:p-6 border-t border-slate-700 bg-slate-800">
 
           {isEditMode && (
             <button
