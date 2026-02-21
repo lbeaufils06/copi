@@ -68,4 +68,7 @@ public class BackupJob {
     @Enumerated(EnumType.STRING)
     private ExecutionStatus lastStatus;
     
+    @Enumerated(EnumType.STRING)
+    private CompressionType compressionType;
+    
 }

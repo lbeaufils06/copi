@@ -163,8 +163,9 @@ public class BackupStorageService {
 	            }
 	        }
     	} finally {
-    		log.info("Sync files and db...");
             running.set(false);
         }
     }
+    
+    
 }
