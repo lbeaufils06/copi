@@ -158,5 +158,8 @@ public class BackupExecutionService {
     public long getVersionCountByJob(UUID jobId) {
         return repository.countByJob_IdAndStatus(jobId, ExecutionStatus.SUCCESS);
     }
-
+    
+    public List<BackupExecution> findByStatus(ExecutionStatus status) {
+    	return repository.findByStatus(status);
+    }
 }

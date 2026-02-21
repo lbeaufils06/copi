@@ -8,10 +8,11 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.backend.copi.entity.BackupExecution;
 import com.backend.copi.entity.BackupJob;
+import com.backend.copi.entity.ExecutionStatus;
 import com.backend.copi.repository.BackupExecutionRepository;
 import com.backend.copi.repository.BackupJobRepository;
-import com.backend.copi.scheduler.SchedulerService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -91,6 +92,16 @@ public class BackupJobService {
         return repository.save(existing);
     }
 
+    @Transactional
+    public void markFailed(BackupJob job,
+                           String errorMessage) {
+
+        job.setLastStatus(ExecutionStatus.FAILED);
+        job.setLastStatusMessage(errorMessage);
+
+        repository.save(job);
+    }
+
     public List<BackupJob> getEnabledJobs() {
         return repository.findAll()
                 .stream()
@@ -112,6 +123,22 @@ public class BackupJobService {
                 .orElseThrow(() -> new RuntimeException("Job not found"));
 
         return existing;
+    }
+    
+    @Transactional
+    public void recoverInterruptedExecutions() {
+    	
+        List<BackupExecution> runningExecutions = repositoryExecution.findByStatus(ExecutionStatus.RUNNING);
+        for (BackupExecution exec : runningExecutions) {
+            executionService.markFailed(exec, "Interrupted due to container shutdown");
+        }
+        
+        List<BackupJob> runningJobs = repository.findByLastStatus(ExecutionStatus.RUNNING);
+        for (BackupJob job : runningJobs) {
+        	markFailed(job, "Interrupted due to container shutdown");
+        }
+
+        log.info("Recovered {} interrupted executions", runningExecutions.size());
     }
 
 }
