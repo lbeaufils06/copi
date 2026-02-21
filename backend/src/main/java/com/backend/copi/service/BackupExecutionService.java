@@ -18,9 +18,11 @@ import com.backend.copi.entity.ExecutionStatus;
 import com.backend.copi.repository.BackupExecutionRepository;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class BackupExecutionService {
 
     private final BackupExecutionRepository repository;
@@ -161,5 +163,13 @@ public class BackupExecutionService {
     
     public List<BackupExecution> findByStatus(ExecutionStatus status) {
     	return repository.findByStatus(status);
+    }
+    
+    @Transactional
+    public void deleteMissingExecutions() {
+
+        long deleted = repository.deleteByStatus(ExecutionStatus.MISSING);
+
+        log.info("Deleted {} missing executions at startup", deleted);
     }
 }
