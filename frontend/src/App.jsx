@@ -93,9 +93,19 @@ function App() {
 
         {/* HEADER */}
         <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center mb-6 gap-4">
-          <h1 className="text-xl lg:text-2xl font-semibold tracking-tight">
-            Copi
-          </h1>
+
+          <div className="flex items-center gap-3">
+            <a href="/" className="flex items-center gap-3">
+              <img
+                src="/copi.svg"
+                alt="Copi logo : https://www.svgrepo.com/svg/506975/db-network-2"
+                className="w-8 h-8 object-contain"
+              />
+              <h1 className="text-xl lg:text-2xl font-semibold tracking-tight">
+                Copi
+              </h1>
+            </a>
+          </div>
 
           <button
             onClick={openAddModal}
