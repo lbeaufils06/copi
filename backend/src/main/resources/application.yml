@@ -1,4 +1,9 @@
 spring:
+
+  sql:
+    init:
+      mode: always
+
   datasource:
     url: ${SPRING_DATASOURCE_URL:jdbc:sqlite:data/copi.db}
     driver-class-name: ${SPRING_DATASOURCE_DRIVER:org.sqlite.JDBC}
@@ -6,7 +11,7 @@ spring:
   jpa:
     database-platform: com.backend.copi.config.SQLiteDialect
     hibernate:
-      ddl-auto: ${HIBERNATE_DDL_AUTO:update}
+      ddl-auto: ${HIBERNATE_DDL_AUTO:none}
     show-sql: ${JPA_SHOW_SQL:false}
     open-in-view: false
 
@@ -32,3 +37,4 @@ server:
 logging:
   level:
     org.springframework.boot.autoconfigure: WARN
+    org.flywaydb: DEBUG
