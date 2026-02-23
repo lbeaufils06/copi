@@ -13,7 +13,7 @@
   <Category>Backup:</Category>
   <WebUI>http://[IP]:[PORT:8080]</WebUI>
   <TemplateURL/>
-  <Icon>https://raw.githubusercontent.com/selfhosters/unraid-templates/master/icons/backup.png</Icon>
+  <Icon>https://raw.githubusercontent.com/lbeaufils06/icon/refs/heads/main/copi250.png</Icon>
   <ExtraParams/>
   <PostArgs/>
   <CPUset/>
