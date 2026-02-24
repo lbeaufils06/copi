@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
+import { useApi } from "../utils/useApi";
 
 function JobModal({ isOpen, onClose, onSaved, jobToEdit }) {
   const isEditMode = !!jobToEdit;
   const [isCustomCron, setIsCustomCron] = useState(false);
   const [isCustomCronPurge, setIsCustomCronPurge] = useState(false);
+  const { apiFetch } = useApi();
 
   const initialForm = {
     name: "",
@@ -54,7 +56,7 @@ function JobModal({ isOpen, onClose, onSaved, jobToEdit }) {
     if (!confirmDelete) return;
 
     try {
-      await fetch(`/api/jobs/${jobToEdit.id}`, {
+      await apiFetch(`/api/jobs/${jobToEdit.id}`, {
         method: "DELETE",
       });
 
@@ -76,11 +78,8 @@ function JobModal({ isOpen, onClose, onSaved, jobToEdit }) {
 
       const method = isEditMode ? "PUT" : "POST";
 
-      await fetch(url, {
+      await apiFetch(url, {
         method,
-        headers: {
-          "Content-Type": "application/json",
-        },
         body: JSON.stringify({
           ...form,
           port: Number(form.port),
@@ -88,7 +87,6 @@ function JobModal({ isOpen, onClose, onSaved, jobToEdit }) {
             form.retentionPolicy === "COUNT"
               ? Number(form.retentionCount)
               : null,
-
           cronPurgeExpression:
             form.retentionPolicy === "CRON"
               ? form.cronPurgeExpression

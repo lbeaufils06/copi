@@ -15,6 +15,11 @@ spring:
     show-sql: false
     open-in-view: false
 
+  security:
+    user:
+      name: admin
+      password: ${COPI_ADMIN_PASSWORD:admin}
+
 app:
   crypto:
     secret: ${MASTER_KEY:test-secret}
