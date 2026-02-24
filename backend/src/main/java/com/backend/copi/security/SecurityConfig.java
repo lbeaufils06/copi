@@ -7,29 +7,34 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 
-import jakarta.servlet.http.HttpServletResponse;
-
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
-    @Bean
-    SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+	@Bean
+	SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
-        http
-            .csrf(csrf -> csrf.disable()) // important pour API REST
-            .sessionManagement(session ->
-                session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-            )
-            .authorizeHttpRequests(auth -> auth
-                .anyRequest().authenticated()
-            )
-            .httpBasic(httpBasic ->
-            httpBasic.authenticationEntryPoint((request, response, authException) -> {
-                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
-            })
-        );
+	    http
+	        .csrf(csrf -> csrf.disable())
+	        .sessionManagement(session ->
+	            session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+	        )
+	        .authorizeHttpRequests(auth -> auth
+	            .requestMatchers(
+	                "/",
+	                "/index.html",
+	                "/assets/**",
+	                "/favicon.ico"
+	            ).permitAll()
+	            .requestMatchers("/api/**").authenticated()
+	            .anyRequest().permitAll()
+	        )
+	        .httpBasic(httpBasic ->
+	            httpBasic.authenticationEntryPoint((request, response, ex) ->
+	                response.sendError(401)
+	            )
+	        );
 
-        return http.build();
-    }
+	    return http.build();
+	}
 }
