@@ -6,6 +6,7 @@ function JobModal({ isOpen, onClose, onSaved, jobToEdit }) {
   const [isCustomCron, setIsCustomCron] = useState(false);
   const [isCustomCronPurge, setIsCustomCronPurge] = useState(false);
   const { apiFetch } = useApi();
+  const [showPassword, setShowPassword] = useState(false);
 
   const initialForm = {
     name: "",
@@ -248,18 +249,63 @@ function JobModal({ isOpen, onClose, onSaved, jobToEdit }) {
           <div className="relative">
             <input
               id="job-password"
-              type="password"
+              type={showPassword ? "text" : "password"}
               name="passwordEncrypted"
               value={form.passwordEncrypted}
               onChange={handleChange}
               required
               autoComplete="new-password"
               placeholder=" "
-              className="peer w-full bg-slate-900 border border-slate-700 p-3 pt-5 rounded-lg focus:outline-none focus:border-indigo-500"
+              className="peer w-full bg-slate-900 border border-slate-700 p-3 pt-5 pr-10 rounded-lg focus:outline-none focus:border-indigo-500"
             />
-            <label htmlFor="job-password" className="absolute left-3 top-2 text-xs text-slate-400">
+
+            <label
+              htmlFor="job-password"
+              className="absolute left-3 top-2 text-xs text-slate-400"
+            >
               Mot de passe
             </label>
+
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              onMouseDown={(e) => e.preventDefault()}
+              className="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-white transition"
+            >
+              {showPassword ? (
+                // œil barré
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M13.875 18.825A10.05 10.05 0 0112 19c-5 0-9.27-3.11-11-7 1.02-2.29 2.74-4.18 4.86-5.4M9.88 9.88A3 3 0 0114.12 14.12M6.1 6.1l11.8 11.8"
+                  />
+                </svg>
+              ) : (
+                // œil normal
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0zm7.07 0C20.93 16.06 16.94 19 12 19S3.07 16.06 1.93 12C3.07 7.94 7.06 5 12 5s8.93 2.94 10.07 7z"
+                  />
+                </svg>
+              )}
+            </button>
           </div>
 
           {/* PLANIFICATION BACKUP */}
