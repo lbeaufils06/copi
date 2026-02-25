@@ -5,6 +5,7 @@ import { formatFutureTime } from "../utils/time";
 import { statusStyle } from "../utils/badge";
 import { getReadableCron, getScheduleStyle } from "../utils/time";
 import { useApi } from "../utils/useApi";
+import Header from "./Header";
 
 function App() {
   const [jobs, setJobs] = useState([]);
@@ -107,35 +108,11 @@ function App() {
       <div className="max-w-7xl mx-auto">
 
         {/* HEADER */}
-        <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center mb-6 gap-4">
-
-          <div className="flex items-center gap-3">
-            <a href="/" className="flex items-center gap-3">
-              <img
-                src="/copi.svg"
-                alt="Copi logo : https://www.svgrepo.com/svg/506975/db-network-2"
-                className="w-8 h-8 object-contain"
-              />
-              <h1 className="text-xl lg:text-2xl font-semibold tracking-tight">
-                Copi
-              </h1>
-            </a>
-          </div>
-
-          <button
-            onClick={openAddModal}
-            className="bg-indigo-600 hover:bg-indigo-500 px-4 py-2 rounded-lg transition font-medium"
-          >
-            Ajouter DB
-          </button>
-
-          <button
-            onClick={handleLogout}
-            className="px-3 py-1.5 text-sm bg-red-600 hover:bg-red-500 rounded-lg transition"
-          >
-            Logout
-          </button>
-        </div>
+        <Header
+          serverTime={serverTime}
+          formatClock={formatClock}
+          onAdd={openAddModal}
+        />
 
         {errorMessage && (
           <div className="mb-4 bg-red-900/40 text-red-400 px-4 py-2 rounded-lg">
@@ -146,13 +123,7 @@ function App() {
         {/* JOB LIST */}
         <section className="bg-slate-800 rounded-2xl p-4 sm:p-6 shadow-lg">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-lg font-semibold">My backups</h2>
-
-            {serverTime &&
-              <div className="text-sm text-slate-300 font-mono bg-slate-900/70 backdrop-blur px-4 py-2 rounded-xl border border-slate-700 shadow">
-                ⏱ {formatClock(serverTime)}
-              </div>
-            }
+            <h2 className="text-lg font-semibold">Jobs</h2>
           </div>
 
           <div className="space-y-4">
