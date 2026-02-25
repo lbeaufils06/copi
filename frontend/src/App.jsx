@@ -4,9 +4,13 @@ import LoginPage from "./components/LoginPage";
 import MainApp from "./components/MainApp";
 
 export default function App() {
-  const { credentials } = useContext(AuthContext);
+  const { isAuthenticated, isLoading } = useContext(AuthContext);
 
-  if (!credentials) {
+  if (isLoading) {
+    return null; // ou spinner
+  }
+
+  if (!isAuthenticated) {
     return <LoginPage />;
   }
 

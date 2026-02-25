@@ -4,52 +4,122 @@ export const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
 
-  const SESSION_DURATION = 30 * 60 * 1000; // 30 minutes
-
-  const [credentials, setCredentials] = useState(() =>
-    sessionStorage.getItem("auth")
-  );
-
+  const [sessionDuration, setSessionDuration] = useState(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const timeoutRef = useRef(null);
 
-  // 🔐 Démarre / redémarre le timer
+  useEffect(() => {
+    if (isAuthenticated && sessionDuration) {
+      startSessionTimer();
+    }
+  }, [isAuthenticated, sessionDuration]);
+
+  useEffect(() => {
+    fetch("/api/session/config", {
+      credentials: "include"
+    })
+      .then(res => res.json())
+      .then(data => {
+        setSessionDuration(data)})
+    .catch(() => {
+      // fallback sécurité 30 min
+      setSessionDuration(30 * 60 * 1000);
+    });
+  }, []);
+
+  // 🔐 Démarre ou redémarre le timer d'inactivité
   const startSessionTimer = () => {
+    if (!sessionDuration) return;
+
     clearTimeout(timeoutRef.current);
 
     timeoutRef.current = setTimeout(() => {
       logout();
-    }, SESSION_DURATION);
+    }, sessionDuration);
   };
 
-  // 🔄 Login
+  // 🔑 LOGIN
   const login = async (username, password) => {
-    const basicAuth = "Basic " + btoa(`${username}:${password}`);
+    try {
+      const response = await fetch("/api/login", {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded"
+        },
+        body: new URLSearchParams({
+          username,
+          password
+        })
+      });
 
-    const response = await fetch("/api/auth/check", {
-      headers: { Authorization: basicAuth }
-    });
+      if (response.status === 401) {
+        throw new Error("Identifiants invalides");
+      }
 
-    if (!response.ok) {
-      throw new Error("Identifiants invalides");
+      if (response.status >= 500) {
+        throw new Error("Serveur indisponible");
+      }
+
+      if (!response.ok) {
+        throw new Error("Erreur inconnue");
+      }
+
+      setIsAuthenticated(true);
+
+    } catch (error) {
+
+      // ⚠️ Important : erreur réseau (serveur down)
+      if (error instanceof TypeError) {
+        throw new Error("Serveur indisponible");
+      }
+
+      throw error;
+    }
+  };
+
+  // 🔓 LOGOUT
+  const logout = async () => {
+    clearTimeout(timeoutRef.current);
+
+    try {
+      await fetch("/api/logout", {
+        method: "POST",
+        credentials: "include"
+      });
+    } catch (e) {
+      // ignore si déjà expiré
     }
 
-    setCredentials(basicAuth);
-    sessionStorage.setItem("auth", basicAuth);
-    startSessionTimer();
+    setIsAuthenticated(false);
   };
 
-  // 🔓 Logout centralisé
-  const logout = () => {
-    clearTimeout(timeoutRef.current);
-    setCredentials(null);
-    sessionStorage.removeItem("auth");
-  };
-
-  // 🧠 Timeout basé sur activité utilisateur (pas polling)
+  // 🔍 Vérifie si session déjà active au chargement
   useEffect(() => {
-    if (!credentials) return;
+    fetch("/api/auth/check", {
+      credentials: "include"
+    })
+      .then(res => {
+        if (res.ok) {
+          setIsAuthenticated(true);
+        } else {
+          setIsAuthenticated(false);
+        }
+      })
+      .catch(() => {
+        setIsAuthenticated(false);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+  }, []);
 
-    const events = ["click", "keydown"];
+  // 🧠 Gestion activité utilisateur (PAS le polling API)
+  useEffect(() => {
+    if (!isAuthenticated) return;
+
+    const events = ["click", "keydown", "mousemove", "touchstart"];
 
     const handleActivity = () => {
       startSessionTimer();
@@ -59,8 +129,6 @@ export function AuthProvider({ children }) {
       window.addEventListener(event, handleActivity)
     );
 
-    startSessionTimer(); // démarrage initial
-
     return () => {
       events.forEach(event =>
         window.removeEventListener(event, handleActivity)
@@ -68,16 +136,10 @@ export function AuthProvider({ children }) {
       clearTimeout(timeoutRef.current);
     };
 
-  }, [credentials]);
+  }, [isAuthenticated]);
 
   return (
-    <AuthContext.Provider
-      value={{
-        credentials,
-        login,
-        logout
-      }}
-    >
+    <AuthContext.Provider value={{ isAuthenticated, isLoading, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
