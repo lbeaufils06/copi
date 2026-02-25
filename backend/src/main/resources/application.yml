@@ -18,7 +18,7 @@ spring:
   security:
     user:
       name: admin
-      password: ${COPI_ADMIN_PASSWORD:admin}
+      password: ${COPI_ADMIN_PASSWORD:copi}
 
 app:
   crypto:

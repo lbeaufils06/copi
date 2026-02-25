@@ -1,11 +1,10 @@
 import { useEffect, useState } from "react";
 import { useApi } from "../utils/useApi";
 
-function JobModal({ isOpen, onClose, onSaved, jobToEdit }) {
-  const isEditMode = !!jobToEdit;
-  const [isCustomCron, setIsCustomCron] = useState(false);
-  const [isCustomCronPurge, setIsCustomCronPurge] = useState(false);
+function JobModal({ jobId, onClose }) {
   const { apiFetch } = useApi();
+  const isEditMode = (jobId == "new") ? false : true;
+  const [isCustomCron, setIsCustomCron] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
   const initialForm = {
@@ -26,39 +25,22 @@ function JobModal({ isOpen, onClose, onSaved, jobToEdit }) {
 
   const [form, setForm] = useState(initialForm);
 
+  // 🔥 Charger le job si édition
   useEffect(() => {
-    if (isOpen) {
-      const scrollBarWidth =
-        window.innerWidth - document.documentElement.clientWidth;
-
-      document.body.style.overflow = "hidden";
-      document.body.style.paddingRight = `${scrollBarWidth}px`;
+    if (isEditMode && jobId) {
+      apiFetch(`/api/jobs/${jobId}`)
+        .then((res) => res.json())
+        .then((data) =>
+          setForm({
+            ...data,
+            passwordEncrypted: "",
+          })
+        )
+        .catch((err) => console.error("Erreur chargement job:", err));
     } else {
-      document.body.style.overflow = "";
-      document.body.style.paddingRight = "";
+      setForm(initialForm);
     }
-
-    return () => {
-      document.body.style.overflow = "";
-      document.body.style.paddingRight = "";
-    };
-  }, [isOpen]);
-
-  useEffect(() => {
-    if (isOpen) {
-      if (jobToEdit) {
-        setForm({
-          ...jobToEdit,
-          passwordEncrypted: "",
-        });
-      } else {
-        setForm(initialForm);
-      }
-    }
-  }, [isOpen, jobToEdit]);
-  
-
-  if (!isOpen) return null;
+  }, [jobId, isEditMode]); 
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -75,11 +57,10 @@ function JobModal({ isOpen, onClose, onSaved, jobToEdit }) {
     if (!confirmDelete) return;
 
     try {
-      await apiFetch(`/api/jobs/${jobToEdit.id}`, {
+      await apiFetch(`/api/jobs/${jobId}`, {
         method: "DELETE",
       });
 
-      onSaved();
       onClose();
       setForm(initialForm);
     } catch (error) {
@@ -92,7 +73,7 @@ function JobModal({ isOpen, onClose, onSaved, jobToEdit }) {
 
     try {
       const url = isEditMode
-        ? `/api/jobs/${jobToEdit.id}`
+        ? `/api/jobs/${jobId}`
         : "/api/jobs";
 
       const method = isEditMode ? "PUT" : "POST";
@@ -113,7 +94,6 @@ function JobModal({ isOpen, onClose, onSaved, jobToEdit }) {
         }),
       });
 
-      onSaved();
       onClose();
       setForm(initialForm);
     } catch (error) {

@@ -38,6 +38,11 @@ public class BackupJobController {
                 service.getAllJobs()
         );
     }
+    
+    @GetMapping("/{id}")
+    public BackupJob getJob(@PathVariable UUID id) {
+        return service.getJobById(id);
+    }
 
     @PostMapping
     public BackupJob create(@RequestBody BackupJob job) {

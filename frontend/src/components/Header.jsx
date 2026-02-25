@@ -1,9 +1,11 @@
 import { useContext, useState } from "react";
 import { AuthContext } from "./AuthContext";
+import { useNavigate } from "react-router-dom";
 
 export default function Header({ serverTime, formatClock, onAdd }) {
   const { logout } = useContext(AuthContext);
   const [menuOpen, setMenuOpen] = useState(false);
+  const navigate = useNavigate();
 
   return (
     <header className="bg-slate-950 border-b border-slate-800 rounded-2xl mb-4">
