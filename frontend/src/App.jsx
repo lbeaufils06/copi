@@ -1,18 +1,33 @@
-import { useContext } from "react";
-import { AuthContext } from "./components/AuthContext";
-import LoginPage from "./components/LoginPage";
-import MainApp from "./components/MainApp";
+import { Routes, Route, Navigate } from "react-router-dom";
+import Login from "./pages/Login";
+import Dashboard from "./pages/Dashboard";
+import ProtectedRoute from "./components/ProtectedRoute";
+import { useAuth } from "./components/AuthContext";
 
-export default function App() {
-  const { isAuthenticated, isLoading } = useContext(AuthContext);
+function App() {
+  const { isAuthenticated } = useAuth();
 
-  if (isLoading) {
-    return null; // ou spinner
-  }
+  return (
+    <Routes>
+      <Route
+        path="/login"
+        element={
+          isAuthenticated ? <Navigate to="/" replace /> : <Login />
+        }
+      />
 
-  if (!isAuthenticated) {
-    return <LoginPage />;
-  }
+      <Route
+        path="/*"
+        element={
+          <ProtectedRoute>
+            <Dashboard />
+          </ProtectedRoute>
+        }
+      />
 
-  return <MainApp />;
+
+    </Routes>
+  );
 }
+
+export default App;
