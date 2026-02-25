@@ -13,19 +13,21 @@ function App() {
   const [errorMessage, setErrorMessage] = useState(null);
   const [serverTime, setServerTime] = useState(null);
 
-    const { apiFetch } = useApi();
+  const { apiFetch } = useApi();
 
-    const fetchJobs = async () => {
+  const fetchJobs = async () => {
     try {
-        const data = await apiFetch("/api/jobs");
+      const response = await apiFetch("/api/jobs");
+      const data = await response.json();
 
-        setJobs(data.jobs);
-        setServerTime(new Date(data.serverTime));
+      setJobs(data.jobs ?? []);
+      setServerTime(new Date(data.serverTime));
 
     } catch (error) {
-        console.error("Erreur API:", error);
+      console.error("Erreur API:", error);
+      setJobs([]); // sécurité
     }
-    };
+  };
 
   const formatClock = (date) => {
     return date.toLocaleString("fr-FR", {
@@ -58,6 +60,15 @@ function App() {
 
     } catch (error) {
       console.error("Erreur start:", error);
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await apiFetch("/api/logout", { method: "POST" });
+      window.location.href = "/";
+    } catch (error) {
+      console.error("Erreur logout:", error);
     }
   };
 
@@ -116,6 +127,13 @@ function App() {
             className="bg-indigo-600 hover:bg-indigo-500 px-4 py-2 rounded-lg transition font-medium"
           >
             Ajouter DB
+          </button>
+
+          <button
+            onClick={handleLogout}
+            className="px-3 py-1.5 text-sm bg-red-600 hover:bg-red-500 rounded-lg transition"
+          >
+            Logout
           </button>
         </div>
 

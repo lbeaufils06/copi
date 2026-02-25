@@ -16,7 +16,7 @@ export default function LoginPage() {
     try {
       await login("admin", password);
     } catch (err) {
-      setError("Identifiants invalides");
+      setError(err.message || "Erreur inattendue");
     } finally {
       setLoading(false);
     }

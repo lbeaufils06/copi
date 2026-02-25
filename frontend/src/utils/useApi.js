@@ -1,47 +1,27 @@
-import { useContext } from "react";
-import { AuthContext } from "../components/AuthContext";
-
-export function useApi() {
-
-  const { credentials, logout } = useContext(AuthContext);
+export const useApi = () => {
 
   const apiFetch = async (url, options = {}) => {
 
-    if (!credentials) {
-      throw new Error("Not authenticated");
-    }
-
     const response = await fetch(url, {
-      ...options,
+      credentials: "include",
       headers: {
-        ...options.headers,
-        Authorization: credentials,
-        "Content-Type": "application/json"
-      }
+        "Content-Type": "application/json",
+        ...(options.headers || {})
+      },
+      ...options
     });
 
     if (response.status === 401) {
-      logout();
-      throw new Error("Unauthorized");
+      window.location.href = "/";
+      return;
     }
 
     if (!response.ok) {
-      throw new Error(await response.text());
+      throw new Error("API error");
     }
 
-    // 👉 Si pas de contenu (204, DELETE etc)
-    if (response.status === 204) {
-      return {};
-    }
-
-    const contentType = response.headers.get("content-type");
-
-    if (contentType && contentType.includes("application/json")) {
-      return response.json();
-    }
-
-    return {};
+    return response;
   };
 
   return { apiFetch };
-}
+};

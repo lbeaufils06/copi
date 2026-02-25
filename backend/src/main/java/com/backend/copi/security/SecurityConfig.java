@@ -11,30 +11,57 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 public class SecurityConfig {
 
-	@Bean
-	SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    @Bean
+    SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
-	    http
-	        .csrf(csrf -> csrf.disable())
-	        .sessionManagement(session ->
-	            session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-	        )
-	        .authorizeHttpRequests(auth -> auth
-	            .requestMatchers(
-	                "/",
-	                "/index.html",
-	                "/assets/**",
-	                "/favicon.ico"
-	            ).permitAll()
-	            .requestMatchers("/api/**").authenticated()
-	            .anyRequest().permitAll()
-	        )
-	        .httpBasic(httpBasic ->
-	            httpBasic.authenticationEntryPoint((request, response, ex) ->
-	                response.sendError(401)
-	            )
-	        );
+        http
+            .csrf(csrf -> csrf.disable())
 
-	    return http.build();
-	}
+            // Session activée
+            .sessionManagement(session ->
+                session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
+            )
+
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers(
+                    "/",
+                    "/index.html",
+                    "/assets/**",
+                    "/favicon.ico"
+                ).permitAll()
+                .requestMatchers("/api/**").authenticated()
+                .anyRequest().permitAll()
+            )
+
+            .exceptionHandling(exception -> exception
+                .authenticationEntryPoint((request, response, authException) -> {
+                    response.setStatus(401);
+                })
+            )
+
+            // On supprime HTTP Basic popup
+            .httpBasic(httpBasic  -> httpBasic .disable())
+
+            // Pas de login page Spring
+            .formLogin(form -> form
+        	    .loginProcessingUrl("/api/login")
+        	    .successHandler((request, response, authentication) -> {
+        	        response.setStatus(200);
+        	    })
+        	    .failureHandler((request, response, exception) -> {
+        	        response.setStatus(401);
+        	    })
+        	)
+
+            // Logout propre
+            .logout(logout -> logout
+                .logoutUrl("/api/logout")
+                .invalidateHttpSession(true)
+                .clearAuthentication(true)
+                .deleteCookies("JSESSIONID")
+                .logoutSuccessHandler((req, res, auth) -> res.setStatus(200))
+            );
+
+        return http.build();
+    }
 }
