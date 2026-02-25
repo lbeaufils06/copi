@@ -123,6 +123,7 @@ function JobModal({ isOpen, onClose, onSaved, jobToEdit }) {
           {/* Nom */}
           <div className="relative">
             <input
+              id="job-name"
               name="name"
               value={form.name}
               onChange={handleChange}
@@ -131,9 +132,7 @@ function JobModal({ isOpen, onClose, onSaved, jobToEdit }) {
               placeholder=" "
               className={`peer w-full bg-slate-900 border border-slate-700 p-3 pt-5 rounded-lg focus:outline-none focus:border-indigo-500 ${isEditMode ? "opacity-50 cursor-not-allowed pointer-events-none" : ""}`}
             />
-            <label className="absolute left-3 top-2 text-xs text-slate-400 transition-all 
-              peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-sm peer-placeholder-shown:text-slate-500
-              peer-focus:top-2 peer-focus:text-xs peer-focus:text-indigo-400">
+            <label htmlFor="job-name" className="absolute left-3 top-2 text-xs text-slate-400 pointer-events-none">
               Nom du job
             </label>
           </div>
@@ -141,6 +140,7 @@ function JobModal({ isOpen, onClose, onSaved, jobToEdit }) {
           {/* Type DB */}
           <div className="relative">
             <select
+              id="job-dbType"
               name="dbType"
               value={form.dbType}
               onChange={handleChange}
@@ -150,7 +150,7 @@ function JobModal({ isOpen, onClose, onSaved, jobToEdit }) {
               <option value="MYSQL">MySQL</option>
               <option value="POSTGRESQL">PostgreSQL</option>
             </select>
-            <label className="absolute left-3 top-2 text-xs text-slate-400">
+            <label htmlFor="job-dbType" className="absolute left-3 top-2 text-xs text-slate-400 pointer-events-none">
               Type de base de données
             </label>
           </div>
@@ -158,6 +158,7 @@ function JobModal({ isOpen, onClose, onSaved, jobToEdit }) {
           {/* Compression */}
           <div className="relative">
             <select
+              id="job-compressionType"
               name="compressionType"
               value={form.compressionType}
               onChange={handleChange}
@@ -169,7 +170,7 @@ function JobModal({ isOpen, onClose, onSaved, jobToEdit }) {
               <option value="ZIP">ZIP (.zip)</option>
             </select>
 
-            <label className="absolute left-3 top-2 text-xs text-slate-400">
+            <label htmlFor="job-compressionType" className="absolute left-3 top-2 text-xs text-slate-400 pointer-events-none">
               Type de compression
             </label>
           </div>
@@ -177,6 +178,7 @@ function JobModal({ isOpen, onClose, onSaved, jobToEdit }) {
           {/* Host */}
           <div className="relative">
             <input
+              id="job-host"
               name="host"
               value={form.host}
               onChange={handleChange}
@@ -185,9 +187,7 @@ function JobModal({ isOpen, onClose, onSaved, jobToEdit }) {
               placeholder=" "
               className={`peer w-full bg-slate-900 border border-slate-700 p-3 pt-5 rounded-lg focus:outline-none focus:border-indigo-500 ${isEditMode ? "opacity-50 cursor-not-allowed pointer-events-none" : ""}`}
             />
-            <label className="absolute left-3 top-2 text-xs text-slate-400 transition-all 
-              peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-sm peer-placeholder-shown:text-slate-500
-              peer-focus:top-2 peer-focus:text-xs peer-focus:text-indigo-400">
+            <label htmlFor="job-host" className="absolute left-3 top-2 text-xs text-slate-400 pointer-events-none">
               Host
             </label>
           </div>
@@ -195,6 +195,7 @@ function JobModal({ isOpen, onClose, onSaved, jobToEdit }) {
           {/* Port */}
           <div className="relative">
             <input
+              id="job-number"
               type="number"
               name="port"
               value={form.port}
@@ -204,9 +205,7 @@ function JobModal({ isOpen, onClose, onSaved, jobToEdit }) {
               placeholder=" "
               className={`peer w-full bg-slate-900 border border-slate-700 p-3 pt-5 rounded-lg focus:outline-none focus:border-indigo-500 ${isEditMode ? "opacity-50 cursor-not-allowed pointer-events-none" : ""}`}
             />
-            <label className="absolute left-3 top-2 text-xs text-slate-400 transition-all 
-              peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-sm peer-placeholder-shown:text-slate-500
-              peer-focus:top-2 peer-focus:text-xs peer-focus:text-indigo-400">
+            <label htmlFor="job-number" className="absolute left-3 top-2 text-xs text-slate-400 pointer-events-none">
               Port
             </label>
           </div>
@@ -214,15 +213,15 @@ function JobModal({ isOpen, onClose, onSaved, jobToEdit }) {
           {/* Database */}
           <div className="relative">
             <input
+              id="job-dbName"
               name="dbName"
               value={form.dbName}
               onChange={handleChange}
+              disabled={isEditMode}
               placeholder=" "
-              className="peer w-full bg-slate-900 border border-slate-700 p-3 pt-5 rounded-lg focus:outline-none focus:border-indigo-500"
+              className={`peer w-full bg-slate-900 border border-slate-700 p-3 pt-5 rounded-lg focus:outline-none focus:border-indigo-500 ${isEditMode ? "opacity-50 cursor-not-allowed pointer-events-none" : ""}`}
             />
-            <label className="absolute left-3 top-2 text-xs text-slate-400 transition-all 
-              peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-sm peer-placeholder-shown:text-slate-500
-              peer-focus:top-2 peer-focus:text-xs peer-focus:text-indigo-400">
+            <label htmlFor="job-dbName" className="absolute left-3 top-2 text-xs text-slate-400 pointer-events-none">
               Nom de la base
             </label>
           </div>
@@ -230,15 +229,16 @@ function JobModal({ isOpen, onClose, onSaved, jobToEdit }) {
           {/* Username */}
           <div className="relative">
             <input
+              id="job-username"
               name="username"
               value={form.username}
               onChange={handleChange}
               required
-              autoComplete="username"
+              autoComplete="off"
               placeholder=" "
               className="peer w-full bg-slate-900 border border-slate-700 p-3 pt-5 rounded-lg focus:outline-none focus:border-indigo-500"
             />
-            <label className="absolute left-3 top-2 text-xs text-slate-400">
+            <label htmlFor="job-username" className="absolute left-3 top-2 text-xs text-slate-400">
               Username
             </label>
           </div>
@@ -247,16 +247,17 @@ function JobModal({ isOpen, onClose, onSaved, jobToEdit }) {
           {/* Password */}
           <div className="relative">
             <input
+              id="job-password"
               type="password"
               name="passwordEncrypted"
               value={form.passwordEncrypted}
               onChange={handleChange}
               required
-              autoComplete="current-password"
+              autoComplete="new-password"
               placeholder=" "
               className="peer w-full bg-slate-900 border border-slate-700 p-3 pt-5 rounded-lg focus:outline-none focus:border-indigo-500"
             />
-            <label className="absolute left-3 top-2 text-xs text-slate-400">
+            <label htmlFor="job-password" className="absolute left-3 top-2 text-xs text-slate-400">
               Mot de passe
             </label>
           </div>
@@ -265,6 +266,7 @@ function JobModal({ isOpen, onClose, onSaved, jobToEdit }) {
           {isCustomCron && (
             <div className="relative">
               <input
+              id="job-cronExpression"
                 name="cronExpression"
                 value={form.cronExpression}
                 onChange={handleChange}
@@ -272,9 +274,7 @@ function JobModal({ isOpen, onClose, onSaved, jobToEdit }) {
                 placeholder=" "
                 className="peer w-full bg-slate-900 border border-slate-700 p-3 pt-5 rounded-lg focus:outline-none focus:border-indigo-500"
               />
-              <label className="absolute left-3 top-1.5 text-xs text-slate-400 transition-all 
-                peer-placeholder-shown:top-3 peer-placeholder-shown:text-sm peer-placeholder-shown:text-slate-500
-                peer-focus:top-1.5 peer-focus:text-xs peer-focus:text-indigo-400">
+              <label htmlFor="job-cronExpression" className="absolute left-3 top-2 text-xs text-slate-400 pointer-events-none">
                 Expression cron personnalisée
               </label>
             </div>
@@ -282,6 +282,7 @@ function JobModal({ isOpen, onClose, onSaved, jobToEdit }) {
 
           <div className="relative">
             <select
+              id="job-cron"
               className="w-full bg-slate-900 border border-slate-700 p-3 pt-5 rounded-lg focus:outline-none focus:border-indigo-500"
               value={isCustomCron ? "custom" : form.cronExpression}
               required
@@ -318,7 +319,7 @@ function JobModal({ isOpen, onClose, onSaved, jobToEdit }) {
               <option value="custom">Choisir sa cron</option>
             </select>
 
-            <label className="absolute left-3 top-1.5 text-xs text-slate-400">
+            <label htmlFor="job-cron" className="absolute left-3 top-1.5 text-xs text-slate-400 pointer-events-none">
               Planification du backup
             </label>
           </div>
@@ -326,6 +327,7 @@ function JobModal({ isOpen, onClose, onSaved, jobToEdit }) {
           {/* Rétention */}
           <div className="relative">
             <select
+              id="job-retentionPolicy"
               name="retentionPolicy"
               value={form.retentionPolicy}
               onChange={handleChange}
@@ -334,7 +336,7 @@ function JobModal({ isOpen, onClose, onSaved, jobToEdit }) {
               <option value="NONE">Aucune rétention automatique</option>
               <option value="COUNT">Limiter le nombre de sauvegardes</option>
             </select>
-            <label className="absolute left-3 top-2 text-xs text-slate-400">
+            <label htmlFor="job-retentionPolicy" className="absolute left-3 top-2 text-xs text-slate-400 pointer-events-none">
               Mode de rétention
             </label>
           </div>
@@ -342,6 +344,7 @@ function JobModal({ isOpen, onClose, onSaved, jobToEdit }) {
           {form.retentionPolicy === "COUNT" && (
             <div className="relative">
               <input
+                id="job-numberRetention"
                 type="number"
                 name="retentionCount"
                 value={form.retentionCount}
@@ -351,84 +354,11 @@ function JobModal({ isOpen, onClose, onSaved, jobToEdit }) {
                 placeholder=" "
                 className="peer w-full bg-slate-900 border border-slate-700 p-3 pt-5 rounded-lg focus:outline-none focus:border-indigo-500"
               />
-              <label className="absolute left-3 top-2 text-xs text-slate-400 transition-all 
-                peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-sm peer-placeholder-shown:text-slate-500
-                peer-focus:top-2 peer-focus:text-xs peer-focus:text-indigo-400">
+              <label htmlFor="job-numberRetention" className="absolute left-3 top-2 text-xs text-slate-400 pointer-events-none">
                 Nombre de sauvegardes à conserver
               </label>
             </div>
           )}
-
-          {form.retentionPolicy === "CRON" && (
-            <>
-              {isCustomCronPurge && (
-                <div className="relative">
-                  <input
-                    name="cronPurgeExpression"
-                    value={form.cronPurgeExpression}
-                    className="peer w-full bg-slate-900 border border-slate-700 p-3 pt-5 rounded-lg focus:outline-none focus:border-indigo-500"
-                    onChange={handleChange}
-                    required
-                  />
-                <label className="absolute left-3 top-2 text-xs text-slate-400 transition-all 
-                  peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-sm peer-placeholder-shown:text-slate-500
-                  peer-focus:top-2 peer-focus:text-xs peer-focus:text-indigo-400">
-                  Cron Purge (ex: 0 */10 * * * *)
-                </label>
-              </div>
-              )}
-
-              <div className="relative">
-                <select
-                  className="w-full bg-slate-900 border border-slate-700 p-3 pt-5 rounded-lg focus:outline-none focus:border-indigo-500"
-                  value={isCustomCronPurge ? "customCronPurge" : form.cronPurgeExpression}
-                  onChange={(e) => {
-                    const value = e.target.value;
-
-                    if (value === "customCronPurge") {
-                      setIsCustomCronPurge(true);
-                      setForm({ ...form, cronPurgeExpression: "" });
-                    } else {
-                      setIsCustomCronPurge(false);
-                      setForm({ ...form, cronPurgeExpression: value });
-                    }
-                  }}
-                >
-                    <option value="">Choisir une fréquence</option>
-                    <option value="customCronPurge">Choisir sa cron</option>
-
-                    {/* Minutes */}
-                    <option value="0 * * * * *">1 minute</option>
-                    <option value="0 */5 * * * *">5 minutes</option>
-                    <option value="0 */10 * * * *">10 minutes</option>
-                    <option value="0 */30 * * * *">30 minutes</option>
-                    <option value="0 */45 * * * *">45 minutes</option>
-
-                    {/* Heures */}
-                    <option value="0 0 * * * *">1 heure</option>
-                    <option value="0 0 */2 * * *">2 heures</option>
-                    <option value="0 0 */3 * * *">3 heures</option>
-                    <option value="0 0 */4 * * *">4 heures</option>
-                    <option value="0 0 */5 * * *">5 heures</option>
-                    <option value="0 0 */6 * * *">6 heures</option>
-                    <option value="0 0 */12 * * *">12 heures</option>
-
-                    {/* Jours */}
-                    <option value="0 0 0 * * *">1 jour</option>
-                    <option value="0 0 0 */2 * *">2 jours</option>
-                    <option value="0 0 0 */3 * *">3 jours</option>
-                    <option value="0 0 0 */4 * *">4 jours</option>
-                    <option value="0 0 0 */5 * *">5 jours</option>
-                    <option value="0 0 0 */6 * *">6 jours</option>
-                    <option value="0 0 0 */7 * *">7 jours</option>
-                </select>
-                <label className="absolute left-3 top-2 text-xs text-slate-400">
-                  Cron
-                </label>
-              </div>
-            </>
-          )}
-
 
         </form>
 
