@@ -46,7 +46,6 @@ public class BackupJob {
     @Column(nullable = false)
     private Boolean enabled = true;
     
-    @Column(nullable = false)
     private String cronExpression;
     
     private String cronPurgeExpression;
@@ -72,4 +71,8 @@ public class BackupJob {
     
     @Enumerated(EnumType.STRING)
     private CompressionType compressionType;
+    
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private ExecutionMode executionMode = ExecutionMode.SCHEDULED;
 }

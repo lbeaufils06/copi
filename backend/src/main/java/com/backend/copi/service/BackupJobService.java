@@ -71,6 +71,7 @@ public class BackupJobService {
         existing.setNextExecutionTime(updatedJob.getNextExecutionTime());
         existing.setRetentionCount(updatedJob.getRetentionCount());
         existing.setRetentionPolicy(updatedJob.getRetentionPolicy());
+        existing.setExecutionMode(updatedJob.getExecutionMode());
         return repository.save(existing);
     }
     

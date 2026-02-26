@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import com.backend.copi.entity.BackupExecution;
 import com.backend.copi.entity.BackupJob;
 import com.backend.copi.entity.CompressionType;
+import com.backend.copi.entity.ExecutionMode;
 import com.backend.copi.entity.ExecutionStatus;
 import com.backend.copi.service.BackupExecutionService;
 import com.backend.copi.service.BackupJobService;
@@ -62,8 +63,12 @@ public class SchedulerService {
             if (runningJobs.contains(job.getId())) {
                 continue; // job déjà en cours
             }
+            
+            boolean shouldRun = false;
 
-            boolean shouldRun = initializeNextExecutionIfNeeded(job);
+            if(job.getCronExpression() != null) {
+            	shouldRun = initializeNextExecutionIfNeeded(job);
+            }
 
             if (shouldRun) {
                 executeWithLock(job);
@@ -86,8 +91,14 @@ public class SchedulerService {
     }
 
     private boolean initializeNextExecutionIfNeeded(BackupJob job) {
+        
+        if(job.getExecutionMode().equals(ExecutionMode.MANUAL)) {
+        	return isGoodForDump(job, null, false);
+        }
 
         LocalDateTime now = LocalDateTime.now(clock).withNano(0);
+        
+
         LocalDateTime nextTentative = CronExpression
                 .parse(job.getCronExpression())
                 .next(now)
