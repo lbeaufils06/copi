@@ -16,6 +16,7 @@ function JobModal({ jobId, onClose }) {
     username: "",
     passwordEncrypted: "",
     cronExpression: "0 0 * * * *",
+    executionMode: "SCHEDULED",
     retentionPolicy: "NONE",
     cronPurgeExpression: "",
     retentionCount: 5,
@@ -44,6 +45,16 @@ function JobModal({ jobId, onClose }) {
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
+
+    if (name === "executionMode") {
+      setForm({
+        ...form,
+        executionMode: value,
+        cronExpression: value === "MANUAL" ? "" : "0 0 * * * *",
+      });
+      return;
+    }
+
     setForm({
       ...form,
       [name]: type === "checkbox" ? checked : value,
@@ -306,67 +317,88 @@ function JobModal({ jobId, onClose }) {
             </button>
           </div>
 
-          {/* PLANIFICATION BACKUP */}
-          {isCustomCron && (
-            <div className="relative">
-              <input
-              id="job-cronExpression"
-                name="cronExpression"
-                value={form.cronExpression}
-                onChange={handleChange}
-                required
-                placeholder=" "
-                className="peer w-full bg-slate-900 border border-slate-700 p-3 pt-5 rounded-lg focus:outline-none focus:border-indigo-500"
-              />
-              <label htmlFor="job-cronExpression" className="absolute left-3 top-2 text-xs text-slate-400 pointer-events-none">
-                Expression cron personnalisée
-              </label>
-            </div>
-          )}
-
+          {/* Mode d'exécution */}
           <div className="relative">
             <select
-              id="job-cron"
+              id="job-executionMode"
+              name="executionMode"
+              value={form.executionMode}
+              onChange={handleChange}
               className="w-full bg-slate-900 border border-slate-700 p-3 pt-5 rounded-lg focus:outline-none focus:border-indigo-500"
-              value={isCustomCron ? "custom" : form.cronExpression}
-              required
-              onChange={(e) => {
-                const value = e.target.value;
-
-                if (value === "custom") {
-                  setIsCustomCron(true);
-                  setForm({ ...form, cronExpression: "" });
-                } else {
-                  setIsCustomCron(false);
-                  setForm({ ...form, cronExpression: value });
-                }
-              }}
             >
-              <option value="*/30 * * * * *">30 secondes</option>
-              <option value="0 * * * * *">1 minute</option>
-              <option value="0 */30 * * * *">30 minutes</option>
-              <option value="0 0 * * * *">1 heure</option>
-              <option value="0 0 */3 * * *">3 heures</option>
-              <option value="0 0 */6 * * *">6 heures</option>
-              <option value="0 0 */12 * * *">12 heures</option>
-              <option value="0 0 0 * * *">00h</option>
-              <option value="0 0 2 * * *">02h</option>
-              <option value="0 0 4 * * *">04h</option>
-              <option value="0 0 6 * * *">06h</option>
-              <option value="0 0 8 * * *">08h</option>
-              <option value="0 0 10 * * *">10h</option>
-              <option value="0 0 12 * * *">12h</option>
-              <option value="0 0 14 * * *">14h</option>
-              <option value="0 0 16 * * *">16h</option>
-              <option value="0 0 20 * * *">20h</option>
-              <option value="0 0 22 * * *">22h</option>
-              <option value="custom">Choisir sa cron</option>
+              <option value="SCHEDULED">Cron</option>
+              <option value="SCHEDULED_CUSTOM">Cron Custum</option>
+              <option value="MANUAL">Manuel</option>
             </select>
 
-            <label htmlFor="job-cron" className="absolute left-3 top-1.5 text-xs text-slate-400 pointer-events-none">
-              Planification du backup
+            <label
+              htmlFor="job-executionMode"
+              className="absolute left-3 top-2 text-xs text-slate-400 pointer-events-none"
+            >
+              Mode d'exécution
             </label>
           </div>
+
+          {form.executionMode === "SCHEDULED" && (
+          <>
+            {/* PLANIFICATION BACKUP */}
+            <div className="relative">
+              <select
+                id="job-cron"
+                className="w-full bg-slate-900 border border-slate-700 p-3 pt-5 rounded-lg focus:outline-none focus:border-indigo-500"
+                value={isCustomCron ? "custom" : form.cronExpression}
+                required
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setForm({ ...form, cronExpression: value });
+                }}
+              >
+                <option value="*/30 * * * * *">30 secondes</option>
+                <option value="0 * * * * *">1 minute</option>
+                <option value="0 */30 * * * *">30 minutes</option>
+                <option value="0 0 * * * *">1 heure</option>
+                <option value="0 0 */3 * * *">3 heures</option>
+                <option value="0 0 */6 * * *">6 heures</option>
+                <option value="0 0 */12 * * *">12 heures</option>
+                <option value="0 0 0 * * *">00h</option>
+                <option value="0 0 2 * * *">02h</option>
+                <option value="0 0 4 * * *">04h</option>
+                <option value="0 0 6 * * *">06h</option>
+                <option value="0 0 8 * * *">08h</option>
+                <option value="0 0 10 * * *">10h</option>
+                <option value="0 0 12 * * *">12h</option>
+                <option value="0 0 14 * * *">14h</option>
+                <option value="0 0 16 * * *">16h</option>
+                <option value="0 0 20 * * *">20h</option>
+                <option value="0 0 22 * * *">22h</option>
+              </select>
+
+              <label htmlFor="job-cron" className="absolute left-3 top-1.5 text-xs text-slate-400 pointer-events-none">
+                Planification du backup
+              </label>
+            </div>
+            </>
+          )}
+
+            
+          {form.executionMode === "SCHEDULED_CUSTOM" && (
+          <>
+              <div className="relative">
+                <input
+                id="job-cronExpression"
+                  name="cronExpression"
+                  value={form.cronExpression}
+                  onChange={handleChange}
+                  required
+                  placeholder=" "
+                  className="peer w-full bg-slate-900 border border-slate-700 p-3 pt-5 rounded-lg focus:outline-none focus:border-indigo-500"
+                />
+                <label htmlFor="job-cronExpression" className="absolute left-3 top-2 text-xs text-slate-400 pointer-events-none">
+                  Expression cron personnalisée
+                </label>
+              </div>
+            </>
+          )}
 
           {/* Rétention */}
           <div className="relative">

@@ -19,7 +19,9 @@ CREATE TABLE IF NOT EXISTS backup_job (
 
     enabled INTEGER NOT NULL DEFAULT 1,
 
-    cron_expression TEXT NOT NULL,
+    execution_mode TEXT NOT NULL DEFAULT 'SCHEDULED',
+
+    cron_expression TEXT,
     cron_purge_expression TEXT,
 
     next_execution_time DATETIME,

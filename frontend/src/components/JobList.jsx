@@ -69,12 +69,14 @@ function JobList({
                       {formatRelativeTime(job.lastSuccessTime)}
                     </p>
 
+                    {job.cronExpression != "" && (
                     <p>
                       <span className="text-slate-300 font-medium">
                         Prochaine exécution :
                       </span>{" "}
                       {formatFutureTime(job.nextExecutionTime)}
                     </p>
+                    )}
 
                     <p>
                       <span className="text-slate-300 font-medium">
