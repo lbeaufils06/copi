@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import JobModalWrapper from "../components/JobModalWrapper";
+import ExecutionModalWrapper from "../components/ExecutionModalWrapper";
 import { useApi } from "../utils/useApi";
 import Header from "../components/Header";
 import JobList from "../components/JobList";
@@ -21,10 +22,13 @@ function Dashboard() {
     navigate(`/job/${job.id}`);
   };
 
+  const openExecutions = (job) => {
+    navigate(`/job/executions/${job.id}`);
+  };
+
   const fetchJobs = async () => {
     try {
-      const response = await apiFetch("/api/jobs");
-      const data = await response.json();
+      const data = await apiFetch("/api/jobs");
 
       setJobs(data.jobs ?? []);
       setServerTime(new Date(data.serverTime));
@@ -123,6 +127,7 @@ function Dashboard() {
           serverOffline={serverOffline}
           startJob={startJob}
           openEditModal={openEditModal}
+          openExecutions={openExecutions}
         />
 
       </div>
@@ -131,6 +136,7 @@ function Dashboard() {
 
     <Routes>
       <Route path="job/:id" element={<JobModalWrapper />} />
+      <Route path="/job/executions/:id" element={<ExecutionModalWrapper />} />
     </Routes>
     </>
   );

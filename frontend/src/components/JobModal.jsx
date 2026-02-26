@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import { useApi } from "../utils/useApi";
+import { useLockBodyScroll } from "../hooks/useLockBodyScroll";
 
 function JobModal({ jobId, onClose }) {
+  useLockBodyScroll();
   const { apiFetch } = useApi();
   const isEditMode = (jobId == "new") ? false : true;
   const [isCustomCron, setIsCustomCron] = useState(false);
@@ -30,7 +32,7 @@ function JobModal({ jobId, onClose }) {
   useEffect(() => {
     if (isEditMode && jobId) {
       apiFetch(`/api/jobs/${jobId}`)
-        .then((res) => res.json())
+        .then((res) => res)
         .then((data) =>
           setForm({
             ...data,
@@ -113,8 +115,12 @@ function JobModal({ jobId, onClose }) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex justify-center items-center z-50">
-      <div className="bg-slate-800 text-slate-100 rounded-2xl w-full max-w-lg shadow-2xl border border-slate-700 max-h-[90vh] flex flex-col">
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex justify-center items-center z-50 animate-fadeIn"
+        onClick={onClose}
+    >
+      <div className="bg-slate-800 text-slate-100 rounded-2xl w-full max-w-lg shadow-2xl border border-slate-700 max-h-[90vh] flex flex-col"
+        onClick={(e) => e.stopPropagation()}
+      >
 
         {/* HEADER */}
         <div className="p-4 sm:p-6 border-b border-slate-700">

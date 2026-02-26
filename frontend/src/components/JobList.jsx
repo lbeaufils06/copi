@@ -8,7 +8,8 @@ function JobList({
   jobs,
   serverOffline,
   startJob,
-  openEditModal
+  openEditModal,
+  openExecutions
 }) {
   const navigate = useNavigate();
 
@@ -141,8 +142,26 @@ function JobList({
                       </svg>
                     </button>
 
-                    <button className="bg-slate-800 hover:bg-slate-700 border border-slate-600 px-3 py-2 rounded-lg text-sm transition">
-                      ⋮
+                    <button
+                      onClick={() => openExecutions(job)}
+                      title="Voir les executions"
+                      className="bg-slate-800 hover:bg-slate-700 border border-slate-600 p-2 rounded-lg transition flex items-center justify-center"
+
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="w-5 h-5 text-gray-300"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        strokeWidth={2}
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M3 3v5h5M3.05 13A9 9 0 106 5.3L3 8m9 4V7m0 5l4 2"
+                        />
+                      </svg>
                     </button>
                   </div>
 

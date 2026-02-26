@@ -20,7 +20,14 @@ export const useApi = () => {
       throw new Error("API error");
     }
 
-    return response;
+    // 🔥 PARSE JSON automatiquement
+    const contentType = response.headers.get("content-type");
+
+    if (contentType && contentType.includes("application/json")) {
+      return response.json();
+    }
+
+    return null; // si pas de body JSON
   };
 
   return { apiFetch };
