@@ -30,5 +30,6 @@
   <Config Name="MySQL Dump Path" Target="MYSQLDUMP_PATH" Default="mysqldump" Mode="{3}" Description="Path to mysqldump binary (Linux default: mysqldump)" Type="Variable" Display="advanced" Required="false" Mask="false">/usr/bin/mysqldump</Config>
   <Config Name="PostgreSQL Dump Path" Target="PGDUMP_PATH" Default="pg_dump" Mode="{3}" Description="Path to pg_dump binary (Linux default: pg_dump)" Type="Variable" Display="advanced" Required="false" Mask="false">/usr/bin/pg_dump</Config>
   <Config Name="PostgreSQL DumpAll Path" Target="PGDUMPALL_PATH" Default="pg_dumpall" Mode="{3}" Description="Path to pg_dumpall binary (Linux default: pg_dumpall)" Type="Variable" Display="advanced" Required="false" Mask="false">/usr/bin/pg_dumpall</Config>
+  <Config Name="Spring Profile" Target="SPRING_PROFILES_ACTIVE" Default="prod" Mode="" Description="Spring active profile" Type="Variable" Display="never" Required="true" Mask="false">prod</Config>
   <TailscaleStateDir/>
 </Container>
