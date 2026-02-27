@@ -58,12 +58,30 @@ function Dashboard() {
 
   const startJob = async (id) => {
     try {
-      const response = await apiFetch(
+      // 🔥 Mettre immédiatement en RUNNING (optimistic UI)
+      setJobs(prev =>
+        prev.map(job =>
+          job.id === id
+            ? { ...job, lastStatus: "RUNNING" }
+            : job
+        )
+      );
+
+      // 🔥 Lancer la requête backend
+      const requestPromise = apiFetch(
         `/api/jobs/${id}/start`,
         { method: "POST" }
       );
-      
-      if(!response) return;
+
+      // 🔥 Attendre minimum 2 seconde
+      const delayPromise = new Promise(resolve =>
+        setTimeout(resolve, 2000)
+      );
+
+      const response = await requestPromise;
+      await delayPromise;
+
+      if (!response) return;
 
       if (response.status === 409) {
         setErrorMessage("Ce job est déjà en cours");
@@ -75,17 +93,11 @@ function Dashboard() {
         throw new Error("Erreur serveur");
       }
 
+      // 🔥 Rafraîchir les jobs après
+      await fetchJobs();
+
     } catch (error) {
       console.error("Erreur start:", error);
-    }
-  };
-
-  const handleLogout = async () => {
-    try {
-      await apiFetch("/api/logout", { method: "POST" });
-      window.location.href = "/";
-    } catch (error) {
-      console.error("Erreur logout:", error);
     }
   };
 
