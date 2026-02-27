@@ -1,0 +1,47 @@
+spring:
+
+  sql:
+    init:
+      mode: always
+
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:sqlite:data/copi.db}
+    driver-class-name: ${SPRING_DATASOURCE_DRIVER:org.sqlite.JDBC}
+
+  jpa:
+    database-platform: com.backend.copi.config.SQLiteDialect
+    hibernate:
+      ddl-auto: none
+    show-sql: false
+    open-in-view: false
+
+  security:
+    user:
+      name: admin
+      password: ${COPI_ADMIN_PASSWORD:copi}
+
+app:
+  crypto:
+    secret: ${MASTER_KEY:test-secret}
+
+  mysqldump:
+    path: ${MYSQLDUMP_PATH:C:/Program Files/MySQL/MySQL Server 8.0/bin/mysqldump.exe}
+
+  pgdump:
+    path: ${PGDUMP_PATH:C:/Program Files/PostgreSQL/18/bin/pg_dump.exe}
+
+  pgdumpall:
+    path: ${PGDUMPALL_PATH:C:/Program Files/PostgreSQL/18/bin/pg_dumpall.exe}
+
+  backup:
+    directory: ${APP_BACKUP_DIR:backups}
+
+server:
+  port: ${SERVER_PORT:8080}
+  servlet:
+    session:
+      timeout: ${SESSION_TIMEOUT:30}m
+
+logging:
+  level:
+    org.springframework.boot.autoconfigure: WARN
