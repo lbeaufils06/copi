@@ -22,6 +22,8 @@ public class SchedulerServiceSync {
         	backupStorageService.synchronize();        	
         } catch (Exception e) {
             log.error("Error during backup consistency check", e);
+        } finally {
+        	log.info("Start syncBackups");
         }
     }
 }
