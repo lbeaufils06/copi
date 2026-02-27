@@ -66,8 +66,7 @@ function formatTime(dateString, isFuture = false, isRunning = false) {
     return "maintenant";
   }
 
-  // 🔥 Décalage UX de +1 seconde
-  const diffInSeconds = Math.floor(diffMs / 1000) + 1;
+  const diffInSeconds = Math.floor(diffMs / 1000);
 
   const parts = buildTimeParts(diffInSeconds);
 
