@@ -1,3 +1,22 @@
+// 🔥 Offset serveur interne au module
+let serverOffset = 0;
+
+export function syncServerTime(serverTime) {
+  if (!serverTime) return;
+
+  const before = Date.now();
+  const serverDate = new Date(serverTime);
+  const after = Date.now();
+
+  const latency = (after - before) / 2;
+
+  serverOffset = serverDate - (after - latency);
+}
+
+export function syncServerTimeNow() {
+  return new Date(Date.now() + serverOffset);
+}
+
 function plural(value, unit) {
   if (unit === "mois") return `${value} mois`;
   if (unit === "an") return `${value} an${value > 1 ? "s" : ""}`;
@@ -29,24 +48,29 @@ function buildTimeParts(diffInSeconds) {
   return parts;
 }
 
-function formatTime(dateString, isFuture = false) {
+function formatTime(dateString, isFuture = false, isRunning = false) {
   if (!dateString) return "—";
 
-  const now = new Date();
+  const now = syncServerTimeNow();
   const target = new Date(dateString);
 
-  const diffInSeconds = Math.floor(
-    isFuture ? (target - now) / 1000 : (now - target) / 1000
-  );
+  const diffMs = isFuture
+    ? target.getTime() - now.getTime()
+    : now.getTime() - target.getTime();
 
-  if (diffInSeconds <= 0) return "maintenant";
+  if (isRunning) {
+    return isFuture ? "maintenant" : "en cours";
+  }
+
+  if (diffMs <= 0) {
+    return "maintenant";
+  }
+
+  // 🔥 Décalage UX de +1 seconde
+  const diffInSeconds = Math.floor(diffMs / 1000) + 1;
 
   const parts = buildTimeParts(diffInSeconds);
 
-  if (!parts.length) return "maintenant";
-
-  // 🔥 Passé = 1 unité
-  // 🔥 Futur = 2 unités
   const limit = isFuture ? 2 : 1;
 
   const formatted = parts
@@ -54,15 +78,17 @@ function formatTime(dateString, isFuture = false) {
     .map(p => plural(p.value, p.unit))
     .join(" ");
 
-  return isFuture ? `dans ${formatted}` : `il y a ${formatted}`;
+  return isFuture
+    ? `dans ${formatted}`
+    : `il y a ${formatted}`;
 }
 
-export function formatRelativeTime(dateString) {
-  return formatTime(dateString, false);
+export function formatRelativeTime(dateString, isRunning = false) {
+  return formatTime(dateString, false, isRunning);
 }
 
-export function formatFutureTime(dateString) {
-  return formatTime(dateString, true);
+export function formatFutureTime(dateString, isRunning = false) {
+  return formatTime(dateString, true, isRunning);
 }
 
 export function getReadableCron(cronExpression) {

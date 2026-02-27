@@ -66,16 +66,16 @@ function JobList({
                     <p>
                       <span className="text-slate-300 font-medium">
                         Dernière sauvegarde :
-                      </span>{" "}
-                      {formatRelativeTime(job.lastSuccessTime)}
+                      </span>{" "}                      
+                      {formatRelativeTime(job.lastSuccessTime, job.lastStatus === "RUNNING")}                   
                     </p>
 
                     {job.cronExpression != "" && (
                     <p>
                       <span className="text-slate-300 font-medium">
                         Prochaine exécution :
-                      </span>{" "}
-                      {formatFutureTime(job.nextExecutionTime)}
+                      </span>{" "}                    
+                      {formatFutureTime(job.nextExecutionTime, job.lastStatus === "RUNNING")}  
                     </p>
                     )}
 

@@ -5,6 +5,7 @@ import { useApi } from "../utils/useApi";
 import Header from "../components/Header";
 import JobList from "../components/JobList";
 import { Routes, Route, useNavigate, useParams } from "react-router-dom";
+import { syncServerTime, syncServerTimeNow } from "../utils/time";
 
 function Dashboard() {
   const [jobs, setJobs] = useState([]);
@@ -30,8 +31,11 @@ function Dashboard() {
     try {
       const data = await apiFetch("/api/jobs");
 
+      // 🔥 Synchronisation avec l'heure serveur
+      syncServerTime(data.serverTime);
+
       setJobs(data.jobs ?? []);
-      setServerTime(new Date(data.serverTime));
+      setServerTime(syncServerTimeNow());
       setServerOffline(false);
 
     } catch (error) {
@@ -58,6 +62,8 @@ function Dashboard() {
         `/api/jobs/${id}/start`,
         { method: "POST" }
       );
+      
+      if(!response) return;
 
       if (response.status === 409) {
         setErrorMessage("Ce job est déjà en cours");
