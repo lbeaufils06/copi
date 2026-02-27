@@ -3,6 +3,7 @@ package com.backend.copi.entity;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import com.backend.copi.enums.ExecutionStatus;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.Column;

@@ -3,6 +3,12 @@ package com.backend.copi.entity;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import com.backend.copi.enums.CompressionType;
+import com.backend.copi.enums.DatabaseType;
+import com.backend.copi.enums.ExecutionMode;
+import com.backend.copi.enums.ExecutionStatus;
+import com.backend.copi.enums.RetentionPolicy;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

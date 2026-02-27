@@ -1,4 +1,4 @@
-package com.backend.copi.entity;
+package com.backend.copi.enums;
 
 public enum ExecutionMode {
     MANUAL,
