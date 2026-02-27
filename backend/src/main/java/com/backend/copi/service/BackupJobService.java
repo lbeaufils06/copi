@@ -3,7 +3,6 @@ package com.backend.copi.service;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
@@ -75,6 +74,7 @@ public class BackupJobService {
         return repository.save(existing);
     }
     
+    @Transactional
     public BackupJob updateJobScheduler(UUID id, BackupJob updatedJob) {
 
         BackupJob existing = repository.findById(id)

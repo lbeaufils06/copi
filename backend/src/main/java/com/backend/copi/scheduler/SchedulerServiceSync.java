@@ -15,7 +15,7 @@ public class SchedulerServiceSync {
 
     private final BackupStorageService backupStorageService;
 
-    @Scheduled(fixedRate = 300000)
+    @Scheduled(fixedRate = 256000)
     public void syncBackups() {
 
         try {
