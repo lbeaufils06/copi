@@ -127,9 +127,7 @@ public class SchedulerService {
     }
 
     private void executeSequentially(BackupJob job) {
-    	
-    	long start = System.currentTimeMillis();
-    	
+    	    	
     	LocalDateTime now = LocalDateTime.now(clock).withNano(0);
         log.info("Dump => name=" + job.getName() + ", now=" + now + ", nextExecutionTime=" + job.getNextExecutionTime());
 
@@ -153,8 +151,6 @@ public class SchedulerService {
                 Files.delete(Path.of(filePath));
             }
             
-
-            delayMin(start);
             executionService.markSuccess(execution, finalPath);
 
             job.setLastStatus(ExecutionStatus.SUCCESS);
@@ -168,7 +164,6 @@ public class SchedulerService {
             }
 
         } catch (Exception e) {
-        	delayMin(start);
             job.setLastStatus(ExecutionStatus.FAILED);
             String messageError = e.getMessage();
             job.setLastStatusMessage(messageError);
@@ -178,19 +173,6 @@ public class SchedulerService {
         } finally {
         	backupStorageService.synchronize();
             jobService.updateJobScheduler(job.getId(), job);
-        }
-    }
-    
-    private void delayMin(long start) {
-    	long elapsed = System.currentTimeMillis() - start;
-        long minimumDuration = 1000;
-        if (elapsed < minimumDuration) {
-            try {
-				Thread.sleep(minimumDuration - elapsed);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
         }
     }
 
