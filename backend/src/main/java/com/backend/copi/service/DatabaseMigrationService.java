@@ -2,12 +2,15 @@ package com.backend.copi.service;
 
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.context.annotation.Profile;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Profile("!test")
 public class DatabaseMigrationService {
 
     private final JdbcTemplate jdbcTemplate;

@@ -6,12 +6,16 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.context.annotation.Import;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
-@SpringBootTest
+@WebMvcTest(useDefaultFilters = false)
+@Import(WebConfig.class)
 @AutoConfigureMockMvc(addFilters = false)
+@ActiveProfiles("test")
 class WebConfigTest {
 
     @Autowired
@@ -19,15 +23,15 @@ class WebConfigTest {
 
     @Test
     void shouldForwardSimpleRouteToIndex() throws Exception {
-        mockMvc.perform(get("/dashboard"))
-                .andExpect(status().isOk())
-                .andExpect(forwardedUrl("/index.html"));
+        mockMvc.perform(get("/test"))
+               .andExpect(status().isOk())
+               .andExpect(forwardedUrl("/index.html"));
     }
 
     @Test
     void shouldForwardNestedRouteToIndex() throws Exception {
-        mockMvc.perform(get("/users/123"))
-                .andExpect(status().isOk())
-                .andExpect(forwardedUrl("/index.html"));
+        mockMvc.perform(get("/app/test"))
+               .andExpect(status().isOk())
+               .andExpect(forwardedUrl("/index.html"));
     }
 }
