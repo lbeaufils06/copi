@@ -14,7 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.backend.copi.entity.BackupExecution;
 import com.backend.copi.entity.BackupJob;
-import com.backend.copi.entity.ExecutionStatus;
+import com.backend.copi.enums.ExecutionStatus;
 import com.backend.copi.repository.BackupExecutionRepository;
 
 import lombok.RequiredArgsConstructor;

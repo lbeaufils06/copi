@@ -6,7 +6,7 @@ import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.backend.copi.entity.BackupJob;
-import com.backend.copi.entity.ExecutionStatus;
+import com.backend.copi.enums.ExecutionStatus;
 
 public interface BackupJobRepository extends JpaRepository<BackupJob, UUID> {
 	

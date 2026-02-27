@@ -19,9 +19,9 @@ import org.springframework.stereotype.Service;
 
 import com.backend.copi.entity.BackupExecution;
 import com.backend.copi.entity.BackupJob;
-import com.backend.copi.entity.CompressionType;
-import com.backend.copi.entity.ExecutionMode;
-import com.backend.copi.entity.ExecutionStatus;
+import com.backend.copi.enums.CompressionType;
+import com.backend.copi.enums.ExecutionMode;
+import com.backend.copi.enums.ExecutionStatus;
 import com.backend.copi.service.BackupExecutionService;
 import com.backend.copi.service.BackupJobService;
 import com.backend.copi.service.BackupStorageService;

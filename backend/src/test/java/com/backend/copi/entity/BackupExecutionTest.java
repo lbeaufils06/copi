@@ -7,6 +7,8 @@ import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
 
+import com.backend.copi.enums.ExecutionStatus;
+
 class BackupExecutionTest {
 
     @Test

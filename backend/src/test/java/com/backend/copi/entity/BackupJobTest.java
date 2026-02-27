@@ -7,6 +7,12 @@ import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
 
+import com.backend.copi.enums.CompressionType;
+import com.backend.copi.enums.DatabaseType;
+import com.backend.copi.enums.ExecutionMode;
+import com.backend.copi.enums.ExecutionStatus;
+import com.backend.copi.enums.RetentionPolicy;
+
 class BackupJobTest {
 
     @Test
