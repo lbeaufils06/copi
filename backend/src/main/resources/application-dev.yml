@@ -33,6 +33,9 @@ app:
   pgdumpall:
     path: ${PGDUMPALL_PATH:C:/Program Files/PostgreSQL/18/bin/pg_dumpall.exe}
 
+  mariadump:
+    path: ${MARIADUMP_PATH:mariadb-dump}
+
   backup:
     directory: ${APP_BACKUP_DIR:backups}
 

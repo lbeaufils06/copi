@@ -194,6 +194,7 @@ function JobModal({ jobId, onClose }) {
               disabled={isEditMode}
               className={`w-full bg-slate-900 border border-slate-700 p-3 pt-5 rounded-lg focus:outline-none focus:border-indigo-500 ${isEditMode ? "opacity-50 cursor-not-allowed pointer-events-none" : ""}`}
             >
+              <option value="MARIADB">MariaDB</option>
               <option value="MYSQL">MySQL</option>
               <option value="POSTGRESQL">PostgreSQL</option>
             </select>

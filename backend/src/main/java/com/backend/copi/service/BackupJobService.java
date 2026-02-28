@@ -147,13 +147,14 @@ public class BackupJobService {
     public Map<DatabaseType, String> getAllDefaultDumpOptions() {
         return Map.of(
                 DatabaseType.MYSQL,"--single-transaction --quick --routines --triggers --events --add-drop-table --set-gtid-purged=OFF --column-statistics=0",
+                DatabaseType.MARIADB, "--single-transaction --quick --routines --triggers --events --add-drop-table",
                 DatabaseType.POSTGRESQL,"--clean --if-exists --no-owner --format=plain"
         );
     }
 
     public BackupJob getDefaults() {
         BackupJob job = new BackupJob();
-        job.setDbType(DatabaseType.MYSQL);
+        job.setDbType(DatabaseType.MARIADB);
         job.setCronExpression("0 0 * * * *");
         job.setExecutionMode(ExecutionMode.SCHEDULED);
         job.setRetentionPolicy(RetentionPolicy.NONE);
