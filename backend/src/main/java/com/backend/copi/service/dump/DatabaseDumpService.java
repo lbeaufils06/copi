@@ -12,9 +12,31 @@ public interface DatabaseDumpService {
     String executeDump(BackupJob job) throws Exception;
 
     default List<String> parseDumpOptions(String options) {
+
         if (options == null || options.isBlank()) {
             return List.of();
         }
-        return Arrays.asList(options.trim().split("\\s+"));
+
+        List<String> parsed = Arrays.asList(options.trim().split("\\s+"));
+
+        for (String opt : parsed) {
+
+            if (!opt.startsWith("-")) {
+                throw new IllegalArgumentException(
+                        "Invalid dump option format: " + opt
+                );
+            }
+
+            if (opt.contains(";") ||
+                    opt.contains("&&") ||
+                    opt.contains("|")) {
+
+                throw new IllegalArgumentException(
+                        "Potentially dangerous dump option: " + opt
+                );
+            }
+        }
+
+        return parsed;
     }
 }
