@@ -1,4 +1,4 @@
-package com.backend;
+package com.backend.copi;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
