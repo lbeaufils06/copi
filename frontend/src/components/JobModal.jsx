@@ -1,50 +1,75 @@
 import { useEffect, useState } from "react";
 import { useApi } from "../utils/useApi";
 import { useLockBodyScroll } from "../hooks/useLockBodyScroll";
+import { useAppContext } from "../utils/AppContext";
+import Loader from "./Loader";
 
 function JobModal({ jobId, onClose }) {
   useLockBodyScroll();
+
+  const { jobDefaults, dumpOptions } = useAppContext();
   const { apiFetch } = useApi();
-  const isEditMode = (jobId == "new") ? false : true;
-  const [isCustomCron, setIsCustomCron] = useState(false);
+  const isEditMode = jobId !== "new";
+  const [form, setForm] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
+  const [userModifiedDumpOptions, setUserModifiedDumpOptions] = useState(false);
 
-  const initialForm = {
-    name: "",
-    dbType: "MYSQL",
-    host: "",
-    port: "",
-    dbName: "",
-    username: "",
+  const sanitizeForm = (data) => ({
+    ...data,
+    name: data.name ?? "",
+    dbType: data.dbType ?? "",
+    host: data.host ?? "",
+    port: data.port ?? "",
+    dbName: data.dbName ?? "",
+    username: data.username ?? "",
     passwordEncrypted: "",
-    cronExpression: "0 0 * * * *",
-    executionMode: "SCHEDULED",
-    retentionPolicy: "NONE",
-    cronPurgeExpression: "",
-    retentionCount: 5,
-    enabled: true,
-    compressionType: "NONE",
-  };
+    cronExpression: data.cronExpression ?? "",
+    executionMode: data.executionMode ?? "",
+    retentionPolicy: data.retentionPolicy ?? "",
+    cronPurgeExpression: data.cronPurgeExpression ?? "",
+    retentionCount: data.retentionCount ?? 0,
+    compressionType: data.compressionType ?? "",
+    dumpOptions: data.dumpOptions ?? "",
+  });
 
-  const [form, setForm] = useState(initialForm);
-
-  // 🔥 Charger le job si édition
+  /* ================================
+     LOAD JOB
+  ==================================*/
   useEffect(() => {
     if (isEditMode && jobId) {
       apiFetch(`/api/jobs/${jobId}`)
-        .then((res) => res)
         .then((data) =>
-          setForm({
-            ...data,
-            passwordEncrypted: "",
-          })
+          setForm(sanitizeForm(data))
         )
-        .catch((err) => console.error("Erreur chargement job:", err));
-    } else {
-      setForm(initialForm);
+        .catch((err) =>
+          console.error("Erreur chargement job:", err)
+        );
+    } else if (jobDefaults) {
+      setForm(sanitizeForm(jobDefaults));
     }
-  }, [jobId, isEditMode]); 
+  }, [jobId, isEditMode, jobDefaults]);
 
+  /* ================================
+    SYNC DUMP OPTIONS WITH DB TYPE
+  ==================================*/
+  useEffect(() => {
+    if (!form || isEditMode) return;
+    if (!dumpOptions) return;
+    if (userModifiedDumpOptions) return;
+
+    const defaultOptionsForDb = dumpOptions[form.dbType];
+
+    if (defaultOptionsForDb) {
+      setForm(prev => ({
+        ...prev,
+        dumpOptions: defaultOptionsForDb
+      }));
+    }
+  }, [form?.dbType, dumpOptions, isEditMode, userModifiedDumpOptions]);
+
+  /* ================================
+     HANDLERS
+  ==================================*/
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
 
@@ -52,30 +77,30 @@ function JobModal({ jobId, onClose }) {
       setForm({
         ...form,
         executionMode: value,
-        cronExpression: value === "MANUAL" ? "" : "0 0 * * * *",
+        cronExpression:
+          value === "MANUAL" ? "" : "0 0 * * * *",
       });
       return;
     }
 
-    setForm({
-      ...form,
+    if (name === "dumpOptions") {
+      setUserModifiedDumpOptions(true);
+    }
+
+    setForm(prev => ({
+      ...prev,
       [name]: type === "checkbox" ? checked : value,
-    });
+    }));
   };
 
   const handleDelete = async () => {
-    const confirmDelete = window.confirm(
-      "Voulez-vous vraiment supprimer ce job ?"
-    );
-    if (!confirmDelete) return;
+    if (!window.confirm("Supprimer ce job ?")) return;
 
     try {
       await apiFetch(`/api/jobs/${jobId}`, {
         method: "DELETE",
       });
-
       onClose();
-      setForm(initialForm);
     } catch (error) {
       console.error("Erreur suppression:", error);
     }
@@ -108,12 +133,18 @@ function JobModal({ jobId, onClose }) {
       });
 
       onClose();
-      setForm(initialForm);
     } catch (error) {
       console.error("Erreur API:", error);
     }
   };
 
+  if (!form) {
+    return <Loader text="Chargement..." />;
+  }
+
+  /* ================================
+     RENDER
+  ==================================*/
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex justify-center items-center z-50 animate-fadeIn"
         onClick={onClose}
@@ -168,6 +199,20 @@ function JobModal({ jobId, onClose }) {
             </select>
             <label htmlFor="job-dbType" className="absolute left-3 top-2 text-xs text-slate-400 pointer-events-none">
               Type de base de données
+            </label>
+          </div>
+          
+          {/* DUMP OPTIONS */}
+          <div className="relative">
+            <input
+              name="dumpOptions"
+              value={form.dumpOptions}
+              onChange={handleChange}
+              placeholder="Options du dump"
+              className={`peer w-full bg-slate-900 border border-slate-700 p-3 pt-5 rounded-lg focus:outline-none focus:border-indigo-500 ${isEditMode ? "opacity-50 cursor-not-allowed pointer-events-none" : ""}`}
+            />
+            <label htmlFor="job-dumpOptions" className="absolute left-3 top-2 text-xs text-slate-400 pointer-events-none">
+              Options base de données
             </label>
           </div>
 
@@ -352,7 +397,7 @@ function JobModal({ jobId, onClose }) {
               <select
                 id="job-cron"
                 className="w-full bg-slate-900 border border-slate-700 p-3 pt-5 rounded-lg focus:outline-none focus:border-indigo-500"
-                value={isCustomCron ? "custom" : form.cronExpression}
+                value={form.cronExpression}
                 required
                 onChange={(e) => {
                   const value = e.target.value;
