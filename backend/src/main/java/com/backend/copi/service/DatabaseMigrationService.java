@@ -54,11 +54,6 @@ public class DatabaseMigrationService {
             setVersion(6);
         }
 
-        if (currentVersion < 8) {
-            migrateV8();
-            setVersion(8);
-        }
-
         System.out.println("✅ Database schema version: " + getCurrentVersion());
     }
 
@@ -402,25 +397,7 @@ public class DatabaseMigrationService {
 
     private void migrateV6() {
 
-        System.out.println("🔄 Applying Migration V6 (convert db_type ordinal to string)");
-
-        // Conversion uniquement si valeur numérique
-        jdbcTemplate.update("""
-            UPDATE backup_job
-            SET db_type = CASE
-                WHEN db_type = '0' THEN 'MYSQL'
-                WHEN db_type = '1' THEN 'POSTGRESQL'
-                WHEN db_type = '2' THEN 'MARIADB'
-                ELSE db_type
-            END
-        """);
-
-        System.out.println("✅ Migration V6 applied (db_type converted to STRING)");
-    }
-
-    private void migrateV8() {
-
-        System.out.println("🔄 Applying Migration V8 (remove CHECK and normalize db_type)");
+        System.out.println("🔄 Applying Migration V6 (remove CHECK and normalize db_type)");
 
         jdbcTemplate.execute("""
         PRAGMA foreign_keys=off;
@@ -497,7 +474,7 @@ public class DatabaseMigrationService {
         PRAGMA foreign_keys=on;
     """);
 
-        System.out.println("✅ Migration V8 applied successfully");
+        System.out.println("✅ Migration V6 applied successfully");
     }
     
 }
