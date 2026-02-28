@@ -33,7 +33,7 @@ class PostgresDumpServiceTest {
 
         // Mock nested properties
         AppProperties.Pgdump pgdump = mock(AppProperties.Pgdump.class);
-        AppProperties.Pgdumpall pgdumpall = mock(AppProperties.Pgdumpall.class);
+        AppProperties.Mariadump pgdumpall = mock(AppProperties.Mariadump.class);
 
         when(appProperties.getPgdump()).thenReturn(pgdump);
         when(appProperties.getPgdumpall()).thenReturn(pgdumpall);

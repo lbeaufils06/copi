@@ -17,7 +17,8 @@ public class AppProperties {
     private Crypto crypto;
     private Mysqldump mysqldump;
     private Pgdump pgdump;
-    private Pgdumpall pgdumpall;
+    private Mariadump pgdumpall;
+    private Mariadump mariadump;
     private Backup backup;
 
     @Getter @Setter
@@ -37,6 +38,11 @@ public class AppProperties {
 
     @Getter @Setter
     public static class Pgdumpall {
+        private String path;
+    }
+
+    @Getter @Setter
+    public static class Mariadump {
         private String path;
     }
 

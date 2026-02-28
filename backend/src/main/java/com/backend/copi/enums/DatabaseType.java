@@ -2,5 +2,6 @@ package com.backend.copi.enums;
 
 public enum DatabaseType {
     MYSQL,
-    POSTGRESQL
+    POSTGRESQL,
+    MARIADB
 }
