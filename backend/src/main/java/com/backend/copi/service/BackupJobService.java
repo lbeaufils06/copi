@@ -3,15 +3,15 @@ package com.backend.copi.service;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
+import com.backend.copi.enums.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.backend.copi.entity.BackupExecution;
 import com.backend.copi.entity.BackupJob;
-import com.backend.copi.enums.DatabaseType;
-import com.backend.copi.enums.ExecutionStatus;
 import com.backend.copi.repository.BackupExecutionRepository;
 import com.backend.copi.repository.BackupJobRepository;
 
@@ -143,13 +143,24 @@ public class BackupJobService {
 
         log.info("Recovered {} interrupted executions", runningExecutions.size());
     }
-    
-    public String getDefaultOptions(DatabaseType type) {
-        return switch (type) {
-            case MYSQL -> "--single-transaction --quick --routines --triggers --events --add-drop-table --set-gtid-purged=OFF --column-statistics=0";
-            case POSTGRESQL -> "--clean --if-exists --no-owner --format=plain";
-            default -> "";
-        };
+
+    public Map<DatabaseType, String> getAllDefaultDumpOptions() {
+        return Map.of(
+                DatabaseType.MYSQL,"--single-transaction --quick --routines --triggers --events --add-drop-table --set-gtid-purged=OFF --column-statistics=0",
+                DatabaseType.POSTGRESQL,"--clean --if-exists --no-owner --format=plain"
+        );
+    }
+
+    public BackupJob getDefaults() {
+        BackupJob job = new BackupJob();
+        job.setDbType(DatabaseType.MYSQL);
+        job.setCronExpression("0 0 * * * *");
+        job.setExecutionMode(ExecutionMode.SCHEDULED);
+        job.setRetentionPolicy(RetentionPolicy.NONE);
+        job.setRetentionCount(5);
+        job.setEnabled(true);
+        job.setCompressionType(CompressionType.NONE);
+        return job;
     }
 
 }
