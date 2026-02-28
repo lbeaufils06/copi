@@ -25,7 +25,7 @@ app:
     secret: ${MASTER_KEY:test-secret}
 
   mysqldump:
-    path: ${MYSQLDUMP_PATH:C:/Program Files/MySQL/MySQL Server 8.0/bin/mysqldump.exe}
+    path: ${MYSQLDUMP_PATH:C:/Program Files/MariaDB 12.2/bin/mysqldump.exe}
 
   pgdump:
     path: ${PGDUMP_PATH:C:/Program Files/PostgreSQL/18/bin/pg_dump.exe}
@@ -34,7 +34,7 @@ app:
     path: ${PGDUMPALL_PATH:C:/Program Files/PostgreSQL/18/bin/pg_dumpall.exe}
 
   mariadump:
-    path: ${MARIADUMP_PATH:mariadb-dump}
+    path: ${MARIADUMP_PATH:C:/Program Files/MariaDB 12.2/bin/mariadb-dump.exe}
 
   backup:
     directory: ${APP_BACKUP_DIR:backups}
