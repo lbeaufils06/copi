@@ -1,7 +1,7 @@
 import { useParams, useNavigate } from "react-router-dom";
 import JobModal from "./JobModal";
 
-function JobModalWrapper() {
+function JobModalWrapper({ defaults }) {
   const { id } = useParams();
   const navigate = useNavigate();
 
@@ -12,6 +12,7 @@ function JobModalWrapper() {
   return (
     <JobModal
       jobId={id}
+      defaults={defaults}
       onClose={handleClose}
     />
   );
