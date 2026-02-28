@@ -124,6 +124,18 @@ export function getReadableCron(cronExpression) {
     return `Toutes les ${sec.replace("*/", "")} secondes`;
   }
 
+  // 🔹 Toutes les minutes (Spring: 0 * * * * *)
+  if (
+    (sec === "0") &&
+    min === "*" &&
+    hour === "*" &&
+    day === "*" &&
+    month === "*" &&
+    weekDay === "*"
+  ) {
+    return "Toutes les minutes";
+  }
+
   // 🔹 Toutes les X minutes
   if (
     min.startsWith("*/") &&
