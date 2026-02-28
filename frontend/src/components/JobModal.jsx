@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
 import { useApi } from "../utils/useApi";
 import { useLockBodyScroll } from "../hooks/useLockBodyScroll";
-import { useAppContext } from "../utils/AppContext";
 import Loader from "./Loader";
 
-function JobModal({ jobId, onClose }) {
+function JobModal({ jobId, defaults, onClose }) {
   useLockBodyScroll();
 
-  const { jobDefaults, dumpOptions } = useAppContext();
+  const jobDefaults = defaults?.jobDefaults ?? {};
+  const dumpOptions = defaults?.dumpOptions ?? {};
   const { apiFetch } = useApi();
   const isEditMode = jobId !== "new";
   const [form, setForm] = useState(null);

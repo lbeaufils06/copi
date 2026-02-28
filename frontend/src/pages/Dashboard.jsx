@@ -6,8 +6,11 @@ import Header from "../components/Header";
 import JobList from "../components/JobList";
 import { Routes, Route, useNavigate, useParams } from "react-router-dom";
 import { syncServerTime, syncServerTimeNow } from "../utils/time";
+import { useJobDefaults } from "../hooks/useJobDefaults";
+import Loader from "../components/Loader";
 
 function Dashboard() {
+  const { defaults, loading, error } = useJobDefaults();
   const [jobs, setJobs] = useState([]);
   const [errorMessage, setErrorMessage] = useState(null);
   const [serverTime, setServerTime] = useState(null);
@@ -121,6 +124,9 @@ function Dashboard() {
     return () => clearInterval(interval); // nettoyage
   }, []);
 
+  if (loading) return <Loader text="Chargement..." />;
+  if (error) return <div>Erreur lors du chargement</div>;
+
   return (
     <>
     <div className="min-h-screen bg-slate-900 text-slate-100 p-4 lg:p-8">
@@ -153,7 +159,7 @@ function Dashboard() {
     </div>
 
     <Routes>
-      <Route path="job/:id" element={<JobModalWrapper />} />
+      <Route path="job/:id" element={<JobModalWrapper defaults={defaults} />} />
       <Route path="/job/executions/:id" element={<ExecutionModalWrapper />} />
     </Routes>
     </>
