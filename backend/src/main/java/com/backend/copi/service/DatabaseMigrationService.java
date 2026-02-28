@@ -38,6 +38,11 @@ public class DatabaseMigrationService {
             migrateV3();
             setVersion(3);
         }
+        
+        if (currentVersion < 4) {
+            migrateV4();
+            setVersion(4);
+        }
 
         System.out.println("✅ Database schema version: " + getCurrentVersion());
     }
@@ -102,6 +107,29 @@ public class DatabaseMigrationService {
 
     private void setVersion(int version) {
         jdbcTemplate.update("UPDATE schema_version SET version = ?", version);
+    }
+    
+    private boolean tableExists(String table) {
+        Integer count = jdbcTemplate.queryForObject(
+                "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name=?",
+                Integer.class,
+                table
+        );
+        return count != null && count > 0;
+    }
+
+    private boolean columnExists(String table, String column) {
+
+        String sql = "PRAGMA table_info(" + table + ")";
+
+        return jdbcTemplate.query(sql, rs -> {
+            while (rs.next()) {
+                if (column.equalsIgnoreCase(rs.getString("name"))) {
+                    return true;
+                }
+            }
+            return false;
+        });
     }
 
     /**
@@ -263,30 +291,22 @@ public class DatabaseMigrationService {
 				PRAGMA foreign_keys=on;
             """);
 
-            System.out.println("✅ Migration V2 applied (execution_mode added)");
+            System.out.println("✅ Migration V3 applied (schema rebuilt)");
         }
     }
+    
+    private void migrateV4() {
 
-    private boolean tableExists(String table) {
-        Integer count = jdbcTemplate.queryForObject(
-                "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name=?",
-                Integer.class,
-                table
-        );
-        return count != null && count > 0;
+        if (!columnExists("backup_job", "dump_options")) {
+
+            jdbcTemplate.execute("""
+                ALTER TABLE backup_job
+                ADD COLUMN dump_options TEXT
+            """);
+
+            System.out.println("✅ Migration V4 applied (dump_options added)");
+        }
     }
-
-    private boolean columnExists(String table, String column) {
-
-        String sql = "PRAGMA table_info(" + table + ")";
-
-        return jdbcTemplate.query(sql, rs -> {
-            while (rs.next()) {
-                if (column.equalsIgnoreCase(rs.getString("name"))) {
-                    return true;
-                }
-            }
-            return false;
-        });
-    }
+    
+    
 }
