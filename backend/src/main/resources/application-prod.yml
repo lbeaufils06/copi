@@ -36,6 +36,9 @@ app:
   mariadump:
     path: ${MARIADUMP_PATH:mariadb-dump}
 
+  mongodump:
+    path: ${MONGODUMP_PATH:mongodump}
+
   backup:
     directory: ${APP_BACKUP_DIR:backups}
 
