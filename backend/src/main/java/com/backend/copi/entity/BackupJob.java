@@ -33,6 +33,7 @@ public class BackupJob {
     private String name;
 
     @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     private DatabaseType dbType;
 
     @Column(nullable = false)
