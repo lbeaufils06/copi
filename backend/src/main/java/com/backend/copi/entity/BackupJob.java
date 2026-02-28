@@ -81,4 +81,7 @@ public class BackupJob {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private ExecutionMode executionMode = ExecutionMode.SCHEDULED;
+    
+    @Column(length = 1000)
+    private String dumpOptions;
 }

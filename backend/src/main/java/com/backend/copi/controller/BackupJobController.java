@@ -13,10 +13,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.backend.copi.dto.JobsResponse;
 import com.backend.copi.entity.BackupJob;
+import com.backend.copi.enums.DatabaseType;
 import com.backend.copi.scheduler.SchedulerService;
 import com.backend.copi.service.BackupJobService;
 
@@ -64,5 +66,10 @@ public class BackupJobController {
     public ResponseEntity<Void> startJob(@PathVariable UUID id) {
         schedulerService.runManually(id);
         return ResponseEntity.accepted().build();
+    }
+    
+    @GetMapping("/defaults")
+    public String getDefaultDumpOptions(@RequestParam DatabaseType type) {
+        return service.getDefaultOptions(type);
     }
 }

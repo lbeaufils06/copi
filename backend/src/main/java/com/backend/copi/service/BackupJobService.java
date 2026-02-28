@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.backend.copi.entity.BackupExecution;
 import com.backend.copi.entity.BackupJob;
+import com.backend.copi.enums.DatabaseType;
 import com.backend.copi.enums.ExecutionStatus;
 import com.backend.copi.repository.BackupExecutionRepository;
 import com.backend.copi.repository.BackupJobRepository;
@@ -141,6 +142,14 @@ public class BackupJobService {
         }
 
         log.info("Recovered {} interrupted executions", runningExecutions.size());
+    }
+    
+    public String getDefaultOptions(DatabaseType type) {
+        return switch (type) {
+            case MYSQL -> "--single-transaction --quick --routines --triggers --events --add-drop-table --set-gtid-purged=OFF --column-statistics=0";
+            case POSTGRESQL -> "--clean --if-exists --no-owner --format=plain";
+            default -> "";
+        };
     }
 
 }
