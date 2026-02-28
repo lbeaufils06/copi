@@ -1,1 +1,18 @@
 /.project
+
+# IntelliJ
+.idea/
+*.iml
+
+# Eclipse
+.externalToolBuilders/
+.settings/
+.project
+.classpath
+
+# Build
+target/
+
+# OS
+.DS_Store
+Thumbs.db
