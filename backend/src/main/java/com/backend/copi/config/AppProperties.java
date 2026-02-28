@@ -19,6 +19,7 @@ public class AppProperties {
     private Pgdump pgdump;
     private Mariadump pgdumpall;
     private Mariadump mariadump;
+    private Mongodump mongodump;
     private Backup backup;
 
     @Getter @Setter
@@ -43,6 +44,11 @@ public class AppProperties {
 
     @Getter @Setter
     public static class Mariadump {
+        private String path;
+    }
+
+    @Getter @Setter
+    public static class Mongodump {
         private String path;
     }
 

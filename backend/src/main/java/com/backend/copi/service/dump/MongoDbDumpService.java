@@ -1,4 +1,112 @@
 package com.backend.copi.service.dump;
 
-public class MongoDbDumpService {
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+
+import org.springframework.stereotype.Service;
+
+import com.backend.copi.config.AppProperties;
+import com.backend.copi.entity.BackupJob;
+import com.backend.copi.service.BackupStorageService;
+import com.backend.copi.service.CryptoService;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
+@Service
+@RequiredArgsConstructor
+@Slf4j
+public class MongoDbDumpService implements DatabaseDumpService {
+
+    private final CryptoService cryptoService;
+    private final AppProperties appProperties;
+    private final BackupStorageService backupStorageService;
+
+    @Override
+    public boolean supports(String dbType) {
+        return "MONGODB".equalsIgnoreCase(dbType);
+    }
+
+    @Override
+    public String executeDump(BackupJob job) throws Exception {
+
+        String mongodumpPath = appProperties.getMongodump().getPath();
+
+        String password = cryptoService.decrypt(job.getPasswordEncrypted());
+        String filePath = buildFilePath(job);
+
+        List<String> command = new ArrayList<>();
+
+        command.add(mongodumpPath);
+        command.add("--host");
+        command.add(job.getHost());
+        command.add("--port");
+        command.add(job.getPort().toString());
+        command.add("--username");
+        command.add(job.getUsername());
+        command.add("--authenticationDatabase");
+        command.add("admin");
+
+        // 🔹 Options custom éventuelles
+        command.addAll(parseDumpOptions(job.getDumpOptions()));
+
+        // 🔹 Base ciblée
+        if (job.getDbName() != null && !job.getDbName().trim().isEmpty()) {
+            command.add("--db");
+            command.add(job.getDbName());
+        }
+
+        // 🔹 Archive unique + compression
+        command.add("--archive=" + filePath);
+        command.add("--gzip");
+
+        File file = new File(filePath);
+        file.getParentFile().mkdirs();
+
+        ProcessBuilder pb = new ProcessBuilder(command);
+        pb.environment().put("MONGO_PWD", password); // ⚠ on ne peut pas utiliser MYSQL_PWD ici
+        pb.redirectErrorStream(false);
+
+        Process process = pb.start();
+
+        boolean finished = process.waitFor(15, TimeUnit.MINUTES);
+
+        if (!finished) {
+            process.destroyForcibly();
+            file.delete();
+            throw new RuntimeException("MongoDB dump timeout");
+        }
+
+        String stderr = new String(process.getErrorStream().readAllBytes());
+
+        int exitCode = process.waitFor();
+
+        if (exitCode != 0 || !file.exists() || file.length() == 0) {
+            file.delete();
+            log.error("mongodump command: {}", String.join(" ", command));
+            log.error("mongodump stderr: {}", stderr);
+            log.error("mongodump exitCode: {}", exitCode);
+            throw new RuntimeException("MongoDB dump failed (exitCode=" + exitCode + ")");
+        }
+
+        return filePath;
+    }
+
+    private String buildFilePath(BackupJob job) throws IOException {
+        Path jobDirectory = backupStorageService.resolveJobDirectory(job);
+
+        String timestamp = LocalDateTime.now()
+                .format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
+
+        return jobDirectory.toString() + "/"
+                + job.getName() + "_"
+                + timestamp
+                + ".archive.gz";
+    }
 }

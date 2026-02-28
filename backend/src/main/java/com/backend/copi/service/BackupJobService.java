@@ -148,7 +148,8 @@ public class BackupJobService {
         return Map.of(
                 DatabaseType.MYSQL,"--single-transaction --quick --routines --triggers --events --add-drop-table",
                 DatabaseType.MARIADB, "--single-transaction --quick --routines --triggers --events --add-drop-table",
-                DatabaseType.POSTGRESQL,"--clean --if-exists --no-owner --format=plain"
+                DatabaseType.POSTGRESQL,"--clean --if-exists --no-owner --format=plain",
+                DatabaseType.MONGODB,""
         );
     }
 
