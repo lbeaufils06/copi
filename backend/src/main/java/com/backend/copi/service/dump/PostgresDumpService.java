@@ -6,6 +6,9 @@ import java.io.InputStreamReader;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import org.springframework.stereotype.Service;
@@ -45,30 +48,49 @@ public class PostgresDumpService implements DatabaseDumpService {
                 job.getDbName() == null ||
                 job.getDbName().trim().isEmpty();
 
-        ProcessBuilder pb;
+        List<String> command = new ArrayList<>();
 
         if (dumpAll) {
 
-            pb = new ProcessBuilder(
-                    pgDumpAllPath,
-                    "-h", job.getHost(),
-                    "-p", job.getPort().toString(),
-                    "-U", job.getUsername(),
-                    "-f", filePath
-            );
+            command.add(pgDumpAllPath);
+            command.add("-h");
+            command.add(job.getHost());
+            command.add("-p");
+            command.add(job.getPort().toString());
+            command.add("-U");
+            command.add(job.getUsername());
+            command.add("-f");
+            command.add(filePath);
 
         } else {
 
-            pb = new ProcessBuilder(
-                    pgDumpPath,
-                    "-h", job.getHost(),
-                    "-p", job.getPort().toString(),
-                    "-U", job.getUsername(),
-                    "-F", "c",              // format custom
-                    "-f", filePath,
-                    job.getDbName()
-            );
+            command.add(pgDumpPath);
+            command.add("-h");
+            command.add(job.getHost());
+            command.add("-p");
+            command.add(job.getPort().toString());
+            command.add("-U");
+            command.add(job.getUsername());
+            command.add("-F");
+            command.add("c");
+            command.add("-f");
+            command.add(filePath);
+
+            // 🔹 Injection des dumpOptions ici
+            if (job.getDumpOptions() != null &&
+                    !job.getDumpOptions().isBlank()) {
+
+                command.addAll(
+                        Arrays.asList(
+                                job.getDumpOptions().trim().split("\\s+")
+                        )
+                );
+            }
+
+            command.add(job.getDbName());
         }
+
+        ProcessBuilder pb = new ProcessBuilder(command);
 
         pb.environment().put("PGPASSWORD", password);
 
