@@ -6,6 +6,7 @@ import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -51,12 +52,10 @@ public class MySqlDumpService implements DatabaseDumpService {
         command.add("-u");
         command.add(job.getUsername());
 
-        command.add("--single-transaction");
-        command.add("--routines");
-        command.add("--events");
-        command.add("--triggers");
-        command.add("--no-tablespaces");
+        // 🔹 Utilisation de la méthode de l’interface
+        command.addAll(parseDumpOptions(job.getDumpOptions()));
 
+        // 🔹 Base ciblée
         if (job.getDbName() == null || job.getDbName().trim().isEmpty()) {
             command.add("--all-databases");
         } else {
