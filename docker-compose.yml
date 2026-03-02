@@ -1,0 +1,52 @@
+version: "3.9"
+
+services:
+  copi:
+    container_name: copi
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: copi:latest
+
+    ports:
+      - "8092:8080"
+
+    environment:
+      # 🔐 Admin
+      COPI_ADMIN_PASSWORD: copi
+
+      # 🔑 Master crypto key
+      MASTER_KEY: change-this-secret-key
+
+      # 🌍 Port serveur
+      SERVER_PORT: 8080
+
+      # 🕒 Session timeout
+      SESSION_TIMEOUT: 30
+
+      # 📦 SQLite (par défaut)
+      SPRING_DATASOURCE_URL: jdbc:sqlite:data/copi.db
+      SPRING_DATASOURCE_DRIVER: org.sqlite.JDBC
+
+      # 📁 Dossier backups
+      APP_BACKUP_DIR: backups
+
+      # 🔧 Paths des outils (ceux installés dans ton Dockerfile)
+      MYSQLDUMP_PATH: mysqldump
+      MARIADUMP_PATH: mariadb-dump
+      PGDUMP_PATH: pg_dump
+      PGDUMPALL_PATH: pg_dumpall
+      MONGODUMP_PATH: mongodump
+
+    volumes:
+      # 📦 Base SQLite persistante
+      - copi_data:/app/data
+
+      # 💾 Backups persistants
+      - copi_backups:/app/backups
+
+    restart: unless-stopped
+
+volumes:
+  copi_data:
+  copi_backups:
