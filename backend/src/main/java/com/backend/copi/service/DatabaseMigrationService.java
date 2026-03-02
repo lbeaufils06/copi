@@ -59,6 +59,11 @@ public class DatabaseMigrationService {
             setVersion(7);
         }
 
+        if (currentVersion < 9) {
+            migrateV9();
+            setVersion(9);
+        }
+
         System.out.println("✅ Database schema version: " + getCurrentVersion());
     }
 
@@ -560,6 +565,21 @@ public class DatabaseMigrationService {
     """);
 
         System.out.println("✅ Migration V7 applied successfully");
+    }
+
+    private void migrateV9() {
+
+        System.out.println("🔄 Applying Migration V8 (add authentication_database nullable)");
+
+        if (!columnExists("backup_job", "authentication_database")) {
+
+            jdbcTemplate.execute("""
+            ALTER TABLE backup_job
+            ADD COLUMN authentication_database TEXT
+        """);
+
+            System.out.println("✅ Migration V8 applied (authentication_database added as nullable)");
+        }
     }
     
 }

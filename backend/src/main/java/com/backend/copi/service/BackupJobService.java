@@ -72,6 +72,9 @@ public class BackupJobService {
         existing.setRetentionCount(updatedJob.getRetentionCount());
         existing.setRetentionPolicy(updatedJob.getRetentionPolicy());
         existing.setExecutionMode(updatedJob.getExecutionMode());
+        existing.setDumpOptions(updatedJob.getDumpOptions());
+        existing.setCompressionType(updatedJob.getCompressionType());
+        existing.setAuthenticationDatabase(updatedJob.getAuthenticationDatabase());
         return repository.save(existing);
     }
     
@@ -162,6 +165,7 @@ public class BackupJobService {
         job.setRetentionCount(5);
         job.setEnabled(true);
         job.setCompressionType(CompressionType.NONE);
+        job.setAuthenticationDatabase("admin");
         return job;
     }
 

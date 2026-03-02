@@ -85,4 +85,7 @@ public class BackupJob {
     
     @Column(length = 1000)
     private String dumpOptions;
+
+    @Column
+    private String authenticationDatabase;
 }
