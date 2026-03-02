@@ -91,7 +91,7 @@ public class MariaDbDumpService implements DatabaseDumpService {
             throw new RuntimeException("MariaDB dump failed (exitCode=" + exitCode + ")");
         }
 
-        log.info("MariaDB dump successful for job {}", job.getName());
+        //log.info("MariaDB dump successful for job {}", job.getName());
         return filePath;
     }
 

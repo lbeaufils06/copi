@@ -23,6 +23,7 @@ function JobModal({ jobId, defaults, onClose }) {
     dbName: data.dbName ?? "",
     username: data.username ?? "",
     passwordEncrypted: "",
+    authenticationDatabase: data.authenticationDatabase ?? "",
     cronExpression: data.cronExpression ?? "",
     executionMode: data.executionMode ?? "",
     retentionPolicy: data.retentionPolicy ?? "",
@@ -211,7 +212,7 @@ function JobModal({ jobId, defaults, onClose }) {
               value={form.dumpOptions}
               onChange={handleChange}
               placeholder="Options du dump"
-              className={`peer w-full bg-slate-900 border border-slate-700 p-3 pt-5 rounded-lg focus:outline-none focus:border-indigo-500 ${isEditMode ? "opacity-50 cursor-not-allowed pointer-events-none" : ""}`}
+              className={`peer w-full bg-slate-900 border border-slate-700 p-3 pt-5 rounded-lg focus:outline-none focus:border-indigo-500`}
             />
             <label htmlFor="job-dumpOptions" className="absolute left-3 top-2 text-xs text-slate-400 pointer-events-none">
               Options base de données
@@ -225,8 +226,7 @@ function JobModal({ jobId, defaults, onClose }) {
               name="compressionType"
               value={form.compressionType}
               onChange={handleChange}
-              disabled={isEditMode}
-              className={`w-full bg-slate-900 border border-slate-700 p-3 pt-5 rounded-lg focus:outline-none focus:border-indigo-500 ${isEditMode ? "opacity-50 cursor-not-allowed pointer-events-none" : ""}`}
+              className={`w-full bg-slate-900 border border-slate-700 p-3 pt-5 rounded-lg focus:outline-none focus:border-indigo-500`}
             >
               <option value="NONE">Aucune</option>
               <option value="GZIP">GZIP (.gz)</option>
@@ -245,10 +245,9 @@ function JobModal({ jobId, defaults, onClose }) {
               name="host"
               value={form.host}
               onChange={handleChange}
-              disabled={isEditMode}
               required
               placeholder=" "
-              className={`peer w-full bg-slate-900 border border-slate-700 p-3 pt-5 rounded-lg focus:outline-none focus:border-indigo-500 ${isEditMode ? "opacity-50 cursor-not-allowed pointer-events-none" : ""}`}
+              className={`peer w-full bg-slate-900 border border-slate-700 p-3 pt-5 rounded-lg focus:outline-none focus:border-indigo-500`}
             />
             <label htmlFor="job-host" className="absolute left-3 top-2 text-xs text-slate-400 pointer-events-none">
               Host
@@ -263,10 +262,9 @@ function JobModal({ jobId, defaults, onClose }) {
               name="port"
               value={form.port}
               onChange={handleChange}
-              disabled={isEditMode}
               required
               placeholder=" "
-              className={`peer w-full bg-slate-900 border border-slate-700 p-3 pt-5 rounded-lg focus:outline-none focus:border-indigo-500 ${isEditMode ? "opacity-50 cursor-not-allowed pointer-events-none" : ""}`}
+              className={`peer w-full bg-slate-900 border border-slate-700 p-3 pt-5 rounded-lg focus:outline-none focus:border-indigo-500`}
             />
             <label htmlFor="job-number" className="absolute left-3 top-2 text-xs text-slate-400 pointer-events-none">
               Port
@@ -280,14 +278,32 @@ function JobModal({ jobId, defaults, onClose }) {
               name="dbName"
               value={form.dbName}
               onChange={handleChange}
-              disabled={isEditMode}
               placeholder=" "
-              className={`peer w-full bg-slate-900 border border-slate-700 p-3 pt-5 rounded-lg focus:outline-none focus:border-indigo-500 ${isEditMode ? "opacity-50 cursor-not-allowed pointer-events-none" : ""}`}
+              className={`peer w-full bg-slate-900 border border-slate-700 p-3 pt-5 rounded-lg focus:outline-none focus:border-indigo-500`}
             />
             <label htmlFor="job-dbName" className="absolute left-3 top-2 text-xs text-slate-400 pointer-events-none">
               Nom de la base
             </label>
           </div>
+
+          {form.dbType === "MONGODB" && (
+            <div className="relative">
+              <input
+                id="job-authDb"
+                name="authenticationDatabase"
+                value={form.authenticationDatabase}
+                onChange={handleChange}
+                placeholder=" "
+                className="peer w-full bg-slate-900 border border-slate-700 p-3 pt-5 rounded-lg focus:outline-none focus:border-indigo-500"
+              />
+              <label
+                htmlFor="job-authDb"
+                className="absolute left-3 top-2 text-xs text-slate-400 pointer-events-none"
+              >
+                Base d'authentification (ex: admin)
+              </label>
+            </div>
+          )}
 
           {/* Username */}
           <div className="relative">

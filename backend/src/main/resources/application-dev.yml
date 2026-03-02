@@ -37,7 +37,7 @@ app:
     path: ${MARIADUMP_PATH:C:/Program Files/MariaDB 12.2/bin/mariadb-dump.exe}
 
   mongodump:
-    path: ${MONGODUMP_PATH:mongodump}
+    path: ${MONGODUMP_PATH:C:/Program Files/Mongo/bin/mongodump.exe}
 
   backup:
     directory: ${APP_BACKUP_DIR:backups}

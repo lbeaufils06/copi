@@ -50,8 +50,14 @@ public class MongoDbDumpService implements DatabaseDumpService {
         command.add(job.getPort().toString());
         command.add("--username");
         command.add(job.getUsername());
+        command.add("--password");
+        command.add(password);
         command.add("--authenticationDatabase");
-        command.add("admin");
+        command.add(
+                job.getAuthenticationDatabase() != null
+                        ? job.getAuthenticationDatabase()
+                        : "admin"
+        );
 
         // 🔹 Options custom éventuelles
         command.addAll(parseDumpOptions(job.getDumpOptions()));
@@ -64,16 +70,32 @@ public class MongoDbDumpService implements DatabaseDumpService {
 
         // 🔹 Archive unique + compression
         command.add("--archive=" + filePath);
-        command.add("--gzip");
 
         File file = new File(filePath);
         file.getParentFile().mkdirs();
 
         ProcessBuilder pb = new ProcessBuilder(command);
-        pb.environment().put("MONGO_PWD", password); // ⚠ on ne peut pas utiliser MYSQL_PWD ici
-        pb.redirectErrorStream(false);
+        pb.redirectErrorStream(true);
 
         Process process = pb.start();
+
+        // 🔥 Lire le flux dans un thread pour éviter blocage
+        StringBuilder output = new StringBuilder();
+
+        Thread reader = new Thread(() -> {
+            try (var readerStream = process.getInputStream();
+                 var br = new java.io.BufferedReader(new java.io.InputStreamReader(readerStream))) {
+
+                String line;
+                while ((line = br.readLine()) != null) {
+                    output.append(line).append("\n");
+                }
+            } catch (Exception e) {
+                log.error("Error reading mongodump output", e);
+            }
+        });
+
+        reader.start();
 
         boolean finished = process.waitFor(15, TimeUnit.MINUTES);
 
@@ -83,16 +105,20 @@ public class MongoDbDumpService implements DatabaseDumpService {
             throw new RuntimeException("MongoDB dump timeout");
         }
 
-        String stderr = new String(process.getErrorStream().readAllBytes());
+        reader.join(); // attendre que le thread finisse
 
-        int exitCode = process.waitFor();
+        int exitCode = process.exitValue();
 
-        if (exitCode != 0 || !file.exists() || file.length() == 0) {
+        if (exitCode != 0) {
             file.delete();
-            log.error("mongodump command: {}", String.join(" ", command));
-            log.error("mongodump stderr: {}", stderr);
-            log.error("mongodump exitCode: {}", exitCode);
-            throw new RuntimeException("MongoDB dump failed (exitCode=" + exitCode + ")");
+            throw new RuntimeException(
+                    "MongoDB dump failed (exitCode=" + exitCode + ")\n" + output
+            );
+        }
+
+        if (!file.exists() || file.length() == 0) {
+            file.delete();
+            throw new RuntimeException("MongoDB dump produced empty file");
         }
 
         return filePath;
@@ -107,6 +133,6 @@ public class MongoDbDumpService implements DatabaseDumpService {
         return jobDirectory.toString() + "/"
                 + job.getName() + "_"
                 + timestamp
-                + ".archive.gz";
+                + ".archive";
     }
 }
