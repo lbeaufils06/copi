@@ -9,6 +9,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
+import com.backend.copi.dto.BackupExecutionResponseDTO;
+import com.backend.copi.mapper.BackupExecutionMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,14 +27,22 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class BackupExecutionService {
 
+    private final BackupExecutionMapper backupExecutionMapper;
     private final BackupExecutionRepository repository;
     
-    public List<BackupExecution> getAllExecutions() {
-        return repository.findAllByOrderByStartTimeDesc();
+    public List<BackupExecutionResponseDTO> getAllExecutions() {
+        return repository.findAllByOrderByStartTimeDesc()
+                .stream()
+                .map(backupExecutionMapper::toDto)
+                .toList();
     }
     
-    public List<BackupExecution> getExecutionsByJob(UUID jobId) {
-        return repository.findByJobIdOrderByStartTimeDesc(jobId);
+    public List<BackupExecutionResponseDTO> getExecutionsByJob(UUID jobId) {
+        return repository
+                .findByJobIdOrderByStartTimeDesc(jobId)
+                .stream()
+                .map(backupExecutionMapper::toDto)
+                .toList();
     }
 
     @Transactional
@@ -118,8 +128,7 @@ public class BackupExecutionService {
             return;
         }
 
-        List<BackupExecution> toDelete =
-                repository.findByJobAndStartTimeAfter(job, purgeLimit);
+        List<BackupExecution> toDelete = repository.findByJobAndStartTimeAfter(job, purgeLimit);
 
         if (toDelete == null || toDelete.isEmpty()) {
             return;
@@ -153,7 +162,7 @@ public class BackupExecutionService {
             Path path = Paths.get(filePath);
             Files.deleteIfExists(path);
         } catch (IOException e) {
-            System.err.println("Erreur suppression fichier : " + filePath);
+            log.error("Failed to delete backup file {}", filePath, e);
         }
     }
     

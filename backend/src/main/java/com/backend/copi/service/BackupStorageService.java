@@ -114,7 +114,7 @@ public class BackupStorageService {
                     try {
                         Files.delete(path);
                     } catch (IOException e) {
-                        throw new RuntimeException("Failed to delete: " + path, e);
+                        log.error("Failed to delete path {}", path, e);
                     }
                 });
     }
@@ -184,6 +184,7 @@ public class BackupStorageService {
 			case GZIP -> compressGzip(inputFilePath);
 			case ZIP -> compressZip(inputFilePath);
 		};
+
 	}
     
     private String compressGzip(String inputFilePath) throws IOException {

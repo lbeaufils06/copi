@@ -1,12 +1,15 @@
 package com.backend.copi.service;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import com.backend.copi.dto.BackupJobRequestDTO;
+import com.backend.copi.dto.BackupJobResponseDTO;
 import com.backend.copi.enums.*;
+import com.backend.copi.exception.ResourceNotFoundException;
+import com.backend.copi.mapper.BackupJobMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,66 +26,47 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class BackupJobService {
 
+    private final BackupJobMapper backupJobMapper;
     private final BackupJobRepository repository;
     private final BackupExecutionRepository repositoryExecution;
     private final CryptoService cryptoService;
     private final BackupExecutionService executionService;
     private final BackupStorageService backupStorageService;
 
-    public List<BackupJob> getAllJobs() {
-    	List<BackupJob> backupJobs = repository.findAll();
-    	List<BackupJob> backupJobsUpdate = new ArrayList<BackupJob>();
-    	for(BackupJob job : backupJobs) {
-    		job.setVersionCount((int) executionService.getVersionCountByJob(job.getId()));
-    		backupJobsUpdate.add(job);
-    	}
-    	
-        return backupJobsUpdate;
+    public List<BackupJobResponseDTO> getAllJobs() {
+
+        return repository.findAll()
+                .stream()
+                .map(job -> {
+                    job.setVersionCount((int) executionService.getVersionCountByJob(job.getId()));
+                    return backupJobMapper.toResponseDto(job);
+                })
+                .toList();
     }
 
-    public BackupJob createJob(BackupJob job) {
-    	job.setPasswordEncrypted(cryptoService.encrypt(job.getPasswordEncrypted()));
-    	job.setName(backupStorageService.sanitizeFile(job.getName()));
-    	job.setCompressionType(job.getCompressionType());
-        return repository.save(job);
+    public BackupJobResponseDTO createJob(BackupJobRequestDTO dto) {
+        BackupJob job = backupJobMapper.toEntity(dto);
+        if (dto.getPasswordEncrypted() != null && !dto.getPasswordEncrypted().isBlank()) {
+            job.setPasswordEncrypted(cryptoService.encrypt(dto.getPasswordEncrypted()));
+        }
+    	job.setName(backupStorageService.sanitizeFile(dto.getName()));
+        BackupJob saved = repository.save(job);
+        return backupJobMapper.toResponseDto(saved);
     }
 
-    public BackupJob updateJob(UUID id, BackupJob updatedJob) throws IOException {
-
-        BackupJob existing = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Job not found"));
-        
-        existing.setDbType(updatedJob.getDbType());
-        existing.setHost(updatedJob.getHost());
-        existing.setPort(updatedJob.getPort());
-        existing.setDbName(updatedJob.getDbName());
-        existing.setUsername(updatedJob.getUsername());
-        if (updatedJob.getPasswordEncrypted() != null && !updatedJob.getPasswordEncrypted().isBlank()) {
-        	existing.setPasswordEncrypted(cryptoService.encrypt(updatedJob.getPasswordEncrypted()));
+    public BackupJobResponseDTO updateJob(UUID id, BackupJobRequestDTO dto) throws IOException {
+        BackupJob job = repository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Job not found"));
+        if (dto.getPasswordEncrypted() != null && !dto.getPasswordEncrypted().isBlank()) {
+            job.setPasswordEncrypted(cryptoService.encrypt(dto.getPasswordEncrypted()));
         }
-        if(existing.getCronPurgeExpression() != null && updatedJob.getCronPurgeExpression() != null && existing.getCronPurgeExpression().equals(updatedJob.getCronPurgeExpression())) {
-        	existing.setNextPurgeTime(updatedJob.getNextPurgeTime());
-        } else {
-        	existing.setNextPurgeTime(null);
-        }
-        existing.setCronExpression(updatedJob.getCronExpression());
-        existing.setCronPurgeExpression(updatedJob.getCronPurgeExpression());
-        existing.setEnabled(updatedJob.getEnabled());
-        existing.setNextExecutionTime(updatedJob.getNextExecutionTime());
-        existing.setRetentionCount(updatedJob.getRetentionCount());
-        existing.setRetentionPolicy(updatedJob.getRetentionPolicy());
-        existing.setExecutionMode(updatedJob.getExecutionMode());
-        existing.setDumpOptions(updatedJob.getDumpOptions());
-        existing.setCompressionType(updatedJob.getCompressionType());
-        existing.setAuthenticationDatabase(updatedJob.getAuthenticationDatabase());
-        return repository.save(existing);
+        BackupJob saved = repository.save(job);
+        return backupJobMapper.toResponseDto(saved);
     }
     
     @Transactional
     public BackupJob updateJobScheduler(UUID id, BackupJob updatedJob) {
 
-        BackupJob existing = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Job not found"));
+        BackupJob existing = repository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Job not found"));
 
         existing.setNextExecutionTime(updatedJob.getNextExecutionTime());
         if(existing.getCronPurgeExpression() != null && updatedJob.getCronPurgeExpression() != null && existing.getCronPurgeExpression().equals(updatedJob.getCronPurgeExpression())) {
@@ -117,18 +101,20 @@ public class BackupJobService {
     
     @Transactional
     public void deleteJob(UUID id) throws IOException {
-    	BackupJob existing = repository.findById(id).orElseThrow(() -> new RuntimeException("Job not found"));
+    	BackupJob existing = repository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Job not found"));
     	backupStorageService.deleteJobRepository(existing);
     	repositoryExecution.deleteByJob(existing);
         repository.delete(existing);
     }
 
-    public BackupJob getJobById(UUID id) {
+    public BackupJobResponseDTO getJobById(UUID id) {
+        BackupJob job =  repository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Job not found"));
+        return backupJobMapper.toResponseDto(job);
+    }
 
-        BackupJob existing = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Job not found"));
-
-        return existing;
+    public BackupJob getEntityById(UUID id) {
+        return repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Job not found"));
     }
     
     @Transactional

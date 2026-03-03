@@ -8,6 +8,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.util.List;
 import java.util.UUID;
 
+import com.backend.copi.dto.BackupExecutionResponseDTO;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
@@ -33,7 +34,7 @@ class BackupExecutionControllerTest {
 
         UUID jobId = UUID.randomUUID();
 
-        BackupExecution execution = new BackupExecution();
+        BackupExecutionResponseDTO execution = new BackupExecutionResponseDTO();
         execution.setId(UUID.randomUUID());
 
         when(executionService.getExecutionsByJob(jobId))
@@ -47,7 +48,7 @@ class BackupExecutionControllerTest {
     @Test
     void shouldReturnAllExecutions() throws Exception {
 
-        BackupExecution execution = new BackupExecution();
+        BackupExecutionResponseDTO execution = new BackupExecutionResponseDTO();
         execution.setId(UUID.randomUUID());
 
         when(executionService.getAllExecutions())
