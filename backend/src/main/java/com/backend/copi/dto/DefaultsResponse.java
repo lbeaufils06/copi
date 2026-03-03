@@ -9,7 +9,7 @@ import java.util.Map;
 
 @Data
 @AllArgsConstructor
-public class DefaultsReponse {
+public class DefaultsResponse {
     private BackupJob jobDefaults;
     private Map<DatabaseType, String> dumpOptions;
 }

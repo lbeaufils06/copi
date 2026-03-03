@@ -13,5 +13,5 @@ import lombok.Data;
 public class JobsResponse {
 
     private LocalDateTime serverTime;
-    private List<BackupJob> jobs;
+    private List<BackupJobResponseDTO> jobs;
 }

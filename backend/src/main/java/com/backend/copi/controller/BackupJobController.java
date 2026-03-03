@@ -5,7 +5,9 @@ import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-import com.backend.copi.dto.DefaultsReponse;
+import com.backend.copi.dto.BackupJobRequestDTO;
+import com.backend.copi.dto.BackupJobResponseDTO;
+import com.backend.copi.dto.DefaultsResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -34,26 +36,22 @@ public class BackupJobController {
 
     @GetMapping
     public JobsResponse getJobs() {
-        return new JobsResponse(
-                LocalDateTime.now(clock),
-                service.getAllJobs()
-        );
+        return new JobsResponse(LocalDateTime.now(clock), service.getAllJobs());
     }
     
     @GetMapping("/{id}")
-    public BackupJob getJob(@PathVariable UUID id) {
+    public BackupJobResponseDTO getJob(@PathVariable UUID id) {
         return service.getJobById(id);
     }
 
     @PostMapping
-    public BackupJob create(@RequestBody BackupJob job) {
-        return service.createJob(job);
+    public BackupJobResponseDTO create(@RequestBody BackupJobRequestDTO dto) {
+        return service.createJob(dto);
     }
     
     @PutMapping("/{id}")
-    public BackupJob update(@PathVariable UUID id,
-                            @RequestBody BackupJob job) throws IOException {
-        return service.updateJob(id, job);
+    public BackupJobResponseDTO update(@PathVariable UUID id, @RequestBody BackupJobRequestDTO dto) throws IOException {
+        return service.updateJob(id, dto);
     }
     
     @DeleteMapping("/{id}")
@@ -68,7 +66,7 @@ public class BackupJobController {
     }
 
     @GetMapping("/defaults")
-    public DefaultsReponse getDefaults() {
-        return new DefaultsReponse(service.getDefaults(), service.getAllDefaultDumpOptions());
+    public DefaultsResponse getDefaults() {
+        return new DefaultsResponse(service.getDefaults(), service.getAllDefaultDumpOptions());
     }
 }

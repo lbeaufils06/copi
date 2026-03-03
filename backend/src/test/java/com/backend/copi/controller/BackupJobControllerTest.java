@@ -17,6 +17,7 @@ import java.time.ZoneId;
 import java.util.List;
 import java.util.UUID;
 
+import com.backend.copi.dto.BackupJobResponseDTO;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
@@ -51,7 +52,7 @@ class BackupJobControllerTest {
         when(clock.instant()).thenReturn(fixedInstant);
         when(clock.getZone()).thenReturn(ZoneId.of("UTC"));
 
-        BackupJob job = new BackupJob();
+        BackupJobResponseDTO job = new BackupJobResponseDTO();
         job.setId(UUID.randomUUID());
 
         when(service.getAllJobs()).thenReturn(List.of(job));
@@ -66,7 +67,7 @@ class BackupJobControllerTest {
     void shouldReturnJobById() throws Exception {
 
         UUID id = UUID.randomUUID();
-        BackupJob job = new BackupJob();
+        BackupJobResponseDTO job = new BackupJobResponseDTO();
         job.setId(id);
 
         when(service.getJobById(id)).thenReturn(job);
@@ -79,7 +80,7 @@ class BackupJobControllerTest {
     @Test
     void shouldCreateJob() throws Exception {
 
-        BackupJob job = new BackupJob();
+        BackupJobResponseDTO job = new BackupJobResponseDTO();
         job.setId(UUID.randomUUID());
 
         when(service.createJob(any())).thenReturn(job);
@@ -95,7 +96,7 @@ class BackupJobControllerTest {
     void shouldUpdateJob() throws Exception {
 
         UUID id = UUID.randomUUID();
-        BackupJob job = new BackupJob();
+        BackupJobResponseDTO job = new BackupJobResponseDTO();
         job.setId(id);
 
         when(service.updateJob(eq(id), any())).thenReturn(job);

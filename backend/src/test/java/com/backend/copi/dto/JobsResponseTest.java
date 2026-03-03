@@ -18,10 +18,10 @@ class JobsResponseTest {
         // given
         LocalDateTime now = LocalDateTime.of(2025, 1, 1, 10, 0);
 
-        BackupJob job = new BackupJob();
+        BackupJobResponseDTO job = new BackupJobResponseDTO();
         job.setId(UUID.randomUUID());
 
-        List<BackupJob> jobs = List.of(job);
+        List<BackupJobResponseDTO> jobs = List.of(job);
 
         // when
         JobsResponse response = new JobsResponse(now, jobs);

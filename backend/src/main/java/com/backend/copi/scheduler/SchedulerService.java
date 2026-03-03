@@ -180,7 +180,7 @@ public class SchedulerService {
 
     public void runManually(UUID jobId) {
 
-        BackupJob job = jobService.getJobById(jobId);
+        BackupJob job = jobService.getEntityById(jobId);
 
         if (!runningJobs.add(jobId)) {
             throw new IllegalStateException("Job already running");

@@ -91,7 +91,7 @@ class SchedulerServiceTest {
 
         BackupExecution mockExecution = BackupExecution.builder().build();
 
-        when(jobService.getJobById(jobId)).thenReturn(job);
+        when(jobService.getEntityById(jobId)).thenReturn(job);
         when(executionService.startExecution(any())).thenReturn(mockExecution);
         when(dumpService.executeJob(job)).thenReturn("/tmp/file.sql");
         when(backupStorageService.compress(any(), any())).thenReturn("/tmp/file.sql");
