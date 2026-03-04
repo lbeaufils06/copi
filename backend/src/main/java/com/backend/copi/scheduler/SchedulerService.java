@@ -74,7 +74,7 @@ public class SchedulerService {
 
             if (shouldRun) {
                 executeWithLock(job);
-                break; // séquentiel
+                break;
             }
         }
     }
@@ -93,32 +93,17 @@ public class SchedulerService {
     }
 
     private boolean initializeNextExecutionIfNeeded(BackupJob job) {
-        
-        if(job.getExecutionMode().equals(ExecutionMode.MANUAL)) {
-        	return isGoodForDump(job, null, false);
-        }
 
         LocalDateTime now = LocalDateTime.now(clock).withNano(0);
-        
-
-        LocalDateTime nextTentative = CronExpression
-                .parse(job.getCronExpression())
-                .next(now)
-                .withNano(0);        
+        LocalDateTime nextTentative = CronExpression.parse(job.getCronExpression()).next(now).withNano(0);
         LocalDateTime nextExecutionTime = job.getNextExecutionTime();
         
-        if(nextExecutionTime == null) {
+        if(nextExecutionTime == null || job.getExecutionMode().equals(ExecutionMode.MANUAL)) {
         	return isGoodForDump(job, nextTentative, false);
+        } else if (now.isAfter(nextExecutionTime) && !Objects.equals(job.getNextExecutionTime(), nextTentative)) {
+            long occurrences = countMissedOccurrences(nextExecutionTime, nextTentative, job.getCronExpression());
+            return (occurrences == 0) ? isGoodForDump(job, nextTentative, true) : isGoodForDump(job, nextTentative, false);
         }
-        
-        if (!Objects.equals(job.getNextExecutionTime(), nextTentative)) {
-            Long occurrences = countMissedOccurrences(nextExecutionTime, nextTentative, job.getCronExpression());                      
-            if(occurrences == 0 && !now.isBefore(nextExecutionTime)) {
-                return isGoodForDump(job, nextTentative, true);
-            }           
-            return isGoodForDump(job, nextTentative, false);
-        }
-
         return false;
     }
     
@@ -146,23 +131,29 @@ public class SchedulerService {
         try {
 
             String filePath = dumpService.executeJob(job);
-                
-            String finalPath = compressFilePath(filePath, job.getCompressionType());
+            if(filePath != null) {
 
-            if (job.getCompressionType() != null && job.getCompressionType() != CompressionType.NONE) {
-                Files.delete(Path.of(filePath));
-            }
-            
-            executionService.markSuccess(execution, finalPath);
+                String finalPath = compressFilePath(filePath, job.getCompressionType());
 
-            job.setLastStatus(ExecutionStatus.SUCCESS);
-            job.setLastStatusMessage(execution.getLogMessage());
-            job.setLastSuccessTime(execution.getEndTime());
-                      
-            if (job.getCronPurgeExpression() == null
-                    || job.getCronPurgeExpression().isEmpty()) {
+                if (job.getCompressionType() != null && job.getCompressionType() != CompressionType.NONE) {
+                    Files.delete(Path.of(filePath));
+                }
 
-                executionService.applyRetentionByCount(job);
+                executionService.markSuccess(execution, finalPath);
+
+                job.setLastStatus(ExecutionStatus.SUCCESS);
+                job.setLastStatusMessage(execution.getLogMessage());
+                job.setLastSuccessTime(execution.getEndTime());
+
+                if (job.getCronPurgeExpression() == null
+                        || job.getCronPurgeExpression().isEmpty()) {
+
+                    executionService.applyRetentionByCount(job);
+                }
+            } else {
+                job.setLastStatus(ExecutionStatus.FAILED);
+                log.error("Dump failed");
+                executionService.markFailed(execution, "Dump failed");
             }
 
         } catch (Exception e) {

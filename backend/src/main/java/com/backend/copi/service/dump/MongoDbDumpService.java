@@ -22,7 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class MongoDbDumpService implements DatabaseDumpService {
+public class MongoDbDumpService extends AbstractDumpService implements DatabaseDumpService {
 
     private final CryptoService cryptoService;
     private final AppProperties appProperties;
@@ -36,6 +36,11 @@ public class MongoDbDumpService implements DatabaseDumpService {
     @Override
     public String executeDump(BackupJob job) throws Exception {
 
+        if (!canConnect(job.getHost(), job.getPort(), 1000)) {
+            log.error("MongoDB connection failed {}:{}", job.getHost(), job.getPort());
+            return null;
+        }
+
         String mongodumpPath = appProperties.getMongodump().getPath();
 
         String password = cryptoService.decrypt(job.getPasswordEncrypted());
@@ -48,7 +53,6 @@ public class MongoDbDumpService implements DatabaseDumpService {
         command.add(job.getHost());
         command.add("--port");
         command.add(job.getPort().toString());
-        command.add("--serverSelectionTimeoutMS=5000");
         command.add("--username");
         command.add(job.getUsername());
         command.add("--password");
@@ -72,58 +76,9 @@ public class MongoDbDumpService implements DatabaseDumpService {
         // 🔹 Archive unique + compression
         command.add("--archive=" + filePath);
 
-        File file = new File(filePath);
-        file.getParentFile().mkdirs();
-
         ProcessBuilder pb = new ProcessBuilder(command);
-        pb.redirectErrorStream(true);
 
-        Process process = pb.start();
-
-        // 🔥 Lire le flux dans un thread pour éviter blocage
-        StringBuilder output = new StringBuilder();
-
-        Thread reader = new Thread(() -> {
-            try (var readerStream = process.getInputStream();
-                 var br = new java.io.BufferedReader(new java.io.InputStreamReader(readerStream))) {
-
-                String line;
-                while ((line = br.readLine()) != null) {
-                    output.append(line).append("\n");
-                }
-            } catch (Exception e) {
-                log.error("Error reading mongodump output", e);
-            }
-        });
-
-        reader.setDaemon(true);
-        reader.start();
-
-        boolean finished = process.waitFor(2, TimeUnit.MINUTES);
-
-        if (!finished) {
-            process.destroyForcibly();
-            file.delete();
-            throw new RuntimeException("MongoDB dump timeout");
-        }
-
-        reader.join(); // attendre que le thread finisse
-
-        int exitCode = process.exitValue();
-
-        if (exitCode != 0) {
-            file.delete();
-            throw new RuntimeException(
-                    "MongoDB dump failed (exitCode=" + exitCode + ")\n" + output
-            );
-        }
-
-        if (!file.exists() || file.length() == 0) {
-            file.delete();
-            throw new RuntimeException("MongoDB dump produced empty file");
-        }
-
-        return filePath;
+        return runProcess(pb, filePath, "MongoDB dump", false);
     }
 
     private String buildFilePath(BackupJob job) throws IOException {

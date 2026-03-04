@@ -1,6 +1,7 @@
 package com.backend.copi.service.dump;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.file.Path;
@@ -11,6 +12,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import com.backend.copi.config.AppProperties;
@@ -22,7 +24,8 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class PostgresDumpService implements DatabaseDumpService {
+@Slf4j
+public class PostgresDumpService extends AbstractDumpService implements DatabaseDumpService {
 
     private final CryptoService cryptoService;
     private final AppProperties appProperties;
@@ -35,6 +38,11 @@ public class PostgresDumpService implements DatabaseDumpService {
 
     @Override
     public String executeDump(BackupJob job) throws Exception {
+
+        if (!canConnect(job.getHost(), job.getPort(), 1000)) {
+            log.error("Postgresql connection failed {}:{}", job.getHost(), job.getPort());
+            return null;
+        }
     	
     	String pgDumpAllPath = appProperties.getPgdumpall().getPath();
     	String pgDumpPath = appProperties.getPgdump().getPath();
@@ -75,44 +83,18 @@ public class PostgresDumpService implements DatabaseDumpService {
             command.add("c");
             command.add("-f");
             command.add(filePath);
-
-            // 🔹 Injection des dumpOptions ici
-            if (job.getDumpOptions() != null &&
-                    !job.getDumpOptions().isBlank()) {
-
-                command.addAll(
-                        Arrays.asList(
-                                job.getDumpOptions().trim().split("\\s+")
-                        )
-                );
-            }
-
             command.add(job.getDbName());
         }
 
+        // 🔹 Injection des dumpOptions ici
+        if (job.getDumpOptions() != null && !job.getDumpOptions().isBlank()) {
+            command.addAll(Arrays.asList(job.getDumpOptions().trim().split("\\s+")));
+        }
+
         ProcessBuilder pb = new ProcessBuilder(command);
-
         pb.environment().put("PGPASSWORD", password);
-
-        Process process = pb.start();
-
-        boolean finished =
-                process.waitFor(5, TimeUnit.MINUTES);
-
-        if (!finished) {
-            process.destroy();
-            throw new RuntimeException("Postgresql dump timeout");
-        }
-
-        int exitCode = process.exitValue();
-
-        if (exitCode != 0) {
-            String error = readStream(process);
-            throw new RuntimeException(
-                    "Postgresql dump failed: " + error);
-        }
-
-        return filePath;
+        pb.environment().put("PGCONNECT_TIMEOUT", "5");
+        return runProcess(pb, filePath, "Postgresql dump", false);
     }
 
     private String buildFilePath(BackupJob job) throws IOException {

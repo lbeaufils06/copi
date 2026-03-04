@@ -22,7 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class MariaDbDumpService implements DatabaseDumpService {
+public class MariaDbDumpService extends AbstractDumpService implements DatabaseDumpService {
 
     private final CryptoService cryptoService;
     private final AppProperties appProperties;
@@ -35,6 +35,11 @@ public class MariaDbDumpService implements DatabaseDumpService {
 
     @Override
     public String executeDump(BackupJob job) throws Exception {
+
+        if (!canConnect(job.getHost(), job.getPort(), 1000)) {
+            log.error("MariaDb connection failed {}:{}", job.getHost(), job.getPort());
+            return null;
+        }
 
         String dumpPath = resolveDumpPath();
 
@@ -61,38 +66,10 @@ public class MariaDbDumpService implements DatabaseDumpService {
             command.add(job.getDbName());
         }
 
-        File file = new File(filePath);
-        file.getParentFile().mkdirs();
-
         ProcessBuilder pb = new ProcessBuilder(command);
         pb.environment().put("MYSQL_PWD", password); // sécurisé
-        pb.redirectOutput(file);
-        pb.redirectErrorStream(false);
 
-        Process process = pb.start();
-
-        boolean finished = process.waitFor(15, TimeUnit.MINUTES);
-
-        if (!finished) {
-            process.destroyForcibly();
-            file.delete();
-            throw new RuntimeException("MariaDB dump timeout");
-        }
-
-        String stderr = new String(process.getErrorStream().readAllBytes());
-
-        int exitCode = process.waitFor();
-
-        if (exitCode != 0 || !file.exists() || file.length() == 0) {
-            file.delete();
-            log.error("mariadb-dump command: {}", String.join(" ", command));
-            log.error("mariadb-dump stderr: {}", stderr);
-            log.error("mariadb-dump exitCode: {}", exitCode);
-            throw new RuntimeException("MariaDB dump failed (exitCode=" + exitCode + ")");
-        }
-
-        //log.info("MariaDB dump successful for job {}", job.getName());
-        return filePath;
+        return runProcess(pb, filePath, "MariaDB dump", true);
     }
 
     private String resolveDumpPath() {

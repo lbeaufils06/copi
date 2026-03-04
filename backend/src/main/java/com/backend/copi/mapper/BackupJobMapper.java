@@ -64,4 +64,63 @@ public class BackupJobMapper {
 
         return job;
     }
+
+    public void updateEntityFromDto(BackupJobRequestDTO dto, BackupJob job) {
+
+        if (dto == null || job == null) {
+            return;
+        }
+
+        if (dto.getName() != null) {
+            job.setName(dto.getName());
+        }
+
+        if (dto.getDbType() != null) {
+            job.setDbType(dto.getDbType());
+        }
+
+        if (dto.getHost() != null) {
+            job.setHost(dto.getHost());
+        }
+
+        if (dto.getPort() != null) {
+            job.setPort(dto.getPort());
+        }
+
+        if (dto.getDbName() != null) {
+            job.setDbName(dto.getDbName());
+        }
+
+        if (dto.getUsername() != null) {
+            job.setUsername(dto.getUsername());
+        }
+
+        if (dto.getCronExpression() != null) {
+            job.setCronExpression(dto.getCronExpression());
+        }
+
+        if (dto.getRetentionCount() != null) {
+            job.setRetentionCount(dto.getRetentionCount());
+        }
+
+        if (dto.getRetentionPolicy() != null) {
+            job.setRetentionPolicy(dto.getRetentionPolicy());
+        }
+
+        if (dto.getCompressionType() != null) {
+            job.setCompressionType(dto.getCompressionType());
+        }
+
+        if (dto.getExecutionMode() != null) {
+            job.setExecutionMode(dto.getExecutionMode());
+        }
+
+        if (dto.getDumpOptions() != null) {
+            job.setDumpOptions(dto.getDumpOptions());
+        }
+
+        if (dto.getAuthenticationDatabase() != null) {
+            job.setAuthenticationDatabase(dto.getAuthenticationDatabase());
+        }
+    }
 }

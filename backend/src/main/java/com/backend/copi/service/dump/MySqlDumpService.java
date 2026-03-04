@@ -23,7 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class MySqlDumpService implements DatabaseDumpService {
+public class MySqlDumpService extends AbstractDumpService implements DatabaseDumpService {
 
     private final CryptoService cryptoService;
     private final AppProperties appProperties;
@@ -36,6 +36,11 @@ public class MySqlDumpService implements DatabaseDumpService {
 
     @Override
     public String executeDump(BackupJob job) throws Exception {
+
+        if (!canConnect(job.getHost(), job.getPort(), 1000)) {
+            log.error("MySQL connection failed {}:{}", job.getHost(), job.getPort());
+            return null;
+        }
     	
     	String mysqldumpPath = appProperties.getMysqldump().getPath();
 
@@ -62,37 +67,10 @@ public class MySqlDumpService implements DatabaseDumpService {
             command.add(job.getDbName());
         }
 
-        File file = new File(filePath);
-        file.getParentFile().mkdirs();
-
         ProcessBuilder pb = new ProcessBuilder(command);
         pb.environment().put("MYSQL_PWD", password);
-        pb.redirectOutput(file);
-        pb.redirectErrorStream(false);
 
-        Process process = pb.start();
-
-        boolean finished = process.waitFor(15, TimeUnit.MINUTES);
-
-        if (!finished) {
-            process.destroyForcibly();
-            file.delete();
-            throw new RuntimeException("MySQL dump timeout");
-        }
-        
-        String stderr = new String(process.getErrorStream().readAllBytes());
-
-        int exitCode = process.waitFor();
-
-        if (exitCode != 0 || !file.exists() || file.length() == 0) {
-            file.delete();
-            log.error("mysqldump command: {}", String.join(" ", command));
-            log.error("mysqldump stderr: {}", stderr);
-            log.error("mysqldump exitCode: {}", exitCode);
-            throw new RuntimeException("MySQL dump failed (exitCode=" + exitCode + ")");
-        }
-
-        return filePath;
+        return runProcess(pb, filePath, "Mysql dump", true);
     }
 
     private String buildFilePath(BackupJob job) throws IOException {
