@@ -109,7 +109,7 @@ public class SchedulerService {
             long occurrences = countMissedOccurrences(nextExecutionTime, nextTentative, job.getCronExpression());
             return (occurrences == 0) ? isGoodForDump(job, nextTentative, true) : isGoodForDump(job, nextTentative, false);
         }
-        return false;
+        return isGoodForDump(job, nextTentative, false);
     }
     
     private boolean isGoodForDump(BackupJob job, LocalDateTime nextTentative, boolean result) {
