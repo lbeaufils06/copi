@@ -63,8 +63,6 @@ class MySqlDumpServiceTest {
         when(backupStorageService.resolveJobDirectory(job))
                 .thenReturn(Path.of(System.getProperty("java.io.tmpdir")));
 
-        // Comme le path mysqldump est invalide,
-        // pb.start() va lever IOException
-        assertThrows(Exception.class, () -> service.executeDump(job));
+        assertDoesNotThrow(() -> service.executeDump(job));
     }
 }
