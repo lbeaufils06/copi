@@ -59,23 +59,28 @@ public class SchedulerService {
         }
 
         List<BackupJob> jobs = jobService.getEnabledJobs();
+        List<BackupJob> eligibleJobs = new java.util.ArrayList<>();
 
+        // 1️⃣ Scan des jobs
         for (BackupJob job : jobs) {
 
             if (runningJobs.contains(job.getId())) {
-                continue; // job déjà en cours
-            }
-            
-            boolean shouldRun = false;
-
-            if(job.getCronExpression() != null) {
-            	shouldRun = initializeNextExecutionIfNeeded(job);
+                continue;
             }
 
-            if (shouldRun) {
-                executeWithLock(job);
-                break;
+            if (job.getCronExpression() != null) {
+
+                boolean shouldRun = initializeNextExecutionIfNeeded(job);
+
+                if (shouldRun) {
+                    eligibleJobs.add(job);
+                }
             }
+        }
+
+        // 2️⃣ Exécution séquentielle
+        for (BackupJob job : eligibleJobs) {
+            executeWithLock(job);
         }
     }
 

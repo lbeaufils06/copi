@@ -36,7 +36,7 @@ public class MongoDbDumpService extends AbstractDumpService implements DatabaseD
     @Override
     public String executeDump(BackupJob job) throws Exception {
 
-        if (!canConnect(job.getHost(), job.getPort(), 1000)) {
+        if (!canConnect(job.getHost(), job.getPort(), 2000)) {
             log.error("MongoDB connection failed {}:{}", job.getHost(), job.getPort());
             return null;
         }

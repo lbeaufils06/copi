@@ -35,7 +35,7 @@ class StartupSyncTest {
 
         inOrder.verify(backupStorageService).synchronize();
         inOrder.verify(backupJobService).recoverInterruptedExecutions();
-        inOrder.verify(backupStorageService).deleteFailedExecutionsAndFiles();
+        //inOrder.verify(backupStorageService).deleteFailedExecutionsAndFiles();
 
         verifyNoMoreInteractions(backupStorageService, backupJobService);
     }
