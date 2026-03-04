@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
-@WebMvcTest(controllers = DummyController.class)
+@WebMvcTest(controllers = DummyControllerTest.class)
 @Import(SecurityConfig.class)
 class SecurityConfigTest {
 

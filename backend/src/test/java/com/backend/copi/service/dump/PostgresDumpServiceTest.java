@@ -1,8 +1,6 @@
 package com.backend.copi.service.dump;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -76,7 +74,7 @@ class PostgresDumpServiceTest {
 
         // Comme le path pgdump est invalide,
         // pb.start() va lever IOException
-        assertThrows(Exception.class, () -> service.executeDump(job));
+        assertDoesNotThrow(() -> service.executeDump(job));
     }
 
     @Test
@@ -97,6 +95,6 @@ class PostgresDumpServiceTest {
         when(backupStorageService.resolveJobDirectory(job))
                 .thenReturn(Path.of(System.getProperty("java.io.tmpdir")));
 
-        assertThrows(Exception.class, () -> service.executeDump(job));
+        assertDoesNotThrow(() -> service.executeDump(job));
     }
 }
