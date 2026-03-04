@@ -48,6 +48,7 @@ public class MongoDbDumpService implements DatabaseDumpService {
         command.add(job.getHost());
         command.add("--port");
         command.add(job.getPort().toString());
+        command.add("--serverSelectionTimeoutMS=5000");
         command.add("--username");
         command.add(job.getUsername());
         command.add("--password");
@@ -95,9 +96,10 @@ public class MongoDbDumpService implements DatabaseDumpService {
             }
         });
 
+        reader.setDaemon(true);
         reader.start();
 
-        boolean finished = process.waitFor(15, TimeUnit.MINUTES);
+        boolean finished = process.waitFor(2, TimeUnit.MINUTES);
 
         if (!finished) {
             process.destroyForcibly();
