@@ -99,21 +99,32 @@ public class SchedulerService {
 
     private boolean initializeNextExecutionIfNeeded(BackupJob job) {
 
-        if(job.getCronExpression() == null || job.getCronExpression().isEmpty()) {
+        if(job.getExecutionMode().equals(ExecutionMode.MANUAL)) {
             return isGoodForDump(job, null, false);
         }
 
         LocalDateTime now = LocalDateTime.now(clock).withNano(0);
-        LocalDateTime nextTentative = CronExpression.parse(job.getCronExpression()).next(now).withNano(0);
+
+
+        LocalDateTime nextTentative = CronExpression
+                .parse(job.getCronExpression())
+                .next(now)
+                .withNano(0);
         LocalDateTime nextExecutionTime = job.getNextExecutionTime();
-        
-        if(nextExecutionTime == null || job.getExecutionMode().equals(ExecutionMode.MANUAL)) {
-        	return isGoodForDump(job, nextTentative, false);
-        } else if (now.isAfter(nextExecutionTime) && !Objects.equals(job.getNextExecutionTime(), nextTentative)) {
-            long occurrences = countMissedOccurrences(nextExecutionTime, nextTentative, job.getCronExpression());
-            return (occurrences == 0) ? isGoodForDump(job, nextTentative, true) : isGoodForDump(job, nextTentative, false);
+
+        if(nextExecutionTime == null) {
+            return isGoodForDump(job, nextTentative, false);
         }
-        return isGoodForDump(job, nextTentative, false);
+
+        if (!Objects.equals(job.getNextExecutionTime(), nextTentative)) {
+            Long occurrences = countMissedOccurrences(nextExecutionTime, nextTentative, job.getCronExpression());
+            if(occurrences == 0 && !now.isBefore(nextExecutionTime)) {
+                return isGoodForDump(job, nextTentative, true);
+            }
+            return isGoodForDump(job, nextTentative, false);
+        }
+
+        return false;
     }
     
     private boolean isGoodForDump(BackupJob job, LocalDateTime nextTentative, boolean result) {
