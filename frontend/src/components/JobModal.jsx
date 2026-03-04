@@ -429,17 +429,30 @@ function JobModal({ jobId, defaults, onClose }) {
                 <option value="0 0 */3 * * *">3 heures</option>
                 <option value="0 0 */6 * * *">6 heures</option>
                 <option value="0 0 */12 * * *">12 heures</option>
-                <option value="0 0 0 * * *">00h</option>
-                <option value="0 0 2 * * *">02h</option>
-                <option value="0 0 4 * * *">04h</option>
-                <option value="0 0 6 * * *">06h</option>
-                <option value="0 0 8 * * *">08h</option>
-                <option value="0 0 10 * * *">10h</option>
-                <option value="0 0 12 * * *">12h</option>
-                <option value="0 0 14 * * *">14h</option>
-                <option value="0 0 16 * * *">16h</option>
-                <option value="0 0 20 * * *">20h</option>
-                <option value="0 0 22 * * *">22h</option>
+                <option value="0 0 0 * * *">Tous les jours à 00h</option>
+                <option value="0 0 1 * * *">Tous les jours à 01h</option>
+                <option value="0 0 2 * * *">Tous les jours à 02h</option>
+                <option value="0 0 3 * * *">Tous les jours à 03h</option>
+                <option value="0 0 4 * * *">Tous les jours à 04h</option>
+                <option value="0 0 5 * * *">Tous les jours à 05h</option>
+                <option value="0 0 6 * * *">Tous les jours à 06h</option>
+                <option value="0 0 7 * * *">Tous les jours à 07h</option>
+                <option value="0 0 8 * * *">Tous les jours à 08h</option>
+                <option value="0 0 9 * * *">Tous les jours à 09h</option>
+                <option value="0 0 10 * * *">Tous les jours à 10h</option>
+                <option value="0 0 11 * * *">Tous les jours à 11h</option>
+                <option value="0 0 12 * * *">Tous les jours à 12h</option>
+                <option value="0 0 13 * * *">Tous les jours à 13h</option>
+                <option value="0 0 14 * * *">Tous les jours à 14h</option>
+                <option value="0 0 15 * * *">Tous les jours à 15h</option>
+                <option value="0 0 16 * * *">Tous les jours à 16h</option>
+                <option value="0 0 17 * * *">Tous les jours à 17h</option>
+                <option value="0 0 18 * * *">Tous les jours à 18h</option>
+                <option value="0 0 19 * * *">Tous les jours à 19h</option>
+                <option value="0 0 20 * * *">Tous les jours à 20h</option>
+                <option value="0 0 21 * * *">Tous les jours à 21h</option>
+                <option value="0 0 22 * * *">Tous les jours à 22h</option>
+                <option value="0 0 23 * * *">Tous les jours à 23h</option>
               </select>
 
               <label htmlFor="job-cron" className="absolute left-3 top-1.5 text-xs text-slate-400 pointer-events-none">
