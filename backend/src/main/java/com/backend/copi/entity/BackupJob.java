@@ -3,11 +3,7 @@ package com.backend.copi.entity;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-import com.backend.copi.enums.CompressionType;
-import com.backend.copi.enums.DatabaseType;
-import com.backend.copi.enums.ExecutionMode;
-import com.backend.copi.enums.ExecutionStatus;
-import com.backend.copi.enums.RetentionPolicy;
+import com.backend.copi.enums.*;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -88,4 +84,12 @@ public class BackupJob {
 
     @Column
     private String authenticationDatabase;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private DumpOptionsMode dumpOptionsMode = DumpOptionsMode.DEFAULT;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private DbNameOptionsMode dbNameOptionsMode = DbNameOptionsMode.ALL;
 }

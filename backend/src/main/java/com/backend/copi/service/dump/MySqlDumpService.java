@@ -10,6 +10,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import com.backend.copi.enums.DbNameOptionsMode;
+import com.backend.copi.enums.DumpOptionsMode;
+import com.backend.copi.service.DefaultService;
 import org.springframework.stereotype.Service;
 
 import com.backend.copi.config.AppProperties;
@@ -28,6 +31,7 @@ public class MySqlDumpService extends AbstractDumpService implements DatabaseDum
     private final CryptoService cryptoService;
     private final AppProperties appProperties;
     private final BackupStorageService backupStorageService;
+    private final DefaultService defaultService;
 
     @Override
     public boolean supports(String dbType) {
@@ -57,13 +61,17 @@ public class MySqlDumpService extends AbstractDumpService implements DatabaseDum
         command.add("-u");
         command.add(job.getUsername());
 
-        // 🔹 Utilisation de la méthode de l’interface
-        command.addAll(parseDumpOptions(job.getDumpOptions()));
+        // Options dynamiques
+        if(job.getDumpOptionsMode().equals(DumpOptionsMode.CUSTOM) && job.getDumpOptions() != null && !job.getDumpOptions().isBlank()) {
+            command.addAll(parseDumpOptions(defaultService.getDefaultOptions(job.getDbType())));
+        } else {
+            command.addAll(parseDumpOptions(job.getDumpOptions()));
+        }
 
         // 🔹 Base ciblée
-        if (job.getDbName() == null || job.getDbName().trim().isEmpty()) {
+        if (job.getDbNameOptionsMode().equals(DbNameOptionsMode.ALL)) {
             command.add("--all-databases");
-        } else {
+        } else if(job.getDbName() == null || job.getDbName().trim().isEmpty()) {
             command.add(job.getDbName());
         }
 

@@ -24,4 +24,6 @@ public class BackupJobRequestDTO {
     private ExecutionMode executionMode;
     private String dumpOptions;
     private String authenticationDatabase;
+    private DumpOptionsMode dumpOptionsMode;
+    private DbNameOptionsMode dbNameOptionsMode;
 }

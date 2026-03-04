@@ -99,6 +99,10 @@ public class SchedulerService {
 
     private boolean initializeNextExecutionIfNeeded(BackupJob job) {
 
+        if(job.getCronExpression() == null || job.getCronExpression().isEmpty()) {
+            return isGoodForDump(job, null, false);
+        }
+
         LocalDateTime now = LocalDateTime.now(clock).withNano(0);
         LocalDateTime nextTentative = CronExpression.parse(job.getCronExpression()).next(now).withNano(0);
         LocalDateTime nextExecutionTime = job.getNextExecutionTime();

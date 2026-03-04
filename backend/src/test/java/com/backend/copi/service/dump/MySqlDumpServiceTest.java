@@ -6,6 +6,7 @@ import static org.mockito.Mockito.*;
 import java.nio.file.Path;
 import java.util.UUID;
 
+import com.backend.copi.service.DefaultService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -20,6 +21,7 @@ class MySqlDumpServiceTest {
     private AppProperties appProperties;
     private BackupStorageService backupStorageService;
     private MySqlDumpService service;
+    private DefaultService defaultService;
 
     @BeforeEach
     void setup() {
@@ -27,6 +29,7 @@ class MySqlDumpServiceTest {
         cryptoService = mock(CryptoService.class);
         appProperties = mock(AppProperties.class);
         backupStorageService = mock(BackupStorageService.class);
+        defaultService = mock(DefaultService.class);
 
         // Mock nested properties
         AppProperties.Mysqldump mysqldump = mock(AppProperties.Mysqldump.class);
@@ -36,7 +39,8 @@ class MySqlDumpServiceTest {
         service = new MySqlDumpService(
                 cryptoService,
                 appProperties,
-                backupStorageService
+                backupStorageService,
+                defaultService
         );
     }
 

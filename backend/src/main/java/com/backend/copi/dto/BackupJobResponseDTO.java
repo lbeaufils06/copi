@@ -33,4 +33,6 @@ public class BackupJobResponseDTO {
     private ExecutionMode executionMode;
     private String dumpOptions;
     private String authenticationDatabase;
+    private DumpOptionsMode dumpOptionsMode;
+    private DbNameOptionsMode dbNameOptionsMode;
 }

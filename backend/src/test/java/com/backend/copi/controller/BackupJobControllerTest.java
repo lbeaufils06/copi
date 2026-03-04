@@ -15,19 +15,22 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import com.backend.copi.dto.BackupJobResponseDTO;
+import com.backend.copi.entity.BackupJob;
+import com.backend.copi.enums.DatabaseType;
+import com.backend.copi.scheduler.SchedulerService;
+import com.backend.copi.service.BackupJobService;
+import com.backend.copi.service.DefaultService;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-
-import com.backend.copi.entity.BackupJob;
-import com.backend.copi.scheduler.SchedulerService;
-import com.backend.copi.service.BackupJobService;
 
 @WebMvcTest(BackupJobController.class)
 @AutoConfigureMockMvc(addFilters = false)
@@ -43,10 +46,13 @@ class BackupJobControllerTest {
     private SchedulerService schedulerService;
 
     @MockitoBean
+    private DefaultService defaultService;
+
+    @MockitoBean
     private Clock clock;
 
     @Test
-    void shouldReturnAllJobsWithCurrentTime() throws Exception {
+    void shouldReturnAllJobsWithServerTime() throws Exception {
 
         Instant fixedInstant = Instant.parse("2025-01-01T10:00:00Z");
         when(clock.instant()).thenReturn(fixedInstant);
@@ -129,4 +135,5 @@ class BackupJobControllerTest {
 
         verify(schedulerService).runManually(id);
     }
+
 }

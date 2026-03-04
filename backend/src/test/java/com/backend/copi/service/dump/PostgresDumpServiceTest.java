@@ -7,6 +7,7 @@ import static org.mockito.Mockito.when;
 import java.nio.file.Path;
 import java.util.UUID;
 
+import com.backend.copi.service.DefaultService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -21,6 +22,7 @@ class PostgresDumpServiceTest {
     private AppProperties appProperties;
     private BackupStorageService backupStorageService;
     private PostgresDumpService service;
+    private DefaultService defaultService;
 
     @BeforeEach
     void setup() {
@@ -28,6 +30,7 @@ class PostgresDumpServiceTest {
         cryptoService = mock(CryptoService.class);
         appProperties = mock(AppProperties.class);
         backupStorageService = mock(BackupStorageService.class);
+        defaultService = mock(DefaultService.class);
 
         // Mock nested properties
         AppProperties.Pgdump pgdump = mock(AppProperties.Pgdump.class);
@@ -43,7 +46,8 @@ class PostgresDumpServiceTest {
         service = new PostgresDumpService(
                 cryptoService,
                 appProperties,
-                backupStorageService
+                backupStorageService,
+                defaultService
         );
     }
 

@@ -1,4 +1,6 @@
 package com.backend.copi.enums;
 
-public class DbNameOptionsMode {
+public enum DbNameOptionsMode {
+    ALL,
+    CUSTOM
 }
