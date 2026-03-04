@@ -56,13 +56,14 @@ public class BackupJobService {
 
     public BackupJobResponseDTO updateJob(UUID id, BackupJobRequestDTO dto) throws IOException {
         BackupJob job = repository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Job not found"));
+        backupJobMapper.updateEntityFromDto(dto, job);
         if (dto.getPasswordEncrypted() != null && !dto.getPasswordEncrypted().isBlank()) {
             job.setPasswordEncrypted(cryptoService.encrypt(dto.getPasswordEncrypted()));
         }
         BackupJob saved = repository.save(job);
         return backupJobMapper.toResponseDto(saved);
     }
-    
+
     @Transactional
     public BackupJob updateJobScheduler(UUID id, BackupJob updatedJob) {
 
