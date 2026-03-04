@@ -9,6 +9,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import com.backend.copi.enums.DbNameOptionsMode;
+import com.backend.copi.enums.DumpOptionsMode;
+import com.backend.copi.service.DefaultService;
 import org.springframework.stereotype.Service;
 
 import com.backend.copi.config.AppProperties;
@@ -27,6 +30,7 @@ public class MongoDbDumpService extends AbstractDumpService implements DatabaseD
     private final CryptoService cryptoService;
     private final AppProperties appProperties;
     private final BackupStorageService backupStorageService;
+    private final DefaultService defaultService;
 
     @Override
     public boolean supports(String dbType) {
@@ -64,11 +68,15 @@ public class MongoDbDumpService extends AbstractDumpService implements DatabaseD
                         : "admin"
         );
 
-        // 🔹 Options custom éventuelles
-        command.addAll(parseDumpOptions(job.getDumpOptions()));
+        // Options dynamiques
+        if(job.getDumpOptionsMode().equals(DumpOptionsMode.CUSTOM) && job.getDumpOptions() != null && !job.getDumpOptions().isBlank()) {
+            command.addAll(parseDumpOptions(defaultService.getDefaultOptions(job.getDbType())));
+        } else {
+            command.addAll(parseDumpOptions(job.getDumpOptions()));
+        }
 
         // 🔹 Base ciblée
-        if (job.getDbName() != null && !job.getDbName().trim().isEmpty()) {
+        if (job.getDbNameOptionsMode().equals(DbNameOptionsMode.CUSTOM) && job.getDbName() != null && !job.getDbName().trim().isEmpty()) {
             command.add("--db");
             command.add(job.getDbName());
         }

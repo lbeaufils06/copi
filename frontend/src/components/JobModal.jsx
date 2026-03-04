@@ -204,20 +204,44 @@ function JobModal({ jobId, defaults, onClose }) {
               Type de base de données
             </label>
           </div>
-          
-          {/* DUMP OPTIONS */}
+
           <div className="relative">
-            <input
-              name="dumpOptions"
-              value={form.dumpOptions}
+            <select
+              id="job-dumpOptionsMode"
+              name="dumpOptionsMode"
+              value={form.dumpOptionsMode}
               onChange={handleChange}
-              placeholder="Options du dump"
-              className={`peer w-full bg-slate-900 border border-slate-700 p-3 pt-5 rounded-lg focus:outline-none focus:border-indigo-500`}
-            />
-            <label htmlFor="job-dumpOptions" className="absolute left-3 top-2 text-xs text-slate-400 pointer-events-none">
-              Options base de données
+              className="w-full bg-slate-900 border border-slate-700 p-3 pt-5 rounded-lg focus:outline-none focus:border-indigo-500"
+            >
+              <option value="DEFAULT">Par defaut</option>
+              <option value="CUSTOM">Custom</option>
+            </select>
+
+            <label
+              htmlFor="job-dumpOptionsMode"
+              className="absolute left-3 top-2 text-xs text-slate-400 pointer-events-none"
+            >
+              Choisir options
             </label>
           </div>
+          
+          {form.dumpOptionsMode === "CUSTOM" && (
+            <>
+            {/* DUMP OPTIONS */}
+            <div className="relative border-l-4 rounded-lg border-l-indigo-500">
+              <input
+                name="dumpOptions"
+                value={form.dumpOptions}
+                onChange={handleChange}
+                placeholder="Options du dump"
+                className={`peer w-full bg-slate-900 border border-slate-700 p-3 pt-5 rounded-lg focus:outline-none focus:border-indigo-500`}
+              />
+              <label htmlFor="job-dumpOptions" className="absolute left-3 top-2 text-xs text-slate-400 pointer-events-none">
+                Options base de données
+              </label>
+            </div>
+            </>
+          )}
 
           {/* Compression */}
           <div className="relative">
@@ -271,8 +295,30 @@ function JobModal({ jobId, defaults, onClose }) {
             </label>
           </div>
 
-          {/* Database */}
           <div className="relative">
+            <select
+              id="job-dbNameOptionsMode"
+              name="dbNameOptionsMode"
+              value={form.dbNameOptionsMode}
+              onChange={handleChange}
+              className="w-full bg-slate-900 border border-slate-700 p-3 pt-5 rounded-lg focus:outline-none focus:border-indigo-500"
+            >
+              <option value="ALL">All</option>
+              <option value="CUSTOM">Custom</option>
+            </select>
+
+            <label
+              htmlFor="job-dbNameOptionsMode"
+              className="absolute left-3 top-2 text-xs text-slate-400 pointer-events-none"
+            >
+              Ajouter database
+            </label>
+          </div>
+
+          {form.dbNameOptionsMode === "CUSTOM" && (
+          <>
+          {/* Database */}
+          <div className="relative border-l-4 rounded-lg border-l-indigo-500">
             <input
               id="job-dbName"
               name="dbName"
@@ -285,6 +331,8 @@ function JobModal({ jobId, defaults, onClose }) {
               Nom de la base
             </label>
           </div>
+          </>
+          )}
 
           {form.dbType === "MONGODB" && (
             <div className="relative">
@@ -411,7 +459,7 @@ function JobModal({ jobId, defaults, onClose }) {
           {form.executionMode === "SCHEDULED" && (
           <>
             {/* PLANIFICATION BACKUP */}
-            <div className="relative">
+            <div className="relative border-l-4 rounded-lg border-l-indigo-500">
               <select
                 id="job-cron"
                 className="w-full bg-slate-900 border border-slate-700 p-3 pt-5 rounded-lg focus:outline-none focus:border-indigo-500"
@@ -465,7 +513,7 @@ function JobModal({ jobId, defaults, onClose }) {
             
           {form.executionMode === "SCHEDULED_CUSTOM" && (
           <>
-              <div className="relative">
+              <div className="relative border-l-4 rounded-lg border-l-indigo-500">
                 <input
                 id="job-cronExpression"
                   name="cronExpression"
@@ -500,7 +548,7 @@ function JobModal({ jobId, defaults, onClose }) {
           </div>
 
           {form.retentionPolicy === "COUNT" && (
-            <div className="relative">
+            <div className="relative border-l-4 rounded-lg border-l-indigo-500">
               <input
                 id="job-numberRetention"
                 type="number"

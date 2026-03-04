@@ -38,7 +38,7 @@ public class DatabaseMigrationService {
             migrateV3();
             setVersion(3);
         }
-        
+
         if (currentVersion < 4) {
             migrateV4();
             setVersion(4);
@@ -62,6 +62,11 @@ public class DatabaseMigrationService {
         if (currentVersion < 9) {
             migrateV9();
             setVersion(9);
+        }
+
+        if (currentVersion < 10) {
+            migrateV10();
+            setVersion(10);
         }
 
         System.out.println("✅ Database schema version: " + getCurrentVersion());
@@ -128,7 +133,7 @@ public class DatabaseMigrationService {
     private void setVersion(int version) {
         jdbcTemplate.update("UPDATE schema_version SET version = ?", version);
     }
-    
+
     private boolean tableExists(String table) {
         Integer count = jdbcTemplate.queryForObject(
                 "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name=?",
@@ -236,7 +241,7 @@ public class DatabaseMigrationService {
             System.out.println("✅ Migration V2 applied (execution_mode added)");
         }
     }
-    
+
     private void migrateV3() {
 
         if (!columnExists("backup_job", "execution_mode")) {
@@ -314,7 +319,7 @@ public class DatabaseMigrationService {
             System.out.println("✅ Migration V3 applied (schema rebuilt)");
         }
     }
-    
+
     private void migrateV4() {
 
         if (!columnExists("backup_job", "dump_options")) {
@@ -581,5 +586,26 @@ public class DatabaseMigrationService {
             System.out.println("✅ Migration V8 applied (authentication_database added as nullable)");
         }
     }
-    
+
+    private void migrateV10() {
+
+        System.out.println("🔄 Applying Migration V10 (add dump/db options mode)");
+
+        if (!columnExists("backup_job", "dump_options_mode")) {
+            jdbcTemplate.execute("""
+            ALTER TABLE backup_job
+            ADD COLUMN dump_options_mode TEXT NOT NULL DEFAULT 'DEFAULT'
+        """);
+        }
+
+        if (!columnExists("backup_job", "db_name_options_mode")) {
+            jdbcTemplate.execute("""
+            ALTER TABLE backup_job
+            ADD COLUMN db_name_options_mode TEXT NOT NULL DEFAULT 'ALL'
+        """);
+        }
+
+        System.out.println("✅ Migration V10 applied (options mode added)");
+    }
+
 }

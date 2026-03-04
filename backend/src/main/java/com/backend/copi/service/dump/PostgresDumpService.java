@@ -12,6 +12,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import com.backend.copi.enums.DbNameOptionsMode;
+import com.backend.copi.enums.DumpOptionsMode;
+import com.backend.copi.service.DefaultService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -30,6 +33,7 @@ public class PostgresDumpService extends AbstractDumpService implements Database
     private final CryptoService cryptoService;
     private final AppProperties appProperties;
     private final BackupStorageService backupStorageService;
+    private final DefaultService defaultService;
 
     @Override
     public boolean supports(String dbType) {
@@ -52,9 +56,7 @@ public class PostgresDumpService extends AbstractDumpService implements Database
 
         String filePath = buildFilePath(job);
 
-        boolean dumpAll =
-                job.getDbName() == null ||
-                job.getDbName().trim().isEmpty();
+        boolean dumpAll = (job.getDbName() == null || job.getDbName().trim().isEmpty()) && job.getDbNameOptionsMode().equals(DbNameOptionsMode.ALL);
 
         List<String> command = new ArrayList<>();
 
@@ -86,9 +88,11 @@ public class PostgresDumpService extends AbstractDumpService implements Database
             command.add(job.getDbName());
         }
 
-        // 🔹 Injection des dumpOptions ici
-        if (job.getDumpOptions() != null && !job.getDumpOptions().isBlank()) {
-            command.addAll(Arrays.asList(job.getDumpOptions().trim().split("\\s+")));
+        // Options dynamiques
+        if(job.getDumpOptionsMode().equals(DumpOptionsMode.CUSTOM) && job.getDumpOptions() != null && !job.getDumpOptions().isBlank()) {
+            command.addAll(parseDumpOptions(defaultService.getDefaultOptions(job.getDbType())));
+        } else {
+            command.addAll(parseDumpOptions(job.getDumpOptions()));
         }
 
         ProcessBuilder pb = new ProcessBuilder(command);

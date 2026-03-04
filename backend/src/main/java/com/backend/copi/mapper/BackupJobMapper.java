@@ -37,6 +37,8 @@ public class BackupJobMapper {
         dto.setExecutionMode(job.getExecutionMode());
         dto.setDumpOptions(job.getDumpOptions());
         dto.setAuthenticationDatabase(job.getAuthenticationDatabase());
+        dto.setDumpOptionsMode(job.getDumpOptionsMode());
+        dto.setDbNameOptionsMode(job.getDbNameOptionsMode());
 
         return dto;
     }
@@ -61,6 +63,8 @@ public class BackupJobMapper {
         job.setExecutionMode(dto.getExecutionMode());
         job.setDumpOptions(dto.getDumpOptions());
         job.setAuthenticationDatabase(dto.getAuthenticationDatabase());
+        job.setDumpOptionsMode(dto.getDumpOptionsMode());
+        job.setDbNameOptionsMode(dto.getDbNameOptionsMode());
 
         return job;
     }
@@ -121,6 +125,14 @@ public class BackupJobMapper {
 
         if (dto.getAuthenticationDatabase() != null) {
             job.setAuthenticationDatabase(dto.getAuthenticationDatabase());
+        }
+
+        if (dto.getDumpOptionsMode() != null) {
+            job.setDumpOptionsMode(dto.getDumpOptionsMode());
+        }
+
+        if (dto.getDbNameOptionsMode() != null) {
+            job.setDbNameOptionsMode(dto.getDbNameOptionsMode());
         }
     }
 }

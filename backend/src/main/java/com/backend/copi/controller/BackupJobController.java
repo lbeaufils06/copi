@@ -8,6 +8,7 @@ import java.util.UUID;
 import com.backend.copi.dto.BackupJobRequestDTO;
 import com.backend.copi.dto.BackupJobResponseDTO;
 import com.backend.copi.dto.DefaultsResponse;
+import com.backend.copi.service.DefaultService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -33,6 +34,7 @@ public class BackupJobController {
     private final BackupJobService service;
     private final SchedulerService schedulerService;
     private final Clock clock;
+    private final DefaultService defaultService;
 
     @GetMapping
     public JobsResponse getJobs() {
@@ -67,6 +69,6 @@ public class BackupJobController {
 
     @GetMapping("/defaults")
     public DefaultsResponse getDefaults() {
-        return new DefaultsResponse(service.getDefaults(), service.getAllDefaultDumpOptions());
+        return new DefaultsResponse(defaultService.getDefaults(), defaultService.getAllDefaultDumpOptions());
     }
 }

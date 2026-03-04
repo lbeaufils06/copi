@@ -134,26 +134,4 @@ public class BackupJobService {
         log.info("Recovered {} interrupted executions", runningExecutions.size());
     }
 
-    public Map<DatabaseType, String> getAllDefaultDumpOptions() {
-        return Map.of(
-                DatabaseType.MYSQL,"--single-transaction --quick --routines --triggers --events --add-drop-table",
-                DatabaseType.MARIADB, "--single-transaction --quick --routines --triggers --events --add-drop-table",
-                DatabaseType.POSTGRESQL,"--clean --if-exists --no-owner",
-                DatabaseType.MONGODB,""
-        );
-    }
-
-    public BackupJob getDefaults() {
-        BackupJob job = new BackupJob();
-        job.setDbType(DatabaseType.MARIADB);
-        job.setCronExpression("0 0 * * * *");
-        job.setExecutionMode(ExecutionMode.SCHEDULED);
-        job.setRetentionPolicy(RetentionPolicy.NONE);
-        job.setRetentionCount(5);
-        job.setEnabled(true);
-        job.setCompressionType(CompressionType.NONE);
-        job.setAuthenticationDatabase("admin");
-        return job;
-    }
-
 }
