@@ -5,5 +5,6 @@ public enum ExecutionStatus {
     SUCCESS,
     FAILED,
     NEVER_RUN,
-    MISSING
+    MISSING,
+    DELETE
 }

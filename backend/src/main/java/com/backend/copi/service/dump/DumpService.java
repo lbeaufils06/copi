@@ -1,7 +1,6 @@
-package com.backend.copi.service;
+package com.backend.copi.service.dump;
 
 import com.backend.copi.entity.BackupJob;
-import com.backend.copi.service.dump.DatabaseDumpService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

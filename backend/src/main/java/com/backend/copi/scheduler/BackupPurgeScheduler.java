@@ -20,7 +20,7 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 @Profile("!test")
-public class SchedulerServicePurge {
+public class BackupPurgeScheduler {
 
     private final BackupJobService jobService;
     private final BackupExecutionService executionService;

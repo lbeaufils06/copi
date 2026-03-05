@@ -2,7 +2,6 @@ package com.backend.copi.service;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import com.backend.copi.dto.BackupJobRequestDTO;
@@ -10,6 +9,7 @@ import com.backend.copi.dto.BackupJobResponseDTO;
 import com.backend.copi.enums.*;
 import com.backend.copi.exception.ResourceNotFoundException;
 import com.backend.copi.mapper.BackupJobMapper;
+import com.backend.copi.service.utils.CryptoService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

@@ -18,15 +18,15 @@ import com.backend.copi.enums.ExecutionMode;
 import com.backend.copi.service.BackupExecutionService;
 import com.backend.copi.service.BackupJobService;
 import com.backend.copi.service.BackupStorageService;
-import com.backend.copi.service.DumpService;
+import com.backend.copi.service.dump.DumpService;
 
-class SchedulerServiceTest {
+class BackupJobSchedulerTest {
 
     private BackupJobService jobService;
     private DumpService dumpService;
     private BackupExecutionService executionService;
     private BackupStorageService backupStorageService;
-    private SchedulerService schedulerService;
+    private BackupJobScheduler backupJobScheduler;
 
     @BeforeEach
     void setup() {
@@ -40,7 +40,7 @@ class SchedulerServiceTest {
                 Instant.parse("2026-02-27T10:00:00Z"),
                 ZoneId.of("UTC"));
 
-        schedulerService = new SchedulerService(
+        backupJobScheduler = new BackupJobScheduler(
                 jobService,
                 dumpService,
                 executionService,
@@ -68,7 +68,7 @@ class SchedulerServiceTest {
         when(dumpService.executeJob(job)).thenReturn(tempFile.getAbsolutePath());
         when(backupStorageService.compress(any(), any())).thenReturn(tempFile.getAbsolutePath());
 
-        schedulerService.runManually(jobId);
+        backupJobScheduler.runManually(jobId);
 
         verify(dumpService).executeJob(job);
         verify(executionService).markSuccess(any(), any());
@@ -89,7 +89,7 @@ class SchedulerServiceTest {
         when(executionService.startExecution(any())).thenReturn(execution);
         when(dumpService.executeJob(job)).thenReturn(null);
 
-        schedulerService.runManually(jobId);
+        backupJobScheduler.runManually(jobId);
 
         verify(executionService).markFailed(any(), any());
     }
@@ -110,14 +110,14 @@ class SchedulerServiceTest {
             return null;
         });
 
-        Thread t1 = new Thread(() -> schedulerService.runManually(jobId));
+        Thread t1 = new Thread(() -> backupJobScheduler.runManually(jobId));
         t1.start();
 
         Thread.sleep(50);
 
         assertThrows(
                 IllegalStateException.class,
-                () -> schedulerService.runManually(jobId)
+                () -> backupJobScheduler.runManually(jobId)
         );
     }
 }
