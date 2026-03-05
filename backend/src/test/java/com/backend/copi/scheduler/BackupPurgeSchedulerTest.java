@@ -10,6 +10,7 @@ import java.time.ZoneId;
 import java.util.List;
 import java.util.UUID;
 
+import com.backend.copi.scheduler.BackupPurgeScheduler;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -17,11 +18,11 @@ import com.backend.copi.entity.BackupJob;
 import com.backend.copi.service.BackupExecutionService;
 import com.backend.copi.service.BackupJobService;
 
-class SchedulerServicePurgeTest {
+class BackupPurgeSchedulerTest {
 
     private BackupJobService jobService;
     private BackupExecutionService executionService;
-    private SchedulerServicePurge scheduler;
+    private BackupPurgeScheduler scheduler;
 
     private Clock fixedClock;
 
@@ -35,7 +36,7 @@ class SchedulerServicePurgeTest {
                 Instant.parse("2026-02-27T10:00:00Z"),
                 ZoneId.of("UTC"));
 
-        scheduler = new SchedulerServicePurge(
+        scheduler = new BackupPurgeScheduler(
                 jobService,
                 executionService,
                 fixedClock

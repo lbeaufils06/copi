@@ -26,7 +26,7 @@ import com.backend.copi.enums.ExecutionStatus;
 import com.backend.copi.service.BackupExecutionService;
 import com.backend.copi.service.BackupJobService;
 import com.backend.copi.service.BackupStorageService;
-import com.backend.copi.service.DumpService;
+import com.backend.copi.service.dump.DumpService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -35,7 +35,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Slf4j
 @Profile("!test")
-public class SchedulerService {
+public class BackupJobScheduler {
 
     private final BackupJobService jobService;
     private final DumpService dumpService;

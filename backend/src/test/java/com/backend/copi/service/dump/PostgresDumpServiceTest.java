@@ -7,14 +7,14 @@ import static org.mockito.Mockito.when;
 import java.nio.file.Path;
 import java.util.UUID;
 
-import com.backend.copi.service.DefaultService;
+import com.backend.copi.service.utils.DefaultService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import com.backend.copi.config.AppProperties;
 import com.backend.copi.entity.BackupJob;
 import com.backend.copi.service.BackupStorageService;
-import com.backend.copi.service.CryptoService;
+import com.backend.copi.service.utils.CryptoService;
 
 class PostgresDumpServiceTest {
 

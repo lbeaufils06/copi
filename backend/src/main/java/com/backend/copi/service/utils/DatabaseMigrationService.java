@@ -1,4 +1,4 @@
-package com.backend.copi.service;
+package com.backend.copi.service.utils;
 
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;

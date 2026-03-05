@@ -15,15 +15,12 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import com.backend.copi.dto.BackupJobResponseDTO;
-import com.backend.copi.entity.BackupJob;
-import com.backend.copi.enums.DatabaseType;
-import com.backend.copi.scheduler.SchedulerService;
+import com.backend.copi.scheduler.BackupJobScheduler;
 import com.backend.copi.service.BackupJobService;
-import com.backend.copi.service.DefaultService;
+import com.backend.copi.service.utils.DefaultService;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,7 +40,7 @@ class BackupJobControllerTest {
     private BackupJobService service;
 
     @MockitoBean
-    private SchedulerService schedulerService;
+    private BackupJobScheduler backupJobScheduler;
 
     @MockitoBean
     private DefaultService defaultService;
@@ -133,7 +130,7 @@ class BackupJobControllerTest {
         mockMvc.perform(post("/api/jobs/" + id + "/start"))
                 .andExpect(status().isAccepted());
 
-        verify(schedulerService).runManually(id);
+        verify(backupJobScheduler).runManually(id);
     }
 
 }

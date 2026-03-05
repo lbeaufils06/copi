@@ -8,7 +8,7 @@ import java.util.UUID;
 import com.backend.copi.dto.BackupJobRequestDTO;
 import com.backend.copi.dto.BackupJobResponseDTO;
 import com.backend.copi.dto.DefaultsResponse;
-import com.backend.copi.service.DefaultService;
+import com.backend.copi.service.utils.DefaultService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,8 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.backend.copi.dto.JobsResponse;
-import com.backend.copi.entity.BackupJob;
-import com.backend.copi.scheduler.SchedulerService;
+import com.backend.copi.scheduler.BackupJobScheduler;
 import com.backend.copi.service.BackupJobService;
 
 import lombok.RequiredArgsConstructor;
@@ -32,7 +31,7 @@ import lombok.RequiredArgsConstructor;
 public class BackupJobController {
 
     private final BackupJobService service;
-    private final SchedulerService schedulerService;
+    private final BackupJobScheduler backupJobScheduler;
     private final Clock clock;
     private final DefaultService defaultService;
 
@@ -63,7 +62,7 @@ public class BackupJobController {
     
     @PostMapping("/{id}/start")
     public ResponseEntity<Void> startJob(@PathVariable UUID id) {
-        schedulerService.runManually(id);
+        backupJobScheduler.runManually(id);
         return ResponseEntity.accepted().build();
     }
 
