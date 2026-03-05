@@ -154,15 +154,15 @@ public class BackupStorageService {
 	            boolean fileExists = Files.exists(filePath);
 	            ExecutionStatus currentStatus = execution.getStatus();
 	
-	            if (currentStatus == ExecutionStatus.SUCCESS && !fileExists) {
+	            if ((currentStatus == ExecutionStatus.SUCCESS || currentStatus == ExecutionStatus.MISSING) && !fileExists) {
 	
 	                log.warn("File missing for execution id={} path={}",
 	                        execution.getId(), filePathValue);
 	
-	                execution.setStatus(ExecutionStatus.MISSING);
+	                execution.setStatus(ExecutionStatus.FAILED);
 	            }
 	
-	            else if (currentStatus == ExecutionStatus.MISSING && fileExists) {
+	            else if (currentStatus == ExecutionStatus.MISSING) {
 	
 	                log.info("File restored for execution id={} path={}",
 	                        execution.getId(), filePathValue);
@@ -224,25 +224,31 @@ public class BackupStorageService {
 
         return outputFile.toString();
     }
-    
+
     @Transactional
-    public void deleteFailedExecutionsAndFiles() {
+    public void deleteFailedExecutionFiles() {
 
         List<BackupExecution> failedExecutions =
-        		backupExecutionRepository.findByStatus(ExecutionStatus.FAILED);
+                backupExecutionRepository.findByStatus(ExecutionStatus.FAILED);
 
-        for (BackupExecution exec : failedExecutions) {
+        int deletedCount = 0;
+
+        for (BackupExecution execution : failedExecutions) {
 
             try {
-                deleteExecutionFiles(exec);
-            } catch (Exception e) {
-                log.error("Failed to delete files for execution {}", exec.getId(), e);
-            }
+                deleteExecutionFiles(execution);
+                deletedCount++;
 
-            backupExecutionRepository.delete(exec);
+            } catch (Exception e) {
+                log.error(
+                        "Failed to delete files for execution {}",
+                        execution.getId(),
+                        e
+                );
+            }
         }
 
-        log.info("Deleted {} failed executions", failedExecutions.size());
+        log.info("Deleted files for {} failed executions", deletedCount);
     }
     
     private void deleteExecutionFiles(BackupExecution exec) throws IOException {
