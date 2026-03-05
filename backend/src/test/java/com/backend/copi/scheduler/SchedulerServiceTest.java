@@ -1,11 +1,10 @@
 package com.backend.copi.scheduler;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 import java.time.Clock;
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.UUID;
 
@@ -44,39 +43,9 @@ class SchedulerServiceTest {
                 jobService,
                 dumpService,
                 executionService,
-                fixedClock,
-                backupStorageService
+                backupStorageService,
+                fixedClock
         );
-    }
-
-    @Test
-    void countMissedOccurrences_shouldReturnZeroWhenNoGap() {
-
-        LocalDateTime stored = LocalDateTime.of(2026, 2, 27, 10, 0);
-        LocalDateTime next = LocalDateTime.of(2026, 2, 27, 10, 1);
-
-        long result = schedulerService.countMissedOccurrences(
-                stored,
-                next,
-                "0 * * * * *" // every minute
-        );
-
-        assertEquals(0, result);
-    }
-
-    @Test
-    void countMissedOccurrences_shouldCountMissedRuns() {
-
-        LocalDateTime stored = LocalDateTime.of(2026, 2, 27, 10, 0);
-        LocalDateTime next = LocalDateTime.of(2026, 2, 27, 10, 5);
-
-        long result = schedulerService.countMissedOccurrences(
-                stored,
-                next,
-                "0 * * * * *" // every minute
-        );
-
-        assertEquals(4, result);
     }
 
     @Test
@@ -89,18 +58,56 @@ class SchedulerServiceTest {
         job.setName("test-job");
         job.setExecutionMode(ExecutionMode.MANUAL);
 
-        BackupExecution mockExecution = BackupExecution.builder().build();
+        BackupExecution execution = BackupExecution.builder().build();
 
         when(jobService.getEntityById(jobId)).thenReturn(job);
-        when(executionService.startExecution(any())).thenReturn(mockExecution);
+        when(executionService.startExecution(any())).thenReturn(execution);
         when(dumpService.executeJob(job)).thenReturn("/tmp/file.sql");
         when(backupStorageService.compress(any(), any())).thenReturn("/tmp/file.sql");
-        doNothing().when(executionService).markSuccess(any(), any());
 
         schedulerService.runManually(jobId);
 
-        verify(dumpService, times(1)).executeJob(job);
-        verify(executionService, times(1)).markSuccess(any(), any());
+        verify(dumpService).executeJob(job);
+        verify(executionService).markSuccess(any(), any());
         verify(jobService, atLeastOnce()).updateJobScheduler(eq(jobId), any());
+    }
+
+    @Test
+    void runManually_shouldFailWhenDumpReturnsNull() throws Exception {
+
+        UUID jobId = UUID.randomUUID();
+
+        BackupJob job = new BackupJob();
+        job.setId(jobId);
+        job.setExecutionMode(ExecutionMode.MANUAL);
+
+        BackupExecution execution = BackupExecution.builder().build();
+
+        when(jobService.getEntityById(jobId)).thenReturn(job);
+        when(executionService.startExecution(any())).thenReturn(execution);
+        when(dumpService.executeJob(job)).thenReturn(null);
+
+        schedulerService.runManually(jobId);
+
+        verify(executionService).markFailed(any(), any());
+    }
+
+    @Test
+    void runManually_shouldPreventConcurrentExecution() {
+
+        UUID jobId = UUID.randomUUID();
+
+        BackupJob job = new BackupJob();
+        job.setId(jobId);
+        job.setExecutionMode(ExecutionMode.MANUAL);
+
+        when(jobService.getEntityById(jobId)).thenReturn(job);
+
+        schedulerService.runManually(jobId);
+
+        assertThrows(
+                IllegalStateException.class,
+                () -> schedulerService.runManually(jobId)
+        );
     }
 }

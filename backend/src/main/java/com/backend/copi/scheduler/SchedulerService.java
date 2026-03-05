@@ -5,8 +5,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Clock;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -40,10 +40,11 @@ public class SchedulerService {
     private final BackupJobService jobService;
     private final DumpService dumpService;
     private final BackupExecutionService executionService;
-    private final Clock clock;
     private final BackupStorageService backupStorageService;
+    private final Clock clock;
 
     private final Set<UUID> runningJobs = ConcurrentHashMap.newKeySet();
+
     private boolean applicationReady = false;
 
     @EventListener(ApplicationReadyEvent.class)
@@ -59,35 +60,66 @@ public class SchedulerService {
         }
 
         List<BackupJob> jobs = jobService.getEnabledJobs();
-        List<BackupJob> eligibleJobs = new java.util.ArrayList<>();
+        List<BackupJob> eligibleJobs = new ArrayList<>();
 
-        // 1️⃣ Scan des jobs
         for (BackupJob job : jobs) {
 
             if (runningJobs.contains(job.getId())) {
                 continue;
             }
 
-            if (job.getCronExpression() != null) {
-
-                boolean shouldRun = initializeNextExecutionIfNeeded(job);
-
-                if (shouldRun) {
-                    eligibleJobs.add(job);
-                }
+            if (isJobEligible(job)) {
+                eligibleJobs.add(job);
             }
         }
 
-        // 2️⃣ Exécution séquentielle
         for (BackupJob job : eligibleJobs) {
             executeWithLock(job);
         }
     }
 
+    private boolean isJobEligible(BackupJob job) {
+
+        if (job.getExecutionMode() == ExecutionMode.MANUAL) {
+            return false;
+        }
+
+        if (job.getCronExpression() == null) {
+            return false;
+        }
+
+        LocalDateTime now = LocalDateTime.now(clock).withNano(0);
+        CronExpression cron = CronExpression.parse(job.getCronExpression());
+
+        LocalDateTime storedNext = job.getNextExecutionTime();
+
+        if (storedNext == null) {
+
+            LocalDateTime next = cron.next(now).withNano(0);
+            updateNextExecution(job, next);
+            return false;
+        }
+
+        if (!now.isBefore(storedNext)) {
+
+            LocalDateTime next = cron.next(now).withNano(0);
+            updateNextExecution(job, next);
+            return true;
+        }
+
+        return false;
+    }
+
+    private void updateNextExecution(BackupJob job, LocalDateTime next) {
+        job.setNextExecutionTime(next);
+        jobService.updateJobScheduler(job.getId(), job);
+    }
+
     private void executeWithLock(BackupJob job) {
 
         if (!runningJobs.add(job.getId())) {
-            return; // déjà en cours
+            log.debug("Job already running: {}", job.getName());
+            return;
         }
 
         try {
@@ -97,46 +129,14 @@ public class SchedulerService {
         }
     }
 
-    private boolean initializeNextExecutionIfNeeded(BackupJob job) {
-
-        if(job.getExecutionMode().equals(ExecutionMode.MANUAL)) {
-            return isGoodForDump(job, null, false);
-        }
+    private void executeSequentially(BackupJob job) {
 
         LocalDateTime now = LocalDateTime.now(clock).withNano(0);
 
-
-        LocalDateTime nextTentative = CronExpression
-                .parse(job.getCronExpression())
-                .next(now)
-                .withNano(0);
-        LocalDateTime nextExecutionTime = job.getNextExecutionTime();
-
-        if(nextExecutionTime == null) {
-            return isGoodForDump(job, nextTentative, false);
-        }
-
-        if (!Objects.equals(job.getNextExecutionTime(), nextTentative)) {
-            Long occurrences = countMissedOccurrences(nextExecutionTime, nextTentative, job.getCronExpression());
-            if(occurrences == 0 && !now.isBefore(nextExecutionTime)) {
-                return isGoodForDump(job, nextTentative, true);
-            }
-            return isGoodForDump(job, nextTentative, false);
-        }
-
-        return false;
-    }
-    
-    private boolean isGoodForDump(BackupJob job, LocalDateTime nextTentative, boolean result) {
-    	job.setNextExecutionTime(nextTentative);
-        jobService.updateJobScheduler(job.getId(), job);
-    	return result;
-    }
-
-    private void executeSequentially(BackupJob job) {
-    	    	
-    	LocalDateTime now = LocalDateTime.now(clock).withNano(0);
-        log.info("Dump => name=" + job.getName() + ", now=" + now + ", nextExecutionTime=" + job.getNextExecutionTime());
+        log.info("Starting dump job={} now={} nextExecution={}",
+                job.getName(),
+                now,
+                job.getNextExecutionTime());
 
         job.setLastStatus(ExecutionStatus.RUNNING);
         job.setLastStatusMessage("");
@@ -151,47 +151,58 @@ public class SchedulerService {
         try {
 
             String filePath = dumpService.executeJob(job);
-            if(filePath != null) {
 
-                String finalPath = compressFilePath(filePath, job.getCompressionType());
+            if (filePath == null) {
+                markFailure(job, execution, "Dump failed");
+                return;
+            }
 
-                if (job.getCompressionType() != null && job.getCompressionType() != CompressionType.NONE) {
-                    Files.delete(Path.of(filePath));
-                }
+            String finalPath = compressFile(filePath, job.getCompressionType());
 
-                executionService.markSuccess(execution, finalPath);
+            if (CompressionType.NONE != job.getCompressionType()) {
+                Files.delete(Path.of(filePath));
+            }
 
-                job.setLastStatus(ExecutionStatus.SUCCESS);
-                job.setLastStatusMessage(execution.getLogMessage());
-                job.setLastSuccessTime(execution.getEndTime());
+            executionService.markSuccess(execution, finalPath);
 
-                if (job.getCronPurgeExpression() == null
-                        || job.getCronPurgeExpression().isEmpty()) {
+            job.setLastStatus(ExecutionStatus.SUCCESS);
+            job.setLastStatusMessage(execution.getLogMessage());
+            job.setLastSuccessTime(execution.getEndTime());
 
-                    executionService.applyRetentionByCount(job);
-                }
-            } else {
-                job.setLastStatus(ExecutionStatus.FAILED);
-                log.error("Dump failed");
-                executionService.markFailed(execution, "Dump failed");
+            if (job.getCronPurgeExpression() == null || job.getCronPurgeExpression().isEmpty()) {
+                executionService.applyRetentionByCount(job);
             }
 
         } catch (Exception e) {
-            job.setLastStatus(ExecutionStatus.FAILED);
-            String messageError = e.getMessage();
-            job.setLastStatusMessage(messageError);
-            log.error("Dump ERROR => ", e);
-            executionService.markFailed(execution, e.getMessage());
+
+            log.error("Dump error for job {}", job.getName(), e);
+
+            markFailure(job, execution, e.getMessage());
 
         } finally {
-        	backupStorageService.synchronize();
+
+            backupStorageService.synchronize();
             jobService.updateJobScheduler(job.getId(), job);
         }
+    }
+
+    private void markFailure(BackupJob job, BackupExecution execution, String message) {
+
+        job.setLastStatus(ExecutionStatus.FAILED);
+        job.setLastStatusMessage(message);
+
+        executionService.markFailed(execution, message);
+    }
+
+    private String compressFile(String inputFilePath, CompressionType type) throws IOException {
+        return backupStorageService.compress(inputFilePath, type);
     }
 
     public void runManually(UUID jobId) {
 
         BackupJob job = jobService.getEntityById(jobId);
+
+        log.info("Manual execution requested for job {}", job.getName());
 
         if (!runningJobs.add(jobId)) {
             throw new IllegalStateException("Job already running");
@@ -203,32 +214,4 @@ public class SchedulerService {
             runningJobs.remove(jobId);
         }
     }
-
-    public long countMissedOccurrences(
-            LocalDateTime storedNextExecutionTime,
-            LocalDateTime next,
-            String cronExpression) {
-
-        if (storedNextExecutionTime == null || !storedNextExecutionTime.isBefore(next)) {
-            return 0;
-        }
-
-        CronExpression cron = CronExpression.parse(cronExpression);
-
-        long count = 0;
-        LocalDateTime occurrence = cron.next(storedNextExecutionTime);
-
-        while (occurrence != null && occurrence.isBefore(next)) {
-            count++;
-            occurrence = cron.next(occurrence);
-        }
-
-        return count;
-    }
-    
-    private String compressFilePath(String inputFilePath,
-	            CompressionType type) throws IOException {
-	
-    	return backupStorageService.compress(inputFilePath, type);
-	}
 }

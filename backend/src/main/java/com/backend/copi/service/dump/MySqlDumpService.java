@@ -71,7 +71,7 @@ public class MySqlDumpService extends AbstractDumpService implements DatabaseDum
         // 🔹 Base ciblée
         if (job.getDbNameOptionsMode().equals(DbNameOptionsMode.ALL)) {
             command.add("--all-databases");
-        } else if(job.getDbName() == null || job.getDbName().trim().isEmpty()) {
+        } else if(job.getDbName() != null && !job.getDbName().trim().isEmpty()) {
             command.add(job.getDbName());
         }
 
