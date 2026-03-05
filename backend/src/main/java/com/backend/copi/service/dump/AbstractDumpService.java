@@ -26,33 +26,27 @@ public abstract class AbstractDumpService implements DatabaseDumpService {
                 pb.redirectOutput(file);
             }
 
-            pb.redirectErrorStream(true);
-
             Process process = pb.start();
 
-            StringBuilder output = new StringBuilder();
-            Thread reader = null;
+            StringBuilder errorOutput = new StringBuilder();
 
-            if (!redirectOutput) {
+            Thread errorReader = new Thread(() -> {
+                try (BufferedReader br =
+                             new BufferedReader(
+                                     new InputStreamReader(process.getErrorStream()))) {
 
-                reader = new Thread(() -> {
-                    try (BufferedReader br =
-                                 new BufferedReader(
-                                         new InputStreamReader(process.getInputStream()))) {
-
-                        String line;
-                        while ((line = br.readLine()) != null) {
-                            output.append(line).append("\n");
-                        }
-
-                    } catch (Exception e) {
-                        log.error("Error reading process output", e);
+                    String line;
+                    while ((line = br.readLine()) != null) {
+                        errorOutput.append(line).append("\n");
                     }
-                });
 
-                reader.setDaemon(true);
-                reader.start();
-            }
+                } catch (IOException e) {
+                    log.error("Error reading process stderr", e);
+                }
+            });
+
+            errorReader.setDaemon(true);
+            errorReader.start();
 
             boolean finished = process.waitFor(30, TimeUnit.MINUTES);
 
@@ -68,21 +62,17 @@ public abstract class AbstractDumpService implements DatabaseDumpService {
                 return null;
             }
 
-            if (reader != null) {
-                reader.join();
-            }
+            errorReader.join();
 
             int exitCode = process.exitValue();
 
             if (exitCode != 0) {
 
-                process.destroyForcibly();
-
                 if (file.exists()) {
                     file.delete();
                 }
 
-                log.error("{} failed (exitCode={})\n{}", label, exitCode, output);
+                log.error("{} failed (exitCode={})\n{}", label, exitCode, errorOutput);
                 return null;
             }
 
