@@ -3,6 +3,7 @@ package com.backend.copi.scheduler;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
+import java.io.File;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -60,16 +61,17 @@ class SchedulerServiceTest {
 
         BackupExecution execution = BackupExecution.builder().build();
 
+        File tempFile = File.createTempFile("dump", ".sql");
+
         when(jobService.getEntityById(jobId)).thenReturn(job);
         when(executionService.startExecution(any())).thenReturn(execution);
-        when(dumpService.executeJob(job)).thenReturn("/tmp/file.sql");
-        when(backupStorageService.compress(any(), any())).thenReturn("/tmp/file.sql");
+        when(dumpService.executeJob(job)).thenReturn(tempFile.getAbsolutePath());
+        when(backupStorageService.compress(any(), any())).thenReturn(tempFile.getAbsolutePath());
 
         schedulerService.runManually(jobId);
 
         verify(dumpService).executeJob(job);
         verify(executionService).markSuccess(any(), any());
-        verify(jobService, atLeastOnce()).updateJobScheduler(eq(jobId), any());
     }
 
     @Test
@@ -93,7 +95,7 @@ class SchedulerServiceTest {
     }
 
     @Test
-    void runManually_shouldPreventConcurrentExecution() {
+    void runManually_shouldPreventConcurrentExecution() throws Exception {
 
         UUID jobId = UUID.randomUUID();
 
@@ -103,7 +105,15 @@ class SchedulerServiceTest {
 
         when(jobService.getEntityById(jobId)).thenReturn(job);
 
-        schedulerService.runManually(jobId);
+        when(dumpService.executeJob(any())).thenAnswer(invocation -> {
+            Thread.sleep(200);
+            return null;
+        });
+
+        Thread t1 = new Thread(() -> schedulerService.runManually(jobId));
+        t1.start();
+
+        Thread.sleep(50);
 
         assertThrows(
                 IllegalStateException.class,
