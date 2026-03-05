@@ -6,5 +6,4 @@ public enum ExecutionStatus {
     FAILED,
     NEVER_RUN,
     MISSING,
-    DELETE
 }
