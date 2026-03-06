@@ -62,6 +62,10 @@ public class BackupExecutionService {
         execution.setStatus(ExecutionStatus.SUCCESS);
         execution.setFilePath(filePath);
 
+        if (filePath != null) {
+            execution.setFileName(Paths.get(filePath).getFileName().toString());
+        }
+
         long duration =
                 Duration.between(
                         execution.getStartTime(),

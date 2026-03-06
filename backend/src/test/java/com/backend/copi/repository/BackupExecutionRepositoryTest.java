@@ -42,7 +42,6 @@ class BackupExecutionRepositoryTest {
     @BeforeEach
     void setup() {
 
-        // Nettoyage complet pour éviter accumulation SQLite
         executionRepository.deleteAll();
         jobRepository.deleteAll();
 
@@ -57,28 +56,29 @@ class BackupExecutionRepositoryTest {
         job.setEnabled(true);
         job.setVersionCount(0);
         job.setExecutionMode(ExecutionMode.SCHEDULED);
-
-        // Obligatoire car NOT NULL en SQLite
         job.setCronExpression("0 0 * * * ?");
 
         job = jobRepository.save(job);
     }
 
+    private BackupExecution createExecution(
+            LocalDateTime start,
+            ExecutionStatus status) {
+
+        BackupExecution execution = new BackupExecution();
+        execution.setJob(job);
+        execution.setStartTime(start);
+        execution.setStatus(status);
+        execution.setExecutionMode(ExecutionMode.SCHEDULED);
+
+        return executionRepository.save(execution);
+    }
+
     @Test
     void shouldFindExecutionsOrderedByStartTimeDesc() {
 
-        BackupExecution older = new BackupExecution();
-        older.setJob(job);
-        older.setStartTime(BASE_TIME.minusHours(1));
-        older.setStatus(ExecutionStatus.SUCCESS);
-
-        BackupExecution newer = new BackupExecution();
-        newer.setJob(job);
-        newer.setStartTime(BASE_TIME);
-        newer.setStatus(ExecutionStatus.SUCCESS);
-
-        executionRepository.save(older);
-        executionRepository.save(newer);
+        createExecution(BASE_TIME.minusHours(1), ExecutionStatus.SUCCESS);
+        createExecution(BASE_TIME, ExecutionStatus.SUCCESS);
 
         var results =
                 executionRepository.findByJobIdOrderByStartTimeDesc(job.getId());
@@ -93,15 +93,13 @@ class BackupExecutionRepositoryTest {
     @Test
     void shouldCountByJobIdAndStatus() {
 
-        BackupExecution execution = new BackupExecution();
-        execution.setJob(job);
-        execution.setStartTime(BASE_TIME);
-        execution.setStatus(ExecutionStatus.FAILED);
+        createExecution(BASE_TIME, ExecutionStatus.FAILED);
 
-        executionRepository.save(execution);
-
-        long count = executionRepository
-                .countByJob_IdAndStatus(job.getId(), ExecutionStatus.FAILED);
+        long count =
+                executionRepository.countByJob_IdAndStatus(
+                        job.getId(),
+                        ExecutionStatus.FAILED
+                );
 
         assertThat(count).isEqualTo(1);
     }
@@ -109,12 +107,7 @@ class BackupExecutionRepositoryTest {
     @Test
     void shouldFindByStatus() {
 
-        BackupExecution execution = new BackupExecution();
-        execution.setJob(job);
-        execution.setStartTime(BASE_TIME);
-        execution.setStatus(ExecutionStatus.SUCCESS);
-
-        executionRepository.save(execution);
+        createExecution(BASE_TIME, ExecutionStatus.SUCCESS);
 
         var results =
                 executionRepository.findByStatus(ExecutionStatus.SUCCESS);
@@ -127,12 +120,7 @@ class BackupExecutionRepositoryTest {
     @Test
     void shouldDeleteByStatus() {
 
-        BackupExecution execution = new BackupExecution();
-        execution.setJob(job);
-        execution.setStartTime(BASE_TIME);
-        execution.setStatus(ExecutionStatus.FAILED);
-
-        executionRepository.save(execution);
+        createExecution(BASE_TIME, ExecutionStatus.FAILED);
 
         long deleted =
                 executionRepository.deleteByStatus(ExecutionStatus.FAILED);
@@ -140,7 +128,7 @@ class BackupExecutionRepositoryTest {
         assertThat(deleted).isEqualTo(1);
         assertThat(executionRepository.findAll()).isEmpty();
     }
-    
+
     @AfterEach
     void cleanBackupFolder() throws IOException {
 

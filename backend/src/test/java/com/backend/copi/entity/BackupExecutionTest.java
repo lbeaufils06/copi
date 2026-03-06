@@ -7,6 +7,7 @@ import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
 
+import com.backend.copi.enums.ExecutionMode;
 import com.backend.copi.enums.ExecutionStatus;
 
 class BackupExecutionTest {
@@ -16,6 +17,7 @@ class BackupExecutionTest {
 
         // given
         UUID id = UUID.randomUUID();
+
         BackupJob job = new BackupJob();
         job.setId(UUID.randomUUID());
 
@@ -30,6 +32,7 @@ class BackupExecutionTest {
                 .endTime(end)
                 .durationInSeconds(300L)
                 .status(ExecutionStatus.SUCCESS)
+                .executionMode(ExecutionMode.SCHEDULED)
                 .logMessage("Backup completed")
                 .filePath("/backups/db.sql")
                 .fileName("db.sql")
@@ -42,6 +45,7 @@ class BackupExecutionTest {
         assertThat(execution.getEndTime()).isEqualTo(end);
         assertThat(execution.getDurationInSeconds()).isEqualTo(300L);
         assertThat(execution.getStatus()).isEqualTo(ExecutionStatus.SUCCESS);
+        assertThat(execution.getExecutionMode()).isEqualTo(ExecutionMode.SCHEDULED);
         assertThat(execution.getLogMessage()).isEqualTo("Backup completed");
         assertThat(execution.getFilePath()).isEqualTo("/backups/db.sql");
         assertThat(execution.getFileName()).isEqualTo("db.sql");
@@ -50,15 +54,21 @@ class BackupExecutionTest {
     @Test
     void shouldSetValuesUsingSetters() {
 
+        // given
         BackupExecution execution = new BackupExecution();
 
         UUID id = UUID.randomUUID();
+
+        // when
         execution.setId(id);
         execution.setDurationInSeconds(120L);
         execution.setStatus(ExecutionStatus.FAILED);
+        execution.setExecutionMode(ExecutionMode.MANUAL);
 
+        // then
         assertThat(execution.getId()).isEqualTo(id);
         assertThat(execution.getDurationInSeconds()).isEqualTo(120L);
         assertThat(execution.getStatus()).isEqualTo(ExecutionStatus.FAILED);
+        assertThat(execution.getExecutionMode()).isEqualTo(ExecutionMode.MANUAL);
     }
 }
