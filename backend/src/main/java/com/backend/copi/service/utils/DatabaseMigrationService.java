@@ -4,9 +4,15 @@ import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.context.annotation.Profile;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.Comparator;
 
 @Service
 @RequiredArgsConstructor
@@ -17,75 +23,49 @@ public class DatabaseMigrationService {
 
     @PostConstruct
     @Transactional
-    public void migrate() {
+    public void migrate() throws Exception {
 
         createVersionTableIfNotExists();
 
         int currentVersion = getCurrentVersion();
 
-        if (currentVersion < 1) {
-            migrateV1();
-            setVersion(1);
-            currentVersion = 1;
-        }
+        Resource[] resources =
+                new PathMatchingResourcePatternResolver()
+                        .getResources("classpath:db/migrations/V*.sql");
 
-        if (currentVersion < 2) {
-            migrateV2();
-            setVersion(2);
-        }
+        Arrays.sort(resources, Comparator.comparing(
+                r -> extractVersion(r.getFilename())
+        ));
 
-        if (currentVersion < 3) {
-            migrateV3();
-            setVersion(3);
-        }
+        for (Resource resource : resources) {
 
-        if (currentVersion < 4) {
-            migrateV4();
-            setVersion(4);
-        }
+            String filename = resource.getFilename();
+            int version = extractVersion(filename);
 
-        if (currentVersion < 5) {
-            migrateV5();
-            setVersion(5);
-        }
+            if (version > currentVersion) {
 
-        if (currentVersion < 6) {
-            migrateV6();
-            setVersion(6);
-        }
+                System.out.println("🔄 Applying migration " + filename);
 
-        if (currentVersion < 7) {
-            migrateV7();
-            setVersion(7);
-        }
+                String sql = new String(
+                        resource.getInputStream().readAllBytes(),
+                        StandardCharsets.UTF_8
+                );
 
-        if (currentVersion < 9) {
-            migrateV9();
-            setVersion(9);
-        }
+                for (String statement : sql.split(";")) {
+                    if (!statement.trim().isEmpty()) {
+                        jdbcTemplate.execute(statement);
+                    }
+                }
 
-        if (currentVersion < 10) {
-            migrateV10();
-            setVersion(10);
-        }
+                setVersion(version);
 
-        if (currentVersion < 11) {
-            migrateV11();
-            setVersion(11);
-        }
-
-        if (currentVersion < 12) {
-            migrateV12();
-            setVersion(12);
+                System.out.println("✅ Migration V" + version + " applied");
+            }
         }
 
         System.out.println("✅ Database schema version: " + getCurrentVersion());
     }
 
-    /**
-     * Crée la table schema_version si elle n'existe pas.
-     * Si c'est une base déjà existante, on détecte son état réel.
-     */
     private void createVersionTableIfNotExists() {
 
         jdbcTemplate.execute("""
@@ -101,635 +81,35 @@ public class DatabaseMigrationService {
 
         if (count == null || count == 0) {
 
-            int detectedVersion = detectExistingSchemaVersion();
-
             jdbcTemplate.update(
-                    "INSERT INTO schema_version (version) VALUES (?)",
-                    detectedVersion
+                    "INSERT INTO schema_version (version) VALUES (0)"
             );
-
-            System.out.println("✅ Schema initialized at version " + detectedVersion);
         }
-    }
-
-    /**
-     * Détection intelligente si la base existe déjà
-     */
-    private int detectExistingSchemaVersion() {
-
-        boolean backupJobExists = tableExists("backup_job");
-
-        if (!backupJobExists) {
-            return 0; // Nouvelle installation
-        }
-
-        // Si execution_mode existe déjà → V2
-        if (columnExists("backup_job", "execution_mode")) {
-            return 2;
-        }
-
-        // Sinon on considère que c'est V1
-        return 1;
     }
 
     private int getCurrentVersion() {
-        Integer version = jdbcTemplate.queryForObject(
+
+        Integer version = jdbcTemplate.query(
                 "SELECT version FROM schema_version LIMIT 1",
-                Integer.class
+                rs -> rs.next() ? rs.getInt(1) : 0
         );
+
         return version == null ? 0 : version;
     }
 
     private void setVersion(int version) {
-        jdbcTemplate.update("UPDATE schema_version SET version = ?", version);
-    }
 
-    private boolean tableExists(String table) {
-        Integer count = jdbcTemplate.queryForObject(
-                "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name=?",
-                Integer.class,
-                table
+        jdbcTemplate.update(
+                "UPDATE schema_version SET version = ?",
+                version
         );
-        return count != null && count > 0;
     }
 
-    private boolean columnExists(String table, String column) {
+    private int extractVersion(String filename) {
 
-        String sql = "PRAGMA table_info(" + table + ")";
+        // V12__remove_columns.sql -> 12
+        String versionPart = filename.split("__")[0].substring(1);
 
-        return jdbcTemplate.query(sql, rs -> {
-            while (rs.next()) {
-                if (column.equalsIgnoreCase(rs.getString("name"))) {
-                    return true;
-                }
-            }
-            return false;
-        });
+        return Integer.parseInt(versionPart);
     }
-
-    /**
-     * V1 = création du schéma initial
-     */
-    private void migrateV1() {
-
-        jdbcTemplate.execute("""
-            CREATE TABLE IF NOT EXISTS backup_job (
-                id TEXT PRIMARY KEY,
-                name TEXT NOT NULL,
-                db_type TEXT NOT NULL,
-                host TEXT NOT NULL,
-                port INTEGER NOT NULL,
-                db_name TEXT,
-                username TEXT NOT NULL,
-                password_encrypted TEXT NOT NULL,
-                enabled INTEGER NOT NULL DEFAULT 1,
-                cron_expression TEXT NOT NULL,
-                cron_purge_expression TEXT,
-                next_execution_time DATETIME,
-                next_purge_time DATETIME,
-                retention_count INTEGER,
-                retention_policy TEXT,
-                last_success_time DATETIME,
-                version_count INTEGER NOT NULL DEFAULT 0,
-                last_status TEXT,
-                last_status_message TEXT,
-                compression_type TEXT
-            )
-        """);
-
-        jdbcTemplate.execute("""
-            CREATE TABLE IF NOT EXISTS backup_execution (
-                id TEXT PRIMARY KEY,
-                job_id TEXT NOT NULL,
-                start_time DATETIME,
-                end_time DATETIME,
-                duration_in_seconds INTEGER,
-                status TEXT,
-                log_message TEXT,
-                file_path TEXT,
-                file_name TEXT,
-                FOREIGN KEY (job_id)
-                    REFERENCES backup_job(id)
-                    ON DELETE CASCADE
-            )
-        """);
-
-        jdbcTemplate.execute("""
-            CREATE INDEX IF NOT EXISTS idx_backup_job_enabled
-            ON backup_job(enabled)
-        """);
-
-        jdbcTemplate.execute("""
-            CREATE INDEX IF NOT EXISTS idx_backup_job_next_execution
-            ON backup_job(next_execution_time)
-        """);
-
-        jdbcTemplate.execute("""
-            CREATE INDEX IF NOT EXISTS idx_backup_execution_job
-            ON backup_execution(job_id)
-        """);
-
-        jdbcTemplate.execute("""
-            CREATE INDEX IF NOT EXISTS idx_backup_execution_status
-            ON backup_execution(status)
-        """);
-
-        System.out.println("✅ Migration V1 applied");
-    }
-
-    /**
-     * V2 = ajout execution_mode
-     */
-    private void migrateV2() {
-
-        if (!columnExists("backup_job", "execution_mode")) {
-            jdbcTemplate.execute("""
-                ALTER TABLE backup_job
-                ADD COLUMN execution_mode TEXT NOT NULL DEFAULT 'SCHEDULED'
-            """);
-
-            System.out.println("✅ Migration V2 applied (execution_mode added)");
-        }
-    }
-
-    private void migrateV3() {
-
-        if (!columnExists("backup_job", "execution_mode")) {
-            jdbcTemplate.execute("""
-                PRAGMA foreign_keys=off;
-
-				BEGIN TRANSACTION;
-				
-				-- 1️⃣ Renommer l'ancienne table
-				ALTER TABLE backup_job RENAME TO backup_job_old;
-				
-				-- 2️⃣ Recréer la table avec cron_expression NULLABLE
-				CREATE TABLE backup_job (
-				    id INTEGER PRIMARY KEY,
-				    name TEXT NOT NULL,
-				    db_type TEXT NOT NULL,
-				    host TEXT NOT NULL,
-				    port INTEGER NOT NULL,
-				    db_name TEXT,
-				    username TEXT NOT NULL,
-				    password_encrypted TEXT NOT NULL,
-				    execution_mode TEXT NOT NULL,
-				    cron_expression TEXT, -- ✅ nullable maintenant
-				    retention_policy TEXT,
-				    cron_purge_expression TEXT,
-				    retention_count INTEGER,
-				    enabled INTEGER NOT NULL,
-				    compression_type TEXT
-				);
-				
-				-- 3️⃣ Copier les données
-				INSERT INTO backup_job (
-				    id,
-				    name,
-				    db_type,
-				    host,
-				    port,
-				    db_name,
-				    username,
-				    password_encrypted,
-				    execution_mode,
-				    cron_expression,
-				    retention_policy,
-				    cron_purge_expression,
-				    retention_count,
-				    enabled,
-				    compression_type
-				)
-				SELECT
-				    id,
-				    name,
-				    db_type,
-				    host,
-				    port,
-				    db_name,
-				    username,
-				    password_encrypted,
-				    execution_mode,
-				    cron_expression,
-				    retention_policy,
-				    cron_purge_expression,
-				    retention_count,
-				    enabled,
-				    compression_type
-				FROM backup_job_old;
-				
-				-- 4️⃣ Supprimer l’ancienne table
-				DROP TABLE backup_job_old;
-				
-				COMMIT;
-				
-				PRAGMA foreign_keys=on;
-            """);
-
-            System.out.println("✅ Migration V3 applied (schema rebuilt)");
-        }
-    }
-
-    private void migrateV4() {
-
-        if (!columnExists("backup_job", "dump_options")) {
-
-            jdbcTemplate.execute("""
-                ALTER TABLE backup_job
-                ADD COLUMN dump_options TEXT
-            """);
-
-            System.out.println("✅ Migration V4 applied (dump_options added)");
-        }
-    }
-
-    private void migrateV5() {
-
-        System.out.println("🔄 Applying Migration V5 (remove old CHECK constraint on db_type)");
-
-        jdbcTemplate.execute("""
-        PRAGMA foreign_keys=off;
-
-        BEGIN TRANSACTION;
-
-        ALTER TABLE backup_job RENAME TO backup_job_old;
-
-        CREATE TABLE backup_job (
-            id TEXT PRIMARY KEY,
-            name TEXT NOT NULL,
-            db_type TEXT NOT NULL,
-            host TEXT NOT NULL,
-            port INTEGER NOT NULL,
-            db_name TEXT,
-            username TEXT NOT NULL,
-            password_encrypted TEXT NOT NULL,
-            execution_mode TEXT NOT NULL,
-            cron_expression TEXT,
-            retention_policy TEXT,
-            cron_purge_expression TEXT,
-            retention_count INTEGER,
-            enabled INTEGER NOT NULL,
-            compression_type TEXT,
-            dump_options TEXT
-        );
-
-        INSERT INTO backup_job (
-            id,
-            name,
-            db_type,
-            host,
-            port,
-            db_name,
-            username,
-            password_encrypted,
-            execution_mode,
-            cron_expression,
-            retention_policy,
-            cron_purge_expression,
-            retention_count,
-            enabled,
-            compression_type,
-            dump_options
-        )
-        SELECT
-            id,
-            name,
-            db_type,
-            host,
-            port,
-            db_name,
-            username,
-            password_encrypted,
-            execution_mode,
-            cron_expression,
-            retention_policy,
-            cron_purge_expression,
-            retention_count,
-            enabled,
-            compression_type,
-            dump_options
-        FROM backup_job_old;
-
-        DROP TABLE backup_job_old;
-
-        COMMIT;
-
-        PRAGMA foreign_keys=on;
-    """);
-
-        System.out.println("✅ Migration V5 applied (db_type constraint removed)");
-    }
-
-    private void migrateV6() {
-
-        System.out.println("🔄 Applying Migration V6 (remove CHECK and normalize db_type)");
-
-        jdbcTemplate.execute("""
-        PRAGMA foreign_keys=off;
-
-        BEGIN TRANSACTION;
-
-        ALTER TABLE backup_job RENAME TO backup_job_old;
-
-        CREATE TABLE backup_job (
-            id TEXT PRIMARY KEY,
-            name TEXT NOT NULL,
-            db_type TEXT NOT NULL,
-            host TEXT NOT NULL,
-            port INTEGER NOT NULL,
-            db_name TEXT,
-            username TEXT NOT NULL,
-            password_encrypted TEXT NOT NULL,
-            execution_mode TEXT NOT NULL,
-            cron_expression TEXT,
-            retention_policy TEXT,
-            cron_purge_expression TEXT,
-            retention_count INTEGER,
-            enabled INTEGER NOT NULL,
-            compression_type TEXT,
-            dump_options TEXT
-        );
-
-        INSERT INTO backup_job (
-            id,
-            name,
-            db_type,
-            host,
-            port,
-            db_name,
-            username,
-            password_encrypted,
-            execution_mode,
-            cron_expression,
-            retention_policy,
-            cron_purge_expression,
-            retention_count,
-            enabled,
-            compression_type,
-            dump_options
-        )
-        SELECT
-            id,
-            name,
-            CASE db_type
-                WHEN '0' THEN 'MYSQL'
-                WHEN '1' THEN 'POSTGRESQL'
-                WHEN '2' THEN 'MARIADB'
-                ELSE db_type
-            END,
-            host,
-            port,
-            db_name,
-            username,
-            password_encrypted,
-            execution_mode,
-            cron_expression,
-            retention_policy,
-            cron_purge_expression,
-            retention_count,
-            enabled,
-            compression_type,
-            dump_options
-        FROM backup_job_old;
-
-        DROP TABLE backup_job_old;
-
-        COMMIT;
-
-        PRAGMA foreign_keys=on;
-    """);
-
-        System.out.println("✅ Migration V6 applied successfully");
-    }
-
-    private void migrateV7() {
-
-        System.out.println("🔄 Applying Migration V7 (final db_type cleanup)");
-
-        jdbcTemplate.execute("""
-        PRAGMA foreign_keys=off;
-        BEGIN TRANSACTION;
-
-        ALTER TABLE backup_job RENAME TO backup_job_old;
-
-        CREATE TABLE backup_job (
-            id TEXT PRIMARY KEY,
-            name TEXT NOT NULL,
-            db_type TEXT NOT NULL,
-            host TEXT NOT NULL,
-            port INTEGER NOT NULL,
-            db_name TEXT,
-            username TEXT NOT NULL,
-            password_encrypted TEXT NOT NULL,
-            execution_mode TEXT NOT NULL,
-            cron_expression TEXT,
-            retention_policy TEXT,
-            cron_purge_expression TEXT,
-            retention_count INTEGER,
-            enabled INTEGER NOT NULL,
-            compression_type TEXT,
-            dump_options TEXT
-        );
-
-        INSERT INTO backup_job (
-            id,
-            name,
-            db_type,
-            host,
-            port,
-            db_name,
-            username,
-            password_encrypted,
-            execution_mode,
-            cron_expression,
-            retention_policy,
-            cron_purge_expression,
-            retention_count,
-            enabled,
-            compression_type,
-            dump_options
-        )
-        SELECT
-            id,
-            name,
-            CASE db_type
-                WHEN '0' THEN 'MYSQL'
-                WHEN '1' THEN 'POSTGRESQL'
-                WHEN '2' THEN 'MARIADB'
-                ELSE db_type
-            END,
-            host,
-            port,
-            db_name,
-            username,
-            password_encrypted,
-            execution_mode,
-            cron_expression,
-            retention_policy,
-            cron_purge_expression,
-            retention_count,
-            enabled,
-            compression_type,
-            dump_options
-        FROM backup_job_old;
-
-        DROP TABLE backup_job_old;
-
-        COMMIT;
-        PRAGMA foreign_keys=on;
-    """);
-
-        System.out.println("✅ Migration V7 applied successfully");
-    }
-
-    private void migrateV9() {
-
-        System.out.println("🔄 Applying Migration V8 (add authentication_database nullable)");
-
-        if (!columnExists("backup_job", "authentication_database")) {
-
-            jdbcTemplate.execute("""
-            ALTER TABLE backup_job
-            ADD COLUMN authentication_database TEXT
-        """);
-
-            System.out.println("✅ Migration V8 applied (authentication_database added as nullable)");
-        }
-    }
-
-    private void migrateV10() {
-
-        System.out.println("🔄 Applying Migration V10 (add dump/db options mode)");
-
-        if (!columnExists("backup_job", "dump_options_mode")) {
-            jdbcTemplate.execute("""
-            ALTER TABLE backup_job
-            ADD COLUMN dump_options_mode TEXT NOT NULL DEFAULT 'DEFAULT'
-        """);
-        }
-
-        if (!columnExists("backup_job", "db_name_options_mode")) {
-            jdbcTemplate.execute("""
-            ALTER TABLE backup_job
-            ADD COLUMN db_name_options_mode TEXT NOT NULL DEFAULT 'ALL'
-        """);
-        }
-
-        System.out.println("✅ Migration V10 applied (options mode added)");
-    }
-
-    private void migrateV11() {
-
-        System.out.println("🔄 Applying Migration V11 (add retention_days)");
-
-        if (!columnExists("backup_job", "retention_days")) {
-
-            jdbcTemplate.execute("""
-            ALTER TABLE backup_job
-            ADD COLUMN retention_days INTEGER
-        """);
-
-            System.out.println("✅ Migration V11 applied (retention_days added)");
-        }
-    }
-
-    private void migrateV12() {
-
-        System.out.println("🔄 Applying Migration V12 (remove purge columns)");
-
-        jdbcTemplate.execute("""
-        PRAGMA foreign_keys=off;
-
-        BEGIN TRANSACTION;
-
-        ALTER TABLE backup_job RENAME TO backup_job_old;
-
-        CREATE TABLE backup_job (
-            id TEXT PRIMARY KEY,
-            name TEXT NOT NULL,
-            db_type TEXT NOT NULL,
-            host TEXT NOT NULL,
-            port INTEGER NOT NULL,
-            db_name TEXT,
-            username TEXT NOT NULL,
-            password_encrypted TEXT NOT NULL,
-            enabled INTEGER NOT NULL DEFAULT 1,
-            cron_expression TEXT,
-            next_execution_time DATETIME,
-            retention_count INTEGER,
-            retention_days INTEGER,
-            retention_policy TEXT,
-            last_success_time DATETIME,
-            version_count INTEGER NOT NULL DEFAULT 0,
-            last_status TEXT,
-            last_status_message TEXT,
-            compression_type TEXT,
-            execution_mode TEXT NOT NULL,
-            dump_options TEXT,
-            authentication_database TEXT,
-            dump_options_mode TEXT NOT NULL DEFAULT 'DEFAULT',
-            db_name_options_mode TEXT NOT NULL DEFAULT 'ALL'
-        );
-
-        INSERT INTO backup_job (
-            id,
-            name,
-            db_type,
-            host,
-            port,
-            db_name,
-            username,
-            password_encrypted,
-            enabled,
-            cron_expression,
-            next_execution_time,
-            retention_count,
-            retention_policy,
-            last_success_time,
-            version_count,
-            last_status,
-            last_status_message,
-            compression_type,
-            execution_mode,
-            dump_options,
-            authentication_database,
-            dump_options_mode,
-            db_name_options_mode
-        )
-        SELECT
-            id,
-            name,
-            db_type,
-            host,
-            port,
-            db_name,
-            username,
-            password_encrypted,
-            enabled,
-            cron_expression,
-            next_execution_time,
-            retention_count,
-            retention_policy,
-            last_success_time,
-            version_count,
-            last_status,
-            last_status_message,
-            compression_type,
-            execution_mode,
-            dump_options,
-            authentication_database,
-            dump_options_mode,
-            db_name_options_mode
-        FROM backup_job_old;
-
-        DROP TABLE backup_job_old;
-
-        COMMIT;
-
-        PRAGMA foreign_keys=on;
-    """);
-
-        System.out.println("✅ Migration V12 applied (purge columns removed)");
-    }
-
 }
