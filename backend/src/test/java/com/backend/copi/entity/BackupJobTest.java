@@ -33,9 +33,7 @@ class BackupJobTest {
         job.setPasswordEncrypted("encrypted-pass");
         job.setEnabled(false);
         job.setCronExpression("0 0 * * * *");
-        job.setCronPurgeExpression("0 0 0 * * *");
         job.setNextExecutionTime(now);
-        job.setNextPurgeTime(now.plusDays(1));
         job.setRetentionCount(10);
         job.setRetentionPolicy(RetentionPolicy.COUNT);
         job.setLastSuccessTime(now);
@@ -55,9 +53,7 @@ class BackupJobTest {
         assertThat(job.getPasswordEncrypted()).isEqualTo("encrypted-pass");
         assertThat(job.getEnabled()).isFalse();
         assertThat(job.getCronExpression()).isEqualTo("0 0 * * * *");
-        assertThat(job.getCronPurgeExpression()).isEqualTo("0 0 0 * * *");
         assertThat(job.getNextExecutionTime()).isEqualTo(now);
-        assertThat(job.getNextPurgeTime()).isEqualTo(now.plusDays(1));
         assertThat(job.getRetentionCount()).isEqualTo(10);
         assertThat(job.getRetentionPolicy()).isEqualTo(RetentionPolicy.COUNT);
         assertThat(job.getLastSuccessTime()).isEqualTo(now);

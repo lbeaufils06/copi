@@ -70,11 +70,6 @@ public class BackupJobService {
         BackupJob existing = repository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Job not found"));
 
         existing.setNextExecutionTime(updatedJob.getNextExecutionTime());
-        if(existing.getCronPurgeExpression() != null && updatedJob.getCronPurgeExpression() != null && existing.getCronPurgeExpression().equals(updatedJob.getCronPurgeExpression())) {
-        	existing.setNextPurgeTime(updatedJob.getNextPurgeTime());
-        } else {
-        	existing.setNextPurgeTime(null);
-        }
         existing.setLastSuccessTime(updatedJob.getLastSuccessTime());
         existing.setVersionCount(updatedJob.getVersionCount());
         existing.setLastStatus(updatedJob.getLastStatus());

@@ -11,6 +11,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.backend.copi.enums.RetentionPolicy;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.annotation.Profile;
 import org.springframework.context.event.EventListener;
@@ -169,8 +170,12 @@ public class BackupJobScheduler {
             job.setLastStatusMessage(execution.getLogMessage());
             job.setLastSuccessTime(execution.getEndTime());
 
-            if (job.getCronPurgeExpression() == null || job.getCronPurgeExpression().isEmpty()) {
+            if (job.getRetentionPolicy().equals(RetentionPolicy.COUNT)) {
                 executionService.applyRetentionByCount(job);
+            }
+
+            if (job.getRetentionPolicy().equals(RetentionPolicy.DAYS)) {
+                executionService.purgeByDays(job);
             }
 
         } catch (Exception e) {

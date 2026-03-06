@@ -19,6 +19,7 @@ public class BackupJobRequestDTO {
     private String passwordEncrypted;
     private String cronExpression;
     private Integer retentionCount;
+    private Integer retentionDays;
     private RetentionPolicy retentionPolicy;
     private CompressionType compressionType;
     private ExecutionMode executionMode;

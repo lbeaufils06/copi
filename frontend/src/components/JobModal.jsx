@@ -530,7 +530,7 @@ function JobModal({ jobId, defaults, onClose }) {
             </>
           )}
 
-          {/* Rétention */}
+          {/* Politique de rétention */}
           <div className="relative">
             <select
               id="job-retentionPolicy"
@@ -539,15 +539,19 @@ function JobModal({ jobId, defaults, onClose }) {
               onChange={handleChange}
               className="w-full bg-slate-900 border border-slate-700 p-3 pt-5 rounded-lg focus:outline-none focus:border-indigo-500"
             >
-              <option value="NONE">Aucune rétention automatique</option>
+              <option value="NONE">Aucune suppression automatique</option>
               <option value="COUNT">Limiter le nombre de sauvegardes</option>
+              <option value="DAYS">Supprimer après un certain nombre de jours</option>
             </select>
-            <label htmlFor="job-retentionPolicy" className="absolute left-3 top-2 text-xs text-slate-400 pointer-events-none">
-              Mode de rétention
+            <label
+              htmlFor="job-retentionPolicy"
+              className="absolute left-3 top-2 text-xs text-slate-400 pointer-events-none"
+            >
+              Politique de rétention
             </label>
           </div>
 
-          {form.retentionPolicy === "COUNT" && (
+          {(form.retentionPolicy === "COUNT") && (
             <div className="relative border-l-4 rounded-lg border-l-indigo-500">
               <input
                 id="job-numberRetention"
@@ -562,6 +566,27 @@ function JobModal({ jobId, defaults, onClose }) {
               />
               <label htmlFor="job-numberRetention" className="absolute left-3 top-2 text-xs text-slate-400 pointer-events-none">
                 Nombre de sauvegardes à conserver
+              </label>
+            </div>
+          )}
+
+          
+
+          {(form.retentionPolicy === "DAYS") && (
+            <div className="relative border-l-4 rounded-lg border-l-indigo-500">
+              <input
+                id="job-retentionDays"
+                type="number"
+                name="retentionDays"
+                value={form.retentionDays}
+                onChange={handleChange}
+                min="1"
+                required
+                placeholder=" "
+                className="peer w-full bg-slate-900 border border-slate-700 p-3 pt-5 rounded-lg focus:outline-none focus:border-indigo-500"
+              />
+              <label htmlFor="job-retentionDays" className="absolute left-3 top-2 text-xs text-slate-400 pointer-events-none">
+                Jours de sauvegardes à conserver
               </label>
             </div>
           )}

@@ -36,4 +36,11 @@ public interface BackupExecutionRepository extends JpaRepository<BackupExecution
 	
 	long deleteByStatus(ExecutionStatus status);
 
+    List<BackupExecution> findByJobAndEndTimeBefore(BackupJob job, LocalDateTime limit);
+
+    void deleteByStatusInAndStartTimeBefore(
+            List<ExecutionStatus> statuses,
+            LocalDateTime limitDate
+    );
+
 }

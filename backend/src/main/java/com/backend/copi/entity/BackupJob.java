@@ -50,14 +50,12 @@ public class BackupJob {
     private Boolean enabled = true;
     
     private String cronExpression;
-    
-    private String cronPurgeExpression;
         
     private LocalDateTime nextExecutionTime;
     
-    private LocalDateTime nextPurgeTime;
-    
     private Integer retentionCount;
+
+    private Integer retentionDays;
     
     @Enumerated(EnumType.STRING)
     private RetentionPolicy retentionPolicy;

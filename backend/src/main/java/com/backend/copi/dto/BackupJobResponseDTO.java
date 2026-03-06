@@ -20,10 +20,9 @@ public class BackupJobResponseDTO {
     private String username;
     private Boolean enabled;
     private String cronExpression;
-    private String cronPurgeExpression;
     private LocalDateTime nextExecutionTime;
-    private LocalDateTime nextPurgeTime;
     private Integer retentionCount;
+    private Integer retentionDays;
     private RetentionPolicy retentionPolicy;
     private LocalDateTime lastSuccessTime;
     private Integer versionCount;
