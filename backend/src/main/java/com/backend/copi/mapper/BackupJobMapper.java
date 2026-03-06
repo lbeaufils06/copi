@@ -24,10 +24,9 @@ public class BackupJobMapper {
         dto.setUsername(job.getUsername());
         dto.setEnabled(job.getEnabled());
         dto.setCronExpression(job.getCronExpression());
-        dto.setCronPurgeExpression(job.getCronPurgeExpression());
         dto.setNextExecutionTime(job.getNextExecutionTime());
-        dto.setNextPurgeTime(job.getNextPurgeTime());
         dto.setRetentionCount(job.getRetentionCount());
+        dto.setRetentionDays(job.getRetentionDays());
         dto.setRetentionPolicy(job.getRetentionPolicy());
         dto.setLastSuccessTime(job.getLastSuccessTime());
         dto.setVersionCount(job.getVersionCount());
@@ -58,6 +57,7 @@ public class BackupJobMapper {
         job.setUsername(dto.getUsername());
         job.setCronExpression(dto.getCronExpression());
         job.setRetentionCount(dto.getRetentionCount());
+        dto.setRetentionDays(job.getRetentionDays());
         job.setRetentionPolicy(dto.getRetentionPolicy());
         job.setCompressionType(dto.getCompressionType());
         job.setExecutionMode(dto.getExecutionMode());
@@ -105,6 +105,10 @@ public class BackupJobMapper {
 
         if (dto.getRetentionCount() != null) {
             job.setRetentionCount(dto.getRetentionCount());
+        }
+
+        if (dto.getRetentionDays() != null) {
+            job.setRetentionDays(dto.getRetentionDays());
         }
 
         if (dto.getRetentionPolicy() != null) {

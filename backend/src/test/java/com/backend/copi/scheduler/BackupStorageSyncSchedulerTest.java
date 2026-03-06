@@ -1,23 +1,29 @@
 package com.backend.copi.scheduler;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.mockito.Mockito.*;
 
-import com.backend.copi.scheduler.BackupStorageSyncScheduler;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import com.backend.copi.service.BackupExecutionService;
 import com.backend.copi.service.BackupStorageService;
 
 class BackupStorageSyncSchedulerTest {
 
     private BackupStorageService backupStorageService;
+    private BackupExecutionService backupExecutionService;
     private BackupStorageSyncScheduler scheduler;
 
     @BeforeEach
     void setup() {
         backupStorageService = mock(BackupStorageService.class);
-        scheduler = new BackupStorageSyncScheduler(backupStorageService);
+        backupExecutionService = mock(BackupExecutionService.class);
+
+        scheduler = new BackupStorageSyncScheduler(
+                backupStorageService,
+                backupExecutionService
+        );
     }
 
     @Test

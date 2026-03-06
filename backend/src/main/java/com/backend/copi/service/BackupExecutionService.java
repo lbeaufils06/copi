@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Clock;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -29,6 +30,7 @@ public class BackupExecutionService {
 
     private final BackupExecutionMapper backupExecutionMapper;
     private final BackupExecutionRepository repository;
+    private final Clock clock;
     
     public List<BackupExecutionResponseDTO> getAllExecutions() {
         return repository.findAllByOrderByStartTimeDesc()
@@ -94,10 +96,6 @@ public class BackupExecutionService {
     public void applyRetentionByCount(BackupJob job) {
 
         Integer retentionCount = job.getRetentionCount();
-        
-        if (job.getCronPurgeExpression() != null && !job.getCronPurgeExpression().isBlank()) {
-            return;
-        }
 
         if (retentionCount == null || retentionCount <= 0) {
             return;
@@ -149,6 +147,37 @@ public class BackupExecutionService {
         long deleted = repository.deleteByStatus(ExecutionStatus.MISSING);
 
         log.info("Deleted {} missing executions at startup", deleted);
+    }
+
+    @Transactional
+    public void purgeByDays(BackupJob job) {
+
+        if (job.getRetentionCount() == null) {
+            return;
+        }
+
+        LocalDateTime limit = LocalDateTime.now(clock).minusDays(job.getRetentionDays());
+
+        List<BackupExecution> oldExecutions =
+                repository.findByJobAndEndTimeBefore(job, limit);
+
+        for (BackupExecution exec : oldExecutions) {
+            deleteFileIfExists(exec.getFilePath());
+            repository.delete(exec);
+        }
+    }
+
+    @Transactional
+    public void purgeFailedAndMissingOlderThan7Days() {
+
+        LocalDateTime limit = LocalDateTime.now(clock).minusDays(7);
+
+        repository.deleteByStatusInAndStartTimeBefore(
+                List.of(ExecutionStatus.FAILED, ExecutionStatus.MISSING),
+                limit
+        );
+
+        log.info("Purged FAILED and MISSING executions older than {}", limit);
     }
     
 }
