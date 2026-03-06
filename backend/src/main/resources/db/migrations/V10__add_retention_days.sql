@@ -1,0 +1,5 @@
+ALTER TABLE backup_job
+ADD COLUMN dump_options_mode TEXT NOT NULL DEFAULT 'DEFAULT'
+
+ALTER TABLE backup_job
+ADD COLUMN db_name_options_mode TEXT NOT NULL DEFAULT 'ALL'
