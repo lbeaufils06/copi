@@ -17,6 +17,8 @@ public class BackupExecutionMapper {
                 new BackupExecutionResponseDTO();
 
         dto.setId(execution.getId());
+        dto.setExecutionTime(execution.getExecutionTime());
+        dto.setExecutionMode(execution.getExecutionMode());
         dto.setStartTime(execution.getStartTime());
         dto.setEndTime(execution.getEndTime());
         dto.setDurationInSeconds(execution.getDurationInSeconds());

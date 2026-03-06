@@ -75,7 +75,7 @@ public class BackupJobScheduler {
         }
 
         for (BackupJob job : eligibleJobs) {
-            executeWithLock(job);
+            executeWithLock(ExecutionMode.SCHEDULED, job, job.getExecutionTime());
         }
     }
 
@@ -90,33 +90,32 @@ public class BackupJobScheduler {
         }
 
         LocalDateTime now = LocalDateTime.now(clock).withNano(0);
-        CronExpression cron = CronExpression.parse(job.getCronExpression());
-
         LocalDateTime storedNext = job.getNextExecutionTime();
 
         if (storedNext == null) {
-
-            LocalDateTime next = cron.next(now).withNano(0);
-            updateNextExecution(job, next);
+            updateNextExecution(job, now, null);
             return false;
         }
 
         if (!now.isBefore(storedNext)) {
-
-            LocalDateTime next = cron.next(now).withNano(0);
-            updateNextExecution(job, next);
+            updateNextExecution(job, now, storedNext);
             return true;
         }
 
         return false;
     }
 
-    private void updateNextExecution(BackupJob job, LocalDateTime next) {
+    private void updateNextExecution(BackupJob job, LocalDateTime now, LocalDateTime storedNext) {
+        CronExpression cron = CronExpression.parse(job.getCronExpression());
+        LocalDateTime next = cron.next(now).withNano(0);
+        if (storedNext != null) {
+            job.setExecutionTime(storedNext);
+        }
         job.setNextExecutionTime(next);
         jobService.updateJobScheduler(job.getId(), job);
     }
 
-    private void executeWithLock(BackupJob job) {
+    private void executeWithLock(ExecutionMode executionMode, BackupJob job, LocalDateTime executionTime) {
 
         if (!runningJobs.add(job.getId())) {
             log.debug("Job already running: {}", job.getName());
@@ -124,19 +123,17 @@ public class BackupJobScheduler {
         }
 
         try {
-            executeSequentially(job);
+            executeSequentially(executionMode, job, executionTime);
         } finally {
             runningJobs.remove(job.getId());
         }
     }
 
-    private void executeSequentially(BackupJob job) {
-
-        LocalDateTime now = LocalDateTime.now(clock).withNano(0);
+    private void executeSequentially(ExecutionMode executionMode, BackupJob job, LocalDateTime executionTime) {
 
         log.info("Starting dump job={} now={} nextExecution={}",
                 job.getName(),
-                now,
+                executionTime,
                 job.getNextExecutionTime());
 
         job.setLastStatus(ExecutionStatus.RUNNING);
@@ -145,6 +142,8 @@ public class BackupJobScheduler {
 
         BackupExecution execution = BackupExecution.builder()
                 .job(job)
+                .executionTime(executionTime)
+                .executionMode(executionMode)
                 .build();
 
         execution = executionService.startExecution(execution);
@@ -205,6 +204,8 @@ public class BackupJobScheduler {
 
     public void runManually(UUID jobId) {
 
+        LocalDateTime now = LocalDateTime.now(clock).withNano(0);
+
         BackupJob job = jobService.getEntityById(jobId);
 
         log.info("Manual execution requested for job {}", job.getName());
@@ -214,7 +215,7 @@ public class BackupJobScheduler {
         }
 
         try {
-            executeSequentially(job);
+            executeSequentially(ExecutionMode.MANUAL, job, now);
         } finally {
             runningJobs.remove(jobId);
         }

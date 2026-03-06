@@ -3,6 +3,7 @@ package com.backend.copi.entity;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import com.backend.copi.enums.ExecutionMode;
 import com.backend.copi.enums.ExecutionStatus;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -53,4 +54,11 @@ public class BackupExecution {
     private String filePath;
     
     private String fileName;
+
+    @Column
+    private LocalDateTime executionTime;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private ExecutionMode executionMode;
 }

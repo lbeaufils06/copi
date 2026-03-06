@@ -50,6 +50,8 @@ public class BackupJob {
     private Boolean enabled = true;
     
     private String cronExpression;
+
+    private LocalDateTime executionTime;
         
     private LocalDateTime nextExecutionTime;
     

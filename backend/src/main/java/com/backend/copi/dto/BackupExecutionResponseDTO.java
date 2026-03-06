@@ -1,6 +1,7 @@
 package com.backend.copi.dto;
 
 import com.backend.copi.entity.BackupJob;
+import com.backend.copi.enums.ExecutionMode;
 import com.backend.copi.enums.ExecutionStatus;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
@@ -14,7 +15,6 @@ import java.util.UUID;
 @Setter
 public class BackupExecutionResponseDTO {
     private UUID id;
-    private BackupJob job;
     private LocalDateTime startTime;
     private LocalDateTime endTime;
     private Long durationInSeconds;
@@ -22,4 +22,6 @@ public class BackupExecutionResponseDTO {
     private String logMessage;
     private String filePath;
     private String fileName;
+    private LocalDateTime executionTime;
+    private ExecutionMode executionMode;
 }
