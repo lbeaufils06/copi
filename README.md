@@ -1,6 +1,7 @@
 ﻿# Copi
 
-Copi est une application web de gestion de sauvegardes de bases de donnees.
+Copi est une application web auto-hébergée permettant de planifier, exécuter et superviser des sauvegardes de bases de données.
+
 Le projet est compose de:
 
 - un backend Java/Spring Boot (API, planification, execution des dumps)
