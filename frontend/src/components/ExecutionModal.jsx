@@ -4,6 +4,7 @@ import { useLockBodyScroll } from "../hooks/useLockBodyScroll";
 import { executionModeLabel, executionModeStyle, statusLabel, statusStyle } from "../utils/badge";
 import { formatDateTimeLocale } from "../utils/time";
 import { useI18n } from "../i18n/I18nContext";
+import CustomSelect from "./CustomSelect";
 
 function ExecutionModal({ jobId, onClose }) {
   useLockBodyScroll();
@@ -17,6 +18,35 @@ function ExecutionModal({ jobId, onClose }) {
   const [periodFilter, setPeriodFilter] = useState("7D");
   const [query, setQuery] = useState("");
   const intervalRef = useRef(null);
+
+  const statusOptions = useMemo(
+    () => [
+      { value: "ALL", label: t("executions.allStatuses") },
+      { value: "SUCCESS", label: t("jobs.status_success") },
+      { value: "FAILED", label: t("jobs.status_failed") },
+      { value: "RUNNING", label: t("jobs.status_running") },
+    ],
+    [t]
+  );
+
+  const modeOptions = useMemo(
+    () => [
+      { value: "ALL", label: t("executions.allModes") },
+      { value: "SCHEDULED", label: t("executions.mode_cron") },
+      { value: "MANUAL", label: t("executions.mode_manual") },
+    ],
+    [t]
+  );
+
+  const periodOptions = useMemo(
+    () => [
+      { value: "24H", label: t("executions.period24h") },
+      { value: "7D", label: t("executions.period7d") },
+      { value: "30D", label: t("executions.period30d") },
+      { value: "ALL", label: t("executions.allPeriods") },
+    ],
+    [t]
+  );
 
   const fetchExecutions = async () => {
     try {
@@ -61,49 +91,44 @@ function ExecutionModal({ jobId, onClose }) {
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 animate-fadeIn" onClick={onClose}>
       <div
-        className="bg-slate-900 w-[95vw] max-w-4xl max-h-[88vh] rounded-2xl shadow-xl border border-slate-700 flex flex-col"
+        className="bg-slate-900 w-[96vw] max-w-4xl max-h-[88vh] rounded-2xl shadow-xl border border-slate-700 flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="sticky top-0 z-10 p-4 sm:p-6 border-b border-slate-700 bg-slate-900 rounded-t-2xl">
           <div className="flex justify-between items-center gap-4">
             <h2 className="text-lg font-semibold text-slate-100">{t("executions.title")}</h2>
             <button onClick={onClose} className="text-slate-300 hover:text-white transition" aria-label={t("common.close")}>
-              ✕
+              X
             </button>
           </div>
 
-          <div className="mt-4 grid grid-cols-1 md:grid-cols-4 gap-2">
-            <select
+          <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
+            <CustomSelect
+              id="exec-status-filter"
+              name="statusFilter"
               value={statusFilter}
+              options={statusOptions}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="bg-slate-800 border border-slate-600 rounded-lg px-3 py-2 text-sm text-slate-100"
-            >
-              <option value="ALL">{t("executions.allStatuses")}</option>
-              <option value="SUCCESS">{t("jobs.status_success")}</option>
-              <option value="FAILED">{t("jobs.status_failed")}</option>
-              <option value="RUNNING">{t("jobs.status_running")}</option>
-            </select>
+              size="compact"
+            />
 
-            <select
+            <CustomSelect
+              id="exec-mode-filter"
+              name="modeFilter"
               value={modeFilter}
+              options={modeOptions}
               onChange={(e) => setModeFilter(e.target.value)}
-              className="bg-slate-800 border border-slate-600 rounded-lg px-3 py-2 text-sm text-slate-100"
-            >
-              <option value="ALL">{t("executions.allModes")}</option>
-              <option value="SCHEDULED">{t("executions.mode_cron")}</option>
-              <option value="MANUAL">{t("executions.mode_manual")}</option>
-            </select>
+              size="compact"
+            />
 
-            <select
+            <CustomSelect
+              id="exec-period-filter"
+              name="periodFilter"
               value={periodFilter}
+              options={periodOptions}
               onChange={(e) => setPeriodFilter(e.target.value)}
-              className="bg-slate-800 border border-slate-600 rounded-lg px-3 py-2 text-sm text-slate-100"
-            >
-              <option value="24H">{t("executions.period24h")}</option>
-              <option value="7D">{t("executions.period7d")}</option>
-              <option value="30D">{t("executions.period30d")}</option>
-              <option value="ALL">{t("executions.allPeriods")}</option>
-            </select>
+              size="compact"
+            />
 
             <input
               type="text"
@@ -115,14 +140,14 @@ function ExecutionModal({ jobId, onClose }) {
           </div>
         </div>
 
-        <div className="px-4 sm:px-6 py-3 text-xs text-slate-300 border-b border-slate-700 grid grid-cols-[2fr,1fr,1fr,auto] gap-3">
+        <div className="hidden sm:grid px-4 sm:px-6 py-3 text-xs text-slate-300 border-b border-slate-700 grid-cols-[2fr,1fr,1fr,auto] gap-3">
           <span>{t("executions.colDate")}</span>
           <span>{t("executions.colMode")}</span>
           <span>{t("executions.colStatus")}</span>
           <span>{t("executions.colDetails")}</span>
         </div>
 
-        <div className="overflow-y-auto p-4 sm:p-6 pt-3 space-y-2">
+        <div className="custom-scrollbar overflow-y-auto p-4 sm:p-6 pt-3 space-y-2">
           {filteredExecutions.length === 0 && <p className="text-slate-300 text-sm">{t("executions.empty")}</p>}
 
           {filteredExecutions.map((exec) => (
@@ -150,17 +175,20 @@ function ExecutionRow({ exec, open, onToggle, locale, t }) {
     <div className="bg-slate-800 rounded-xl overflow-hidden border border-slate-700">
       <button
         type="button"
-        className="w-full text-left grid grid-cols-[2fr,1fr,1fr,auto] gap-3 items-center p-3 hover:bg-slate-700/60 transition"
+        className="w-full text-left flex flex-col sm:grid sm:grid-cols-[2fr,1fr,1fr,auto] gap-2 sm:gap-3 items-start sm:items-center p-3 hover:bg-slate-700/60 transition"
         onClick={onToggle}
         aria-expanded={open}
       >
         <span className="text-sm text-slate-100">{executionTime}</span>
-        <span className={`inline-flex justify-center text-xs px-2 py-1 rounded-full ${executionModeStyle(exec.executionMode)}`}>
-          {executionModeLabel(exec.executionMode, t)}
-        </span>
-        <span className={`inline-flex justify-center text-xs px-2 py-1 rounded-full ${statusStyle(exec.status)}`}>
-          {statusLabel(exec.status, t)}
-        </span>
+        <div className="flex items-center gap-2">
+          <span className={`inline-flex justify-center text-xs px-2 py-1 rounded-full ${executionModeStyle(exec.executionMode)}`}>
+            {executionModeLabel(exec.executionMode, t)}
+          </span>
+          <span className={`inline-flex justify-center text-xs px-2 py-1 rounded-full ${statusStyle(exec.status)}`}>
+            {statusLabel(exec.status, t)}
+          </span>
+        </div>
+        <span className="hidden sm:block" />
         <span className="text-slate-300 text-xs">{open ? t("executions.hide") : t("executions.show")}</span>
       </button>
 
@@ -195,7 +223,7 @@ function ExecutionRow({ exec, open, onToggle, locale, t }) {
           {exec.logMessage && (
             <div>
               <span className="text-slate-400">{t("executions.log")}:</span>
-              <pre className="mt-1 whitespace-pre-wrap text-slate-100 bg-slate-950 border border-slate-700 p-2 rounded">
+              <pre className="custom-scrollbar mt-1 whitespace-pre-wrap text-slate-100 bg-slate-950 border border-slate-700 p-2 rounded max-h-48 overflow-auto">
                 {exec.logMessage}
               </pre>
             </div>

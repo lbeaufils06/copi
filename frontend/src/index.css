@@ -7,11 +7,40 @@
     --ui-bg: #0f172a;
     --ui-text: #e2e8f0;
     --ui-focus: #818cf8;
+    --scrollbar-track: #0b1220;
+    --scrollbar-thumb: #334155;
+    --scrollbar-thumb-hover: #475569;
   }
 
   body {
     color: var(--ui-text);
     background-color: var(--ui-bg);
+    scrollbar-width: thin;
+    scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+  }
+
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+  }
+
+  *::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  *::-webkit-scrollbar-track {
+    background: var(--scrollbar-track);
+  }
+
+  *::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb);
+    border-radius: 9999px;
+    border: 2px solid var(--scrollbar-track);
+  }
+
+  *::-webkit-scrollbar-thumb:hover {
+    background: var(--scrollbar-thumb-hover);
   }
 
   button:focus-visible,
@@ -57,4 +86,9 @@
 .icon-tooltip:hover .icon-tooltip-text,
 .icon-tooltip:focus-within .icon-tooltip-text {
   opacity: 1;
+}
+
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
 }
