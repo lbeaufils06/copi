@@ -8,9 +8,13 @@ PGID="${PGID:-100}"
 
 mkdir -p /config /app/backups
 
-# Try to align permissions on mounted host paths (Unraid style).
+# Keep config private.
 chown -R "${PUID}:${PGID}" /config 2>/dev/null || true
 chmod -R 700 /config 2>/dev/null || true
+
+# Keep backups writable from outside.
+chown -R "${PUID}:${PGID}" /app/backups 2>/dev/null || true
+chmod -R 777 /app/backups 2>/dev/null || true
 
 # Tighten sqlite file permissions when it exists.
 if [ -f /config/copi.db ]; then
