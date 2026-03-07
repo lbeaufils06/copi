@@ -1,4 +1,4 @@
-import { useI18n } from "../i18n/I18nContext";
+import { useI18n } from "../../i18n/I18nContext";
 
 function Loader({ text }) {
   const { t } = useI18n();
