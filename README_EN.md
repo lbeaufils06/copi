@@ -6,7 +6,7 @@ This product is built for people running personal infrastructure (NAS, homelab, 
 
 It was also created from a real need on my own server: centralizing and automating backups for multiple database engines through a simple interface.
 
-![Dashboard](docs/screenshot001.png)
+![Dashboard](docs/screenshot001.PNG)
 
 ## Who Copi Is For
 
