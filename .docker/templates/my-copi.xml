@@ -27,11 +27,6 @@
   <Config Name="MASTER_KEY" Target="MASTER_KEY" Default="change-me" Mode="" Description="Encryption master key" Type="Variable" Display="advanced" Required="false" Mask="true">change-me</Config>
   <Config Name="Admin Password" Target="COPI_ADMIN_PASSWORD" Default="" Mode="" Description="Mot de passe administrateur : copi" Type="Variable" Display="always" Required="true" Mask="true">copi</Config>
   <Config Name="Session Timeout (minutes)" Target="SESSION_TIMEOUT" Default="30" Mode="" Description="Durée de session en minutes avant déconnexion automatique" Type="Variable" Display="advanced" Required="false" Mask="false">30</Config>
-  <Config Name="MariaDB Dump Path" Target="MARIADB_DUMP_PATH" Default="mariadb-dump" Mode="{3}" Description="Path to mariadb-dump binary (Linux default: mariadb-dump)" Type="Variable" Display="advanced" Required="false" Mask="false">/usr/bin/mariadb-dump</Config>
-  <Config Name="MongoDB Dump Path" Target="MONGODUMP_PATH" Default="mongodump" Mode="{3}" Description="Path to mongodump binary (Linux default: mongodump)" Type="Variable" Display="advanced" Required="false" Mask="false">/usr/bin/mongodump</Config>
-  <Config Name="MySQL Dump Path" Target="MYSQLDUMP_PATH" Default="mysqldump" Mode="{3}" Description="Path to mysqldump binary (Linux default: mysqldump)" Type="Variable" Display="advanced" Required="false" Mask="false">/usr/bin/mysqldump</Config>
-  <Config Name="PostgreSQL Dump Path" Target="PGDUMP_PATH" Default="pg_dump" Mode="{3}" Description="Path to pg_dump binary (Linux default: pg_dump)" Type="Variable" Display="advanced" Required="false" Mask="false">/usr/bin/pg_dump</Config>
-  <Config Name="PostgreSQL DumpAll Path" Target="PGDUMPALL_PATH" Default="pg_dumpall" Mode="{3}" Description="Path to pg_dumpall binary (Linux default: pg_dumpall)" Type="Variable" Display="advanced" Required="false" Mask="false">/usr/bin/pg_dumpall</Config>
   <Config Name="Spring Profile" Target="SPRING_PROFILES_ACTIVE" Default="prod" Mode="" Description="Spring active profile" Type="Variable" Display="never" Required="true" Mask="false">prod</Config>
   <TailscaleStateDir/>
 </Container>
