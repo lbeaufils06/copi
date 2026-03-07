@@ -1,5 +1,5 @@
-﻿import { useEffect, useState } from "react";
-import { useApi } from "../../../utils/useApi";
+import { useEffect, useState } from "react";
+import { useApi } from "../../../shared/utils";
 import { useLockBodyScroll } from "../../../hooks/useLockBodyScroll";
 import { Loader } from "../../../shared/components";
 import { useI18n } from "../../../i18n/I18nContext";
@@ -420,5 +420,6 @@ function JobModal({ jobId, defaults, onClose }) {
 }
 
 export default JobModal;
+
 
 

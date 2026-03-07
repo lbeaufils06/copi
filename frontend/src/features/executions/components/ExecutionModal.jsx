@@ -1,7 +1,7 @@
-﻿import { useState } from "react";
+import { useState } from "react";
 import { useLockBodyScroll } from "../../../hooks/useLockBodyScroll";
-import { executionModeLabel, executionModeStyle, statusLabel, statusStyle } from "../../../utils/badge";
-import { formatDateTimeLocale } from "../../../utils/time";
+import { executionModeLabel, executionModeStyle, formatDateTimeLocale, statusLabel, statusStyle } from "../../../shared/utils";
+
 import { useI18n } from "../../../i18n/I18nContext";
 import { CustomSelect } from "../../../shared/components";
 import { useExecutions } from "../hooks/useExecutions";
@@ -190,5 +190,6 @@ function ExecutionRow({ exec, open, onToggle, locale, t, onDownload }) {
 }
 
 export default ExecutionModal;
+
 
 

@@ -20,7 +20,7 @@ export const useApi = () => {
       throw new Error("API error");
     }
 
-    // 🔥 PARSE JSON automatiquement
+    // ðŸ”¥ PARSE JSON automatiquement
     const contentType = response.headers.get("content-type");
 
     if (contentType && contentType.includes("application/json")) {

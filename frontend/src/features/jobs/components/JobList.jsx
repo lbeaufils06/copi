@@ -1,5 +1,5 @@
-import { formatRelativeTime, formatFutureTime, getReadableCron, getScheduleStyle } from "../../../utils/time";
-import { statusStyle, statusLabel } from "../../../utils/badge";
+import { formatFutureTime, formatRelativeTime, getReadableCron, getScheduleStyle, statusLabel, statusStyle } from "../../../shared/utils";
+
 import { useI18n } from "../../../i18n/I18nContext";
 
 function JobList({ jobs, serverOffline, startJob, openEditModal, openExecutions }) {
@@ -144,4 +144,5 @@ function JobList({ jobs, serverOffline, startJob, openEditModal, openExecutions 
 }
 
 export default JobList;
+
 
