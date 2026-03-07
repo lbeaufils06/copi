@@ -1,4 +1,4 @@
-﻿# Copi
+# Copi
 
 Copi is a self-hosted web application to schedule, run, and monitor database backups.
 
@@ -125,21 +125,6 @@ Command:
 bash .bash/build.sh
 ```
 
-### Manual build
-
-```bash
-# frontend
-cd frontend
-npm install
-npm run build
-
-# copy dist/* to backend/src/main/resources/static
-
-# backend
-cd ../backend
-./mvnw clean package -DskipTests
-```
-
 ## Configuration (Environment Variables)
 
 Main variables:
@@ -149,8 +134,8 @@ Main variables:
 - `MASTER_KEY` (internal encryption key)
 - `SERVER_PORT` (backend port, default `8080`)
 - `SESSION_TIMEOUT` (minutes, default `30`)
-- `SPRING_DATASOURCE_URL` (default `jdbc:sqlite:data/copi.db`)
-- `APP_BACKUP_DIR` (default `backups`)
+- `SPRING_DATASOURCE_URL` (default `jdbc:sqlite:/config/copi.db`)
+- `APP_BACKUP_DIR` (default `/app/backups`)
 - `MYSQLDUMP_PATH`, `MARIADUMP_PATH`, `PGDUMP_PATH`, `PGDUMPALL_PATH`, `MONGODUMP_PATH`
 
 In Docker, these variables are preconfigured in `docker-compose.yml`.
@@ -173,10 +158,10 @@ In Docker, these variables are preconfigured in `docker-compose.yml`.
 
 - SQLite app metadata:
   - local: `backend/data/copi.db`
-  - docker: `copi_data` volume
+  - docker: bind mount `./config:/config` to `/config/copi.db`
 - Backup files:
   - local: `backend/backups/`
-  - docker: `copi_backups` volume
+  - docker: `copi_backups` volume mounted to `/app/backups`
 
 ## Production Best Practices
 

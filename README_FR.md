@@ -125,21 +125,6 @@ Commande:
 bash .bash/build.sh
 ```
 
-### Build manuel
-
-```bash
-# frontend
-cd frontend
-npm install
-npm run build
-
-# copier dist/* vers backend/src/main/resources/static
-
-# backend
-cd ../backend
-./mvnw clean package -DskipTests
-```
-
 ## Configuration (variables d'environnement)
 
 Variables principales:
@@ -149,8 +134,8 @@ Variables principales:
 - `MASTER_KEY` (cle de chiffrement interne)
 - `SERVER_PORT` (port backend, defaut `8080`)
 - `SESSION_TIMEOUT` (minutes, defaut `30`)
-- `SPRING_DATASOURCE_URL` (defaut `jdbc:sqlite:data/copi.db`)
-- `APP_BACKUP_DIR` (defaut `backups`)
+- `SPRING_DATASOURCE_URL` (defaut `jdbc:sqlite:/config/copi.db`)
+- `APP_BACKUP_DIR` (defaut `/app/backups`)
 - `MYSQLDUMP_PATH`, `MARIADUMP_PATH`, `PGDUMP_PATH`, `PGDUMPALL_PATH`, `MONGODUMP_PATH`
 
 En Docker, ces variables sont preconfigurees dans `docker-compose.yml`.
@@ -173,10 +158,10 @@ En Docker, ces variables sont preconfigurees dans `docker-compose.yml`.
 
 - Metadonnees applicatives SQLite:
   - local: `backend/data/copi.db`
-  - docker: volume `copi_data`
+  - docker: bind mount `./config:/config` vers `/config/copi.db`
 - Fichiers de sauvegarde:
   - local: `backend/backups/`
-  - docker: volume `copi_backups`
+  - docker: volume `copi_backups` monte sur `/app/backups`
 
 ## Bonnes pratiques en production
 
