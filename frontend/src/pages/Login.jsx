@@ -26,10 +26,10 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900">
-      <div className="w-full max-w-sm bg-white dark:bg-gray-800 shadow-xl rounded-2xl p-8">
+    <div className="min-h-screen flex items-center justify-center bg-slate-900 p-4">
+      <div className="w-full max-w-sm bg-slate-800 border border-slate-700 shadow-xl rounded-2xl p-8">
         <div className="flex items-center justify-center gap-3">
-          <h2 className="text-2xl font-bold text-center text-gray-800 dark:text-white mb-6">{t("login.title")}</h2>
+          <h2 className="text-2xl font-bold text-center text-slate-100 mb-6">{t("login.title")}</h2>
 
           <img src="/copi.svg" alt="Copi logo" className="w-8 h-8 object-contain mb-6" />
         </div>
@@ -38,7 +38,7 @@ export default function LoginPage() {
           <input
             type="text"
             autoComplete="username"
-            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-200 text-gray-500"
+            className="login-input w-full px-4 py-2 border border-slate-600 rounded-lg bg-slate-900 text-slate-400 cursor-not-allowed"
             value="admin"
             disabled
           />
@@ -48,7 +48,7 @@ export default function LoginPage() {
               type={showPassword ? "text" : "password"}
               placeholder={t("login.passwordPlaceholder")}
               autoComplete="current-password"
-              className="w-full px-4 py-2 pr-10 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="login-input w-full px-4 py-2 pr-10 border border-slate-600 rounded-lg bg-slate-900 text-slate-100 placeholder:text-slate-400 focus:border-indigo-400"
               value={password}
               autoFocus
               onChange={(e) => setPassword(e.target.value)}
@@ -58,7 +58,7 @@ export default function LoginPage() {
               type="button"
               onClick={() => setShowPassword(!showPassword)}
               onMouseDown={(e) => e.preventDefault()}
-              className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+              className="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-white"
               aria-label={showPassword ? t("modal.hidePassword") : t("modal.showPassword")}
             >
               {showPassword ? (
@@ -92,7 +92,7 @@ export default function LoginPage() {
           </button>
         </form>
 
-        {error && <div className="mt-4 text-sm text-red-600 text-center">{error}</div>}
+        {error && <div className="mt-4 text-sm text-red-400 text-center">{error}</div>}
       </div>
     </div>
   );

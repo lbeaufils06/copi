@@ -50,6 +50,13 @@
     outline: 2px solid var(--ui-focus);
     outline-offset: 2px;
   }
+
+  input::selection,
+  textarea::selection {
+    background: rgba(99, 102, 241, 0.35);
+    color: #f8fafc;
+  }
+
   input:-webkit-autofill,
   input:-webkit-autofill:hover,
   input:-webkit-autofill:focus,
@@ -60,6 +67,15 @@
     -webkit-box-shadow: 0 0 0 1000px #0f172a inset;
     box-shadow: 0 0 0 1000px #0f172a inset;
     transition: background-color 9999s ease-in-out 0s;
+    caret-color: #e2e8f0;
+  }
+
+  .login-input:-webkit-autofill,
+  .login-input:-webkit-autofill:hover,
+  .login-input:-webkit-autofill:focus {
+    -webkit-text-fill-color: #e2e8f0;
+    -webkit-box-shadow: 0 0 0 1000px #0f172a inset;
+    box-shadow: 0 0 0 1000px #0f172a inset;
     caret-color: #e2e8f0;
   }
 }
@@ -104,4 +120,3 @@
   scrollbar-width: thin;
   scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
 }
-
