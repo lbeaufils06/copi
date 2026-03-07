@@ -55,7 +55,8 @@ INSERT INTO backup_job (
     authentication_database,
     dump_options_mode,
     db_name_options_mode
-)
+);
+
 SELECT
     id,
     name,
