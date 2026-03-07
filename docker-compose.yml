@@ -8,6 +8,8 @@ services:
       dockerfile: Dockerfile
     image: copi:latest
 
+    user: "99:100"
+
     ports:
       - "8092:8080"
 
@@ -26,12 +28,15 @@ services:
       # Session timeout
       SESSION_TIMEOUT: 30
 
+      # Create files with strict permissions
+      UMASK: "077"
+
       # SQLite
       SPRING_DATASOURCE_URL: jdbc:sqlite:/config/copi.db
       SPRING_DATASOURCE_DRIVER: org.sqlite.JDBC
 
       # Backup directory
-      APP_BACKUP_DIR: backups
+      APP_BACKUP_DIR: /app/backups
 
       # Dump tools paths
       MYSQLDUMP_PATH: mysqldump
