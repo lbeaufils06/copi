@@ -1,8 +1,10 @@
 import { useContext, useState } from "react";
 import { AuthContext } from "./AuthContext";
+import { useI18n } from "../i18n/I18nContext";
 
 export default function Header({ serverTime, formatClock, onAdd }) {
   const { logout } = useContext(AuthContext);
+  const { locale, setLocale, t } = useI18n();
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
@@ -11,7 +13,7 @@ export default function Header({ serverTime, formatClock, onAdd }) {
         <div className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <img src="/copi.svg" className="w-7 h-7" alt="Logo Copi" />
-            <h1 className="text-lg font-semibold tracking-tight">Copi</h1>
+            <h1 className="text-lg font-semibold tracking-tight">{t("common.appName")}</h1>
           </div>
 
           <div className="hidden md:flex items-center gap-4">
@@ -21,26 +23,36 @@ export default function Header({ serverTime, formatClock, onAdd }) {
               </div>
             )}
 
-            <button
-              onClick={onAdd}
-              className="bg-indigo-600 hover:bg-indigo-500 px-4 py-2 rounded-lg text-sm font-medium transition"
-            >
-              + Ajouter une DB
+            <div className="flex items-center bg-slate-900 border border-slate-700 rounded-lg overflow-hidden" aria-label={t("common.language")}>
+              <button
+                type="button"
+                onClick={() => setLocale("fr")}
+                className={`px-3 py-2 text-xs font-semibold transition ${locale === "fr" ? "bg-indigo-600 text-white" : "text-slate-300 hover:bg-slate-800"}`}
+              >
+                FR
+              </button>
+              <button
+                type="button"
+                onClick={() => setLocale("en")}
+                className={`px-3 py-2 text-xs font-semibold transition ${locale === "en" ? "bg-indigo-600 text-white" : "text-slate-300 hover:bg-slate-800"}`}
+              >
+                EN
+              </button>
+            </div>
+
+            <button onClick={onAdd} className="bg-indigo-600 hover:bg-indigo-500 px-4 py-2 rounded-lg text-sm font-medium transition">
+              {t("header.addDb")}
             </button>
 
             <button
               onClick={logout}
               className="bg-slate-800 hover:bg-slate-700 border border-slate-600 px-3 py-2 rounded-lg text-sm transition"
             >
-              Deconnexion
+              {t("header.logout")}
             </button>
           </div>
 
-          <button
-            className="md:hidden text-slate-200"
-            onClick={() => setMenuOpen(!menuOpen)}
-            aria-label="Ouvrir le menu"
-          >
+          <button className="md:hidden text-slate-200" onClick={() => setMenuOpen(!menuOpen)} aria-label={t("header.openMenu")}>
             ☰
           </button>
         </div>
@@ -53,6 +65,23 @@ export default function Header({ serverTime, formatClock, onAdd }) {
 
         {menuOpen && (
           <div className="mt-4 md:hidden flex flex-col gap-3">
+            <div className="flex items-center bg-slate-900 border border-slate-700 rounded-lg overflow-hidden w-fit">
+              <button
+                type="button"
+                onClick={() => setLocale("fr")}
+                className={`px-3 py-2 text-xs font-semibold transition ${locale === "fr" ? "bg-indigo-600 text-white" : "text-slate-300 hover:bg-slate-800"}`}
+              >
+                FR
+              </button>
+              <button
+                type="button"
+                onClick={() => setLocale("en")}
+                className={`px-3 py-2 text-xs font-semibold transition ${locale === "en" ? "bg-indigo-600 text-white" : "text-slate-300 hover:bg-slate-800"}`}
+              >
+                EN
+              </button>
+            </div>
+
             <button
               onClick={() => {
                 onAdd();
@@ -60,14 +89,14 @@ export default function Header({ serverTime, formatClock, onAdd }) {
               }}
               className="w-full bg-indigo-600 hover:bg-indigo-500 px-4 py-2 rounded-lg text-sm font-medium transition"
             >
-              + Ajouter une DB
+              {t("header.addDb")}
             </button>
 
             <button
               onClick={logout}
               className="w-full bg-slate-800 hover:bg-slate-700 border border-slate-600 px-4 py-2 rounded-lg text-sm transition"
             >
-              Deconnexion
+              {t("header.logout")}
             </button>
           </div>
         )}

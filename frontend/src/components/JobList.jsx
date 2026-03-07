@@ -1,21 +1,25 @@
 import { formatRelativeTime, formatFutureTime, getReadableCron, getScheduleStyle } from "../utils/time";
 import { statusStyle, statusLabel } from "../utils/badge";
+import { useI18n } from "../i18n/I18nContext";
 
 function JobList({ jobs, serverOffline, startJob, openEditModal, openExecutions }) {
+  const { locale, t } = useI18n();
+
   return (
     <section className="bg-slate-800 rounded-2xl p-4 sm:p-6 shadow-lg border border-slate-700">
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-lg font-semibold">Jobs de sauvegarde</h2>
+        <h2 className="text-lg font-semibold">{t("jobs.title")}</h2>
       </div>
 
       <div className="space-y-4">
         {serverOffline ? (
-          <div className="text-red-300 text-sm">Serveur indisponible</div>
+          <div className="text-red-300 text-sm">{t("jobs.serverOffline")}</div>
         ) : jobs.length === 0 ? (
-          <p className="text-slate-300 text-sm">Aucun job configure</p>
+          <p className="text-slate-300 text-sm">{t("jobs.noJobs")}</p>
         ) : (
           jobs.map((job) => {
             const isRunning = job.lastStatus === "RUNNING";
+            const versionLabel = (job.versionCount ?? 0) > 1 ? t("jobs.version_other") : t("jobs.version_one");
 
             return (
               <div
@@ -33,26 +37,26 @@ function JobList({ jobs, serverOffline, startJob, openEditModal, openExecutions 
 
                     <div className="text-slate-200 space-y-1.5">
                       <p>
-                        <span className="text-slate-100 font-medium text-sm">Planification: </span>
-                        <span className={`text-xs px-2 py-1 rounded-md ${getScheduleStyle(job.cronExpression)}`}>
-                          {getReadableCron(job.cronExpression)}
+                        <span className="text-slate-100 font-medium text-sm">{t("jobs.schedule")}: </span>
+                        <span className={`text-xs px-2 py-1 rounded-md ${getScheduleStyle(job.cronExpression, locale)}`}>
+                          {getReadableCron(job.cronExpression, locale)}
                         </span>
                       </p>
 
                       <p>
-                        <span className="text-slate-100 font-medium">Derniere sauvegarde: </span>
-                        {formatRelativeTime(job.lastSuccessTime, isRunning)}
+                        <span className="text-slate-100 font-medium">{t("jobs.lastBackup")}: </span>
+                        {formatRelativeTime(job.lastSuccessTime, isRunning, locale)}
                       </p>
 
                       {job.cronExpression !== "" && (
                         <p>
-                          <span className="text-slate-100 font-medium">Prochaine execution: </span>
-                          {formatFutureTime(job.nextExecutionTime, isRunning)}
+                          <span className="text-slate-100 font-medium">{t("jobs.nextExecution")}: </span>
+                          {formatFutureTime(job.nextExecutionTime, isRunning, locale)}
                         </p>
                       )}
 
                       <p>
-                        <span className="text-slate-100 font-medium">Hote: </span>
+                        <span className="text-slate-100 font-medium">{t("jobs.host")}: </span>
                         {job.host}:{job.port}
                       </p>
 
@@ -62,14 +66,14 @@ function JobList({ jobs, serverOffline, startJob, openEditModal, openExecutions 
                         {isRunning && (
                           <span className="w-2 h-2 rounded-full bg-current animate-pulse" aria-hidden="true" />
                         )}
-                        <span>{statusLabel(job.lastStatus)}</span>
+                        <span>{statusLabel(job.lastStatus, t)}</span>
                       </span>
                     </div>
                   </div>
 
                   <div className="flex items-center gap-4">
                     <span className="bg-emerald-900/40 text-emerald-300 text-sm px-3 py-2 rounded-full border border-emerald-700/60">
-                      {job.versionCount ?? 0} {(job.versionCount ?? 0) > 1 ? "Versions" : "Version"}
+                      {job.versionCount ?? 0} {versionLabel}
                     </span>
 
                     <div className="flex items-center gap-2">
@@ -79,17 +83,17 @@ function JobList({ jobs, serverOffline, startJob, openEditModal, openExecutions 
                         className={`px-4 py-2 rounded-lg text-sm transition ${
                           isRunning ? "bg-slate-700 text-slate-300 cursor-not-allowed" : "bg-indigo-600 hover:bg-indigo-500"
                         }`}
-                        aria-label={isRunning ? "Execution en cours" : "Demarrer le job"}
+                        aria-label={isRunning ? t("jobs.status_running") : t("jobs.start")}
                       >
-                        {isRunning ? "En cours..." : "Demarrer"}
+                        {isRunning ? t("jobs.running") : t("jobs.start")}
                       </button>
 
                       <button
                         onClick={() => openEditModal(job)}
                         className="icon-tooltip bg-slate-800 hover:bg-slate-700 border border-slate-600 p-2 rounded-lg transition flex items-center justify-center"
-                        aria-label="Modifier le job"
+                        aria-label={t("jobs.edit")}
                       >
-                        <span className="icon-tooltip-text">Modifier</span>
+                        <span className="icon-tooltip-text">{t("jobs.edit")}</span>
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
                           fill="none"
@@ -109,9 +113,9 @@ function JobList({ jobs, serverOffline, startJob, openEditModal, openExecutions 
                       <button
                         onClick={() => openExecutions(job)}
                         className="icon-tooltip bg-slate-800 hover:bg-slate-700 border border-slate-600 p-2 rounded-lg transition flex items-center justify-center"
-                        aria-label="Voir l historique d execution"
+                        aria-label={t("jobs.history")}
                       >
-                        <span className="icon-tooltip-text">Historique</span>
+                        <span className="icon-tooltip-text">{t("jobs.history")}</span>
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
                           className="w-5 h-5 text-slate-200"

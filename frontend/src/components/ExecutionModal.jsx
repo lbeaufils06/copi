@@ -2,11 +2,13 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useApi } from "../utils/useApi";
 import { useLockBodyScroll } from "../hooks/useLockBodyScroll";
 import { executionModeLabel, executionModeStyle, statusLabel, statusStyle } from "../utils/badge";
-import { formatDateTimeFr } from "../utils/time";
+import { formatDateTimeLocale } from "../utils/time";
+import { useI18n } from "../i18n/I18nContext";
 
 function ExecutionModal({ jobId, onClose }) {
   useLockBodyScroll();
   const { apiFetch } = useApi();
+  const { locale, t } = useI18n();
 
   const [executions, setExecutions] = useState([]);
   const [openId, setOpenId] = useState(null);
@@ -64,8 +66,8 @@ function ExecutionModal({ jobId, onClose }) {
       >
         <div className="sticky top-0 z-10 p-4 sm:p-6 border-b border-slate-700 bg-slate-900 rounded-t-2xl">
           <div className="flex justify-between items-center gap-4">
-            <h2 className="text-lg font-semibold text-slate-100">Executions</h2>
-            <button onClick={onClose} className="text-slate-300 hover:text-white transition" aria-label="Fermer la modale">
+            <h2 className="text-lg font-semibold text-slate-100">{t("executions.title")}</h2>
+            <button onClick={onClose} className="text-slate-300 hover:text-white transition" aria-label={t("common.close")}>
               ✕
             </button>
           </div>
@@ -76,10 +78,10 @@ function ExecutionModal({ jobId, onClose }) {
               onChange={(e) => setStatusFilter(e.target.value)}
               className="bg-slate-800 border border-slate-600 rounded-lg px-3 py-2 text-sm text-slate-100"
             >
-              <option value="ALL">Tous statuts</option>
-              <option value="SUCCESS">Succes</option>
-              <option value="FAILED">Echec</option>
-              <option value="RUNNING">En cours</option>
+              <option value="ALL">{t("executions.allStatuses")}</option>
+              <option value="SUCCESS">{t("jobs.status_success")}</option>
+              <option value="FAILED">{t("jobs.status_failed")}</option>
+              <option value="RUNNING">{t("jobs.status_running")}</option>
             </select>
 
             <select
@@ -87,9 +89,9 @@ function ExecutionModal({ jobId, onClose }) {
               onChange={(e) => setModeFilter(e.target.value)}
               className="bg-slate-800 border border-slate-600 rounded-lg px-3 py-2 text-sm text-slate-100"
             >
-              <option value="ALL">Tous modes</option>
-              <option value="SCHEDULED">Cron</option>
-              <option value="MANUAL">Manuel</option>
+              <option value="ALL">{t("executions.allModes")}</option>
+              <option value="SCHEDULED">{t("executions.mode_cron")}</option>
+              <option value="MANUAL">{t("executions.mode_manual")}</option>
             </select>
 
             <select
@@ -97,31 +99,31 @@ function ExecutionModal({ jobId, onClose }) {
               onChange={(e) => setPeriodFilter(e.target.value)}
               className="bg-slate-800 border border-slate-600 rounded-lg px-3 py-2 text-sm text-slate-100"
             >
-              <option value="24H">Dernieres 24h</option>
-              <option value="7D">Derniers 7 jours</option>
-              <option value="30D">Derniers 30 jours</option>
-              <option value="ALL">Toutes periodes</option>
+              <option value="24H">{t("executions.period24h")}</option>
+              <option value="7D">{t("executions.period7d")}</option>
+              <option value="30D">{t("executions.period30d")}</option>
+              <option value="ALL">{t("executions.allPeriods")}</option>
             </select>
 
             <input
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Rechercher fichier/log"
+              placeholder={t("executions.searchPlaceholder")}
               className="bg-slate-800 border border-slate-600 rounded-lg px-3 py-2 text-sm text-slate-100 placeholder:text-slate-400"
             />
           </div>
         </div>
 
         <div className="px-4 sm:px-6 py-3 text-xs text-slate-300 border-b border-slate-700 grid grid-cols-[2fr,1fr,1fr,auto] gap-3">
-          <span>Date</span>
-          <span>Mode</span>
-          <span>Statut</span>
-          <span>Details</span>
+          <span>{t("executions.colDate")}</span>
+          <span>{t("executions.colMode")}</span>
+          <span>{t("executions.colStatus")}</span>
+          <span>{t("executions.colDetails")}</span>
         </div>
 
         <div className="overflow-y-auto p-4 sm:p-6 pt-3 space-y-2">
-          {filteredExecutions.length === 0 && <p className="text-slate-300 text-sm">Aucune execution trouvee</p>}
+          {filteredExecutions.length === 0 && <p className="text-slate-300 text-sm">{t("executions.empty")}</p>}
 
           {filteredExecutions.map((exec) => (
             <ExecutionRow
@@ -129,6 +131,8 @@ function ExecutionModal({ jobId, onClose }) {
               exec={exec}
               open={openId === exec.id}
               onToggle={() => setOpenId((prev) => (prev === exec.id ? null : exec.id))}
+              locale={locale}
+              t={t}
             />
           ))}
         </div>
@@ -137,10 +141,10 @@ function ExecutionModal({ jobId, onClose }) {
   );
 }
 
-function ExecutionRow({ exec, open, onToggle }) {
-  const executionTime = formatDateTimeFr(exec.executionTime);
-  const startTime = formatDateTimeFr(exec.startTime);
-  const endTime = formatDateTimeFr(exec.endTime);
+function ExecutionRow({ exec, open, onToggle, locale, t }) {
+  const executionTime = formatDateTimeLocale(exec.executionTime, locale);
+  const startTime = formatDateTimeLocale(exec.startTime, locale);
+  const endTime = formatDateTimeLocale(exec.endTime, locale);
 
   return (
     <div className="bg-slate-800 rounded-xl overflow-hidden border border-slate-700">
@@ -152,45 +156,45 @@ function ExecutionRow({ exec, open, onToggle }) {
       >
         <span className="text-sm text-slate-100">{executionTime}</span>
         <span className={`inline-flex justify-center text-xs px-2 py-1 rounded-full ${executionModeStyle(exec.executionMode)}`}>
-          {executionModeLabel(exec.executionMode)}
+          {executionModeLabel(exec.executionMode, t)}
         </span>
         <span className={`inline-flex justify-center text-xs px-2 py-1 rounded-full ${statusStyle(exec.status)}`}>
-          {statusLabel(exec.status)}
+          {statusLabel(exec.status, t)}
         </span>
-        <span className="text-slate-300 text-xs">{open ? "Masquer" : "Voir"}</span>
+        <span className="text-slate-300 text-xs">{open ? t("executions.hide") : t("executions.show")}</span>
       </button>
 
       {open && (
         <div className="border-t border-slate-700 p-3 text-xs text-slate-200 space-y-2">
           <div>
-            <span className="text-slate-400">Debut: </span>
+            <span className="text-slate-400">{t("executions.start")}: </span>
             {startTime}
           </div>
           <div>
-            <span className="text-slate-400">Fin: </span>
+            <span className="text-slate-400">{t("executions.end")}: </span>
             {endTime}
           </div>
           {exec.durationInSeconds !== null && (
             <div>
-              <span className="text-slate-400">Duree: </span>
+              <span className="text-slate-400">{t("executions.duration")}: </span>
               {exec.durationInSeconds}s
             </div>
           )}
           {exec.fileName && (
             <div>
-              <span className="text-slate-400">Fichier: </span>
+              <span className="text-slate-400">{t("executions.file")}: </span>
               {exec.fileName}
             </div>
           )}
           {exec.filePath && (
             <div className="break-all">
-              <span className="text-slate-400">Chemin: </span>
+              <span className="text-slate-400">{t("executions.path")}: </span>
               {exec.filePath}
             </div>
           )}
           {exec.logMessage && (
             <div>
-              <span className="text-slate-400">Log:</span>
+              <span className="text-slate-400">{t("executions.log")}:</span>
               <pre className="mt-1 whitespace-pre-wrap text-slate-100 bg-slate-950 border border-slate-700 p-2 rounded">
                 {exec.logMessage}
               </pre>

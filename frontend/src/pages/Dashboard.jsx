@@ -8,6 +8,7 @@ import JobList from "../components/JobList";
 import { syncServerTime, syncServerTimeNow } from "../utils/time";
 import { useJobDefaults } from "../hooks/useJobDefaults";
 import Loader from "../components/Loader";
+import { useI18n } from "../i18n/I18nContext";
 
 function Dashboard() {
   const { defaults, loading, error } = useJobDefaults();
@@ -17,6 +18,7 @@ function Dashboard() {
   const [serverOffline, setServerOffline] = useState(false);
   const { apiFetch } = useApi();
   const navigate = useNavigate();
+  const { locale, t } = useI18n();
 
   const openAddModal = () => navigate("/job/new");
   const openEditModal = (job) => navigate(`/job/${job.id}`);
@@ -37,20 +39,20 @@ function Dashboard() {
   };
 
   const formatClock = (date) => {
-    const day = date.toLocaleDateString("fr-FR", {
+    const day = date.toLocaleDateString(locale === "fr" ? "fr-FR" : "en-US", {
       day: "2-digit",
       month: "2-digit",
       year: "numeric",
     });
 
-    const time = date.toLocaleTimeString("fr-FR", {
+    const time = date.toLocaleTimeString(locale === "fr" ? "fr-FR" : "en-US", {
       hour: "2-digit",
       minute: "2-digit",
       second: "2-digit",
       hour12: false,
     });
 
-    return `${day} a ${time}`;
+    return `${day} ${locale === "fr" ? "a" : "at"} ${time}`;
   };
 
   const startJob = async (id) => {
@@ -66,7 +68,7 @@ function Dashboard() {
       if (!response) return;
 
       if (response.status === 409) {
-        setErrorMessage("Ce job est deja en cours");
+        setErrorMessage(t("dashboard.jobAlreadyRunning"));
         setTimeout(() => setErrorMessage(null), 3000);
         return;
       }
@@ -97,8 +99,8 @@ function Dashboard() {
     return () => clearInterval(interval);
   }, []);
 
-  if (loading) return <Loader text="Chargement..." />;
-  if (error) return <div className="text-red-300 p-4">Erreur lors du chargement</div>;
+  if (loading) return <Loader text={t("common.loading")} />;
+  if (error) return <div className="text-red-300 p-4">{t("dashboard.loadingError")}</div>;
 
   return (
     <>
