@@ -1,7 +1,7 @@
 import { executionModeLabel, executionModeStyle, formatDateTimeLocale, statusLabel, statusStyle } from "../../../shared/utils";
 
 // ExecutionRow: Renders one execution summary row and its expandable technical details.
-function ExecutionRow({ exec, open, onToggle, locale, t, onDownload }) {
+function ExecutionRow({ exec, open, onToggle, locale, t, onDownload, isDownloading = false }) {
   const executionTime = formatDateTimeLocale(exec.executionTime, locale);
   const startTime = formatDateTimeLocale(exec.startTime, locale);
   const endTime = formatDateTimeLocale(exec.endTime, locale);
@@ -67,9 +67,11 @@ function ExecutionRow({ exec, open, onToggle, locale, t, onDownload }) {
               <button
                 type="button"
                 onClick={onDownload}
-                className="px-2 py-1 text-xs rounded-md bg-indigo-600 hover:bg-indigo-500 text-white"
+                disabled={isDownloading}
+                className="px-4 py-2 rounded-lg text-sm transition bg-indigo-600 hover:bg-indigo-500 disabled:opacity-80 disabled:cursor-not-allowed inline-flex items-center gap-2"
               >
-                {t("executions.download")}
+                {isDownloading && <span className="w-3 h-3 border-2 border-white/50 border-t-white rounded-full animate-spin" aria-hidden="true" />}
+                {isDownloading ? t("common.loading") : t("executions.download")}
               </button>
             </div>
           )}
