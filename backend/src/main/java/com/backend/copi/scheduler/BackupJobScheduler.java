@@ -49,11 +49,13 @@ public class BackupJobScheduler {
     private boolean applicationReady = false;
 
     @EventListener(ApplicationReadyEvent.class)
+    // onApplicationReady: Handles the application ready lifecycle event and updates runtime flags.
     public void onApplicationReady() {
         applicationReady = true;
     }
 
     @Scheduled(fixedRate = 1000)
+    // checkJobs: Checks jobs and triggers follow-up actions when needed.
     public void checkJobs() {
 
         if (!applicationReady) {
@@ -79,6 +81,7 @@ public class BackupJobScheduler {
         }
     }
 
+    // isJobEligible: Determines whether job eligible satisfies eligibility conditions.
     private boolean isJobEligible(BackupJob job) {
 
         if (job.getExecutionMode() == ExecutionMode.MANUAL) {
@@ -105,6 +108,7 @@ public class BackupJobScheduler {
         return false;
     }
 
+    // updateNextExecution: Updates next execution with validated incoming values.
     private void updateNextExecution(BackupJob job, LocalDateTime now, LocalDateTime storedNext) {
         CronExpression cron = CronExpression.parse(job.getCronExpression());
         LocalDateTime next = cron.next(now).withNano(0);
@@ -115,6 +119,7 @@ public class BackupJobScheduler {
         jobService.updateJobScheduler(job.getId(), job);
     }
 
+    // executeWithLock: Executes with lock and coordinates the full processing pipeline.
     private void executeWithLock(ExecutionMode executionMode, BackupJob job, LocalDateTime executionTime) {
 
         if (!runningJobs.add(job.getId())) {
@@ -129,6 +134,7 @@ public class BackupJobScheduler {
         }
     }
 
+    // executeSequentially: Executes sequentially and coordinates the full processing pipeline.
     private void executeSequentially(ExecutionMode executionMode, BackupJob job, LocalDateTime executionTime) {
 
         log.info("Starting dump job={} now={} nextExecution={}",
@@ -190,6 +196,7 @@ public class BackupJobScheduler {
         }
     }
 
+    // markFailure: Marks failure with the appropriate execution status.
     private void markFailure(BackupJob job, BackupExecution execution, String message) {
 
         job.setLastStatus(ExecutionStatus.FAILED);
@@ -198,10 +205,12 @@ public class BackupJobScheduler {
         executionService.markFailed(execution, message);
     }
 
+    // compressFile: Compresses file using the configured compression strategy.
     private String compressFile(String inputFilePath, CompressionType type) throws IOException {
         return backupStorageService.compress(inputFilePath, type);
     }
 
+    // runManually: Runs manually using the scheduler execution flow.
     public void runManually(UUID jobId) {
 
         LocalDateTime now = LocalDateTime.now(clock).withNano(0);

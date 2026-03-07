@@ -22,11 +22,13 @@ public class BackupExecutionController {
     private final BackupExecutionService executionService;
 
     @GetMapping("/{jobId}")
+    // getByJob: Returns by job for the current request context.
     public List<BackupExecutionResponseDTO> getByJob (@PathVariable UUID jobId) {
         return executionService.getExecutionsByJob(jobId);
     }
     
     @GetMapping
+    // getAll: Returns all for the current request context.
     public List<BackupExecutionResponseDTO> getAll() {
         return executionService.getAllExecutions();
     }

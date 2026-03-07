@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class BackupJobMapper {
 
+    // toResponseDto: Converts response dto into the target data representation.
     public BackupJobResponseDTO toResponseDto(BackupJob job) {
         if (job == null) {
             return null;
@@ -42,6 +43,7 @@ public class BackupJobMapper {
         return dto;
     }
 
+    // toEntity: Converts entity into the target data representation.
     public BackupJob toEntity(BackupJobRequestDTO dto) {
         if (dto == null) {
             return null;
@@ -69,6 +71,7 @@ public class BackupJobMapper {
         return job;
     }
 
+    // updateEntityFromDto: Updates entity from dto with validated incoming values.
     public void updateEntityFromDto(BackupJobRequestDTO dto, BackupJob job) {
 
         if (dto == null || job == null) {

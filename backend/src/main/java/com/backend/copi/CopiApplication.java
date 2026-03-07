@@ -10,6 +10,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableConfigurationProperties
 public class CopiApplication {
 
+	// main: Handles main in the current backend workflow.
 	public static void main(String[] args) {
 		SpringApplication.run(CopiApplication.class, args);
 	}

@@ -20,6 +20,7 @@ public class BackupStorageSyncScheduler {
     private final BackupExecutionService backupExecutionService;
 
     @Scheduled(fixedRate = 300000)
+    // syncBackups: Synchronizes backups with the latest backend state.
     public void syncBackups() {
 
         try {

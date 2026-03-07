@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class BackupExecutionMapper {
 
+    // toDto: Converts dto into the target data representation.
     public BackupExecutionResponseDTO toDto(BackupExecution execution) {
 
         if (execution == null) {

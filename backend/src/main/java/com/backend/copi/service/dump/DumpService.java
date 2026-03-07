@@ -12,6 +12,7 @@ public class DumpService {
 
     private final List<DatabaseDumpService> strategies;
 
+    // executeJob: Executes job and coordinates the full processing pipeline.
     public String executeJob(BackupJob job) throws Exception {
 
         return strategies.stream()

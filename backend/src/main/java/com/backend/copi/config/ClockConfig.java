@@ -9,6 +9,7 @@ import java.time.Clock;
 public class ClockConfig {
 
     @Bean
+    // systemClock: Handles system clock in the current backend workflow.
     public Clock systemClock() {
         return Clock.systemDefaultZone();
     }

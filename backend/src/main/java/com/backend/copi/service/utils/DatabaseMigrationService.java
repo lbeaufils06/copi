@@ -23,6 +23,7 @@ public class DatabaseMigrationService {
 
     @PostConstruct
     @Transactional
+    // migrate: Handles migrate in the current backend workflow.
     public void migrate() throws Exception {
 
         createVersionTableIfNotExists();
@@ -44,7 +45,7 @@ public class DatabaseMigrationService {
 
             if (version > currentVersion) {
 
-                System.out.println("🔄 Applying migration " + filename);
+                System.out.println("Applying migration " + filename);
 
                 String sql = new String(
                         resource.getInputStream().readAllBytes(),
@@ -59,13 +60,14 @@ public class DatabaseMigrationService {
 
                 setVersion(version);
 
-                System.out.println("✅ Migration V" + version + " applied");
+                System.out.println("Migration V" + version + " applied");
             }
         }
 
-        System.out.println("✅ Database schema version: " + getCurrentVersion());
+        System.out.println("Database schema version: " + getCurrentVersion());
     }
 
+    // createVersionTableIfNotExists: Creates version table if not exists and persists the new state.
     private void createVersionTableIfNotExists() {
 
         jdbcTemplate.execute("""
@@ -87,6 +89,7 @@ public class DatabaseMigrationService {
         }
     }
 
+    // getCurrentVersion: Returns current version for the current request context.
     private int getCurrentVersion() {
 
         Integer version = jdbcTemplate.query(
@@ -97,6 +100,7 @@ public class DatabaseMigrationService {
         return version == null ? 0 : version;
     }
 
+    // setVersion: Sets version with the provided value in the current object.
     private void setVersion(int version) {
 
         jdbcTemplate.update(
@@ -105,6 +109,7 @@ public class DatabaseMigrationService {
         );
     }
 
+    // extractVersion: Handles extract version in the current backend workflow.
     private int extractVersion(String filename) {
 
         // V12__remove_columns.sql -> 12
