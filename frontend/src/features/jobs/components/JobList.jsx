@@ -1,6 +1,6 @@
-import { formatRelativeTime, formatFutureTime, getReadableCron, getScheduleStyle } from "../utils/time";
-import { statusStyle, statusLabel } from "../utils/badge";
-import { useI18n } from "../i18n/I18nContext";
+import { formatRelativeTime, formatFutureTime, getReadableCron, getScheduleStyle } from "../../../utils/time";
+import { statusStyle, statusLabel } from "../../../utils/badge";
+import { useI18n } from "../../../i18n/I18nContext";
 
 function JobList({ jobs, serverOffline, startJob, openEditModal, openExecutions }) {
   const { locale, t } = useI18n();
@@ -144,3 +144,4 @@ function JobList({ jobs, serverOffline, startJob, openEditModal, openExecutions 
 }
 
 export default JobList;
+

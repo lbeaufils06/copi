@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
-import { useApi } from "../utils/useApi";
-import { useLockBodyScroll } from "../hooks/useLockBodyScroll";
-import Loader from "./Loader";
-import { useI18n } from "../i18n/I18nContext";
-import CustomSelect from "./CustomSelect";
+import { useApi } from "../../../utils/useApi";
+import { useLockBodyScroll } from "../../../hooks/useLockBodyScroll";
+import Loader from "../../../components/Loader";
+import { useI18n } from "../../../i18n/I18nContext";
+import CustomSelect from "../../../components/CustomSelect";
 import { sanitizeJobForm, useJobFormOptions } from "../hooks/useJobFormOptions";
 
 function JobModal({ jobId, defaults, onClose }) {
@@ -420,3 +420,4 @@ function JobModal({ jobId, defaults, onClose }) {
 }
 
 export default JobModal;
+

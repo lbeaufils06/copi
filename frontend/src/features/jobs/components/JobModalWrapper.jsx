@@ -9,13 +9,7 @@ function JobModalWrapper({ defaults }) {
     navigate(-1);
   };
 
-  return (
-    <JobModal
-      jobId={id}
-      defaults={defaults}
-      onClose={handleClose}
-    />
-  );
+  return <JobModal jobId={id} defaults={defaults} onClose={handleClose} />;
 }
 
 export default JobModalWrapper;
