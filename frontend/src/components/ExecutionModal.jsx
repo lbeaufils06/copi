@@ -106,10 +106,7 @@ function ExecutionModal({ jobId, onClose }) {
   const downloadExecutionFile = async (exec) => {
     setDownloadError(null);
 
-    const endpoints = [
-      `/api/executions/${exec.id}/download`,
-      `/api/executions/download/${exec.id}`,
-    ];
+    const endpoints = [`/api/executions/${exec.id}/download`, `/api/executions/download/${exec.id}`];
 
     for (const endpoint of endpoints) {
       try {
@@ -150,9 +147,7 @@ function ExecutionModal({ jobId, onClose }) {
         <div className="sticky top-0 z-10 p-4 sm:p-6 border-b border-slate-700 bg-slate-900 sm:rounded-t-2xl">
           <div className="flex justify-between items-center gap-4">
             <h2 className="text-lg font-semibold text-slate-100">{t("executions.title")}</h2>
-            <button onClick={onClose} className="text-slate-300 hover:text-white transition" aria-label={t("common.close")}>
-              X
-            </button>
+            <button onClick={onClose} className="text-slate-300 hover:text-white transition" aria-label={t("common.close")}>X</button>
           </div>
 
           <div className="mt-4 sm:hidden flex items-center gap-2">
@@ -174,58 +169,16 @@ function ExecutionModal({ jobId, onClose }) {
 
           {showMobileFilters && (
             <div className="mt-2 grid grid-cols-1 gap-2 sm:hidden">
-              <CustomSelect
-                id="exec-status-filter-mobile"
-                name="statusFilter"
-                value={statusFilter}
-                options={statusOptions}
-                onChange={(e) => setStatusFilter(e.target.value)}
-                size="compact"
-              />
-              <CustomSelect
-                id="exec-mode-filter-mobile"
-                name="modeFilter"
-                value={modeFilter}
-                options={modeOptions}
-                onChange={(e) => setModeFilter(e.target.value)}
-                size="compact"
-              />
-              <CustomSelect
-                id="exec-period-filter-mobile"
-                name="periodFilter"
-                value={periodFilter}
-                options={periodOptions}
-                onChange={(e) => setPeriodFilter(e.target.value)}
-                size="compact"
-              />
+              <CustomSelect id="exec-status-filter-mobile" name="statusFilter" value={statusFilter} options={statusOptions} onChange={(e) => setStatusFilter(e.target.value)} size="compact" />
+              <CustomSelect id="exec-mode-filter-mobile" name="modeFilter" value={modeFilter} options={modeOptions} onChange={(e) => setModeFilter(e.target.value)} size="compact" />
+              <CustomSelect id="exec-period-filter-mobile" name="periodFilter" value={periodFilter} options={periodOptions} onChange={(e) => setPeriodFilter(e.target.value)} size="compact" />
             </div>
           )}
 
           <div className="mt-4 hidden sm:grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
-            <CustomSelect
-              id="exec-status-filter"
-              name="statusFilter"
-              value={statusFilter}
-              options={statusOptions}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              size="compact"
-            />
-            <CustomSelect
-              id="exec-mode-filter"
-              name="modeFilter"
-              value={modeFilter}
-              options={modeOptions}
-              onChange={(e) => setModeFilter(e.target.value)}
-              size="compact"
-            />
-            <CustomSelect
-              id="exec-period-filter"
-              name="periodFilter"
-              value={periodFilter}
-              options={periodOptions}
-              onChange={(e) => setPeriodFilter(e.target.value)}
-              size="compact"
-            />
+            <CustomSelect id="exec-status-filter" name="statusFilter" value={statusFilter} options={statusOptions} onChange={(e) => setStatusFilter(e.target.value)} size="compact" />
+            <CustomSelect id="exec-mode-filter" name="modeFilter" value={modeFilter} options={modeOptions} onChange={(e) => setModeFilter(e.target.value)} size="compact" />
+            <CustomSelect id="exec-period-filter" name="periodFilter" value={periodFilter} options={periodOptions} onChange={(e) => setPeriodFilter(e.target.value)} size="compact" />
             <input
               type="text"
               value={query}
@@ -236,16 +189,7 @@ function ExecutionModal({ jobId, onClose }) {
           </div>
         </div>
 
-        {downloadError && (
-          <div className="px-4 sm:px-6 py-2 text-xs bg-red-900/40 border-b border-red-700/60 text-red-200">{downloadError}</div>
-        )}
-
-        <div className="hidden sm:grid px-4 sm:px-6 py-3 text-xs text-slate-300 border-b border-slate-700 grid-cols-[2fr,1fr,1fr,auto] gap-3">
-          <span>{t("executions.colDate")}</span>
-          <span>{t("executions.colMode")}</span>
-          <span>{t("executions.colStatus")}</span>
-          <span>{t("executions.colDetails")}</span>
-        </div>
+        {downloadError && <div className="px-4 sm:px-6 py-2 text-xs bg-red-900/40 border-b border-red-700/60 text-red-200">{downloadError}</div>}
 
         <div className="custom-scrollbar overflow-y-auto p-4 sm:p-6 pt-3 space-y-2">
           {filteredExecutions.length === 0 && <p className="text-slate-300 text-sm">{t("executions.empty")}</p>}
@@ -279,18 +223,17 @@ function ExecutionRow({ exec, open, onToggle, locale, t, onDownload }) {
         type="button"
         onClick={onToggle}
         aria-expanded={open}
-        className="w-full text-left flex flex-col sm:grid sm:grid-cols-[2fr,1fr,1fr,auto] gap-2 sm:gap-3 items-start sm:items-center p-3 hover:bg-slate-700/60 transition"
+        className="w-full text-left flex items-start justify-between gap-3 p-3 hover:bg-slate-700/60 transition"
       >
         <span className="text-sm text-slate-100">{executionTime}</span>
-        <div className="flex items-center gap-2">
-          <span className={`inline-flex justify-center text-xs px-2 py-1 rounded-full ${executionModeStyle(exec.executionMode)}`}>
+        <div className="flex items-center gap-2 shrink-0">
+          <span className={`inline-flex justify-center text-xs px-2 py-1 rounded-full whitespace-nowrap ${executionModeStyle(exec.executionMode)}`}>
             {executionModeLabel(exec.executionMode, t)}
           </span>
-          <span className={`inline-flex justify-center text-xs px-2 py-1 rounded-full ${statusStyle(exec.status)}`}>
+          <span className={`inline-flex justify-center text-xs px-2 py-1 rounded-full whitespace-nowrap ${statusStyle(exec.status)}`}>
             {statusLabel(exec.status, t)}
           </span>
         </div>
-        <span className="hidden sm:block" />
       </button>
 
       {open && (
