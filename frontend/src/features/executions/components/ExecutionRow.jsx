@@ -1,5 +1,6 @@
 import { executionModeLabel, executionModeStyle, formatDateTimeLocale, statusLabel, statusStyle } from "../../../shared/utils";
 
+// ExecutionRow: Renders one execution summary row and its expandable technical details.
 function ExecutionRow({ exec, open, onToggle, locale, t, onDownload }) {
   const executionTime = formatDateTimeLocale(exec.executionTime, locale);
   const startTime = formatDateTimeLocale(exec.startTime, locale);

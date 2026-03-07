@@ -5,6 +5,7 @@ import { useExecutions } from "../hooks/useExecutions";
 import ExecutionFilters from "./ExecutionFilters";
 import ExecutionRow from "./ExecutionRow";
 
+// ExecutionModal: Displays execution history with filtering, loading states, and expandable rows.
 function ExecutionModal({ jobId, onClose }) {
   useLockBodyScroll();
   const { locale, t } = useI18n();

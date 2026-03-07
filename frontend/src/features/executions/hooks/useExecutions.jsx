@@ -43,6 +43,7 @@ export function useExecutions(jobId, t) {
     [t]
   );
 
+  // fetchExecutions: Fetches execution records for the current job and updates UI state.
   const fetchExecutions = async ({ silent = false } = {}) => {
     if (!silent) setIsInitialLoading(true);
 
@@ -87,6 +88,7 @@ export function useExecutions(jobId, t) {
     });
   }, [executions, statusFilter, modeFilter, periodFilter, query]);
 
+  // handleDownloadExecutionFile: Downloads the selected execution artifact and exposes download errors.
   const handleDownloadExecutionFile = async (exec) => {
     setDownloadError(null);
     const ok = await downloadExecutionFile(exec);

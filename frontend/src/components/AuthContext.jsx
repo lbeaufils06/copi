@@ -27,6 +27,7 @@ export function AuthProvider({ children }) {
       });
   }, []);
 
+  // startSessionTimer: Initializes and renews automatic logout timing for inactive sessions.
   const startSessionTimer = () => {
     if (!sessionDuration) return;
 
@@ -37,6 +38,7 @@ export function AuthProvider({ children }) {
     }, sessionDuration);
   };
 
+  // login: Authenticates the user, updates auth state, and starts session activity tracking.
   const login = async (username, password) => {
     try {
       const response = await fetch("/api/login", {
@@ -73,6 +75,7 @@ export function AuthProvider({ children }) {
     }
   };
 
+  // logout: Clears authentication state and session timers, then redirects to login.
   const logout = async () => {
     clearTimeout(timeoutRef.current);
 
@@ -112,6 +115,7 @@ export function AuthProvider({ children }) {
 
     const events = ["click", "keydown", "mousemove", "touchstart"];
 
+    // handleActivity: Resets the inactivity timer whenever user activity is detected.
     const handleActivity = () => {
       startSessionTimer();
     };

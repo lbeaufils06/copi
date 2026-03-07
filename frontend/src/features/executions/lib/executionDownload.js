@@ -33,6 +33,7 @@ export async function downloadExecutionFile(exec) {
   return false;
 }
 
+// extractFileName: Extracts the file name portion from a full path string.
 function extractFileName(response, fallbackName) {
   const header = response.headers.get("content-disposition");
   if (header) {

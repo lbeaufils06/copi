@@ -12,6 +12,7 @@ import {
   ScheduleSection,
 } from "./job-modal/JobModalSections";
 
+// JobModal: Loads, edits, validates, and submits job configuration fields in a modal.
 function JobModal({ jobId, defaults, onClose }) {
   useLockBodyScroll();
 
@@ -55,6 +56,7 @@ function JobModal({ jobId, defaults, onClose }) {
     }
   }, [form?.dbType, dumpOptions, isEditMode, userModifiedDumpOptions]);
 
+  // handleChange: Updates form state from field changes with special-case handling when required.
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
 
@@ -77,6 +79,7 @@ function JobModal({ jobId, defaults, onClose }) {
     }));
   };
 
+  // handleDelete: Confirms and deletes the current job, then closes the modal.
   const handleDelete = async () => {
     if (isSaving) return;
     if (!window.confirm(t("modal.deleteConfirm"))) return;
@@ -89,6 +92,7 @@ function JobModal({ jobId, defaults, onClose }) {
     }
   };
 
+  // handleSubmit: Submits job creation or update payload and closes modal on success.
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (isSaving) return;

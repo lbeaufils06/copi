@@ -24,7 +24,7 @@ export function useJobDefaults() {
         setLoading(false);
       });
 
-  }, []); // ðŸ”¥ PAS de dÃ©pendance
+  }, []);
 
   return {
     defaults,

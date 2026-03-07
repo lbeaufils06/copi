@@ -6,6 +6,7 @@ export function syncServerTime(serverTime) {
   const before = Date.now();
   const serverDate = new Date(serverTime);
   const after = Date.now();
+  // latency: Stores round-trip latency estimation to correct server-time offset.
   const latency = (after - before) / 2;
 
   serverOffset = serverDate - (after - latency);
@@ -15,6 +16,7 @@ export function syncServerTimeNow() {
   return new Date(Date.now() + serverOffset);
 }
 
+// plural: Returns localized singular or plural unit labels based on the numeric value.
 function plural(value, unit, locale = "fr") {
   const catalog = {
     fr: {
@@ -42,6 +44,7 @@ function plural(value, unit, locale = "fr") {
   return `${value} ${value > 1 ? forms[1] : forms[0]}`;
 }
 
+// buildTimeParts: Breaks a duration in seconds into ordered time-unit chunks for display.
 function buildTimeParts(diffInSeconds) {
   const units = [
     { name: "year", seconds: 365 * 24 * 60 * 60 },
@@ -67,6 +70,7 @@ function buildTimeParts(diffInSeconds) {
   return parts;
 }
 
+// formatTime: Converts a timestamp into localized relative or future-readable text.
 function formatTime(dateString, isFuture = false, isRunning = false, locale = "fr") {
   if (!dateString) return "-";
 
@@ -148,6 +152,7 @@ export function getReadableCron(cronExpression, locale = "fr") {
     return locale === "fr" ? "Planification personnalisee" : "Custom schedule";
   }
 
+  // formatHourMinute: Formats hour and minute values into a zero-padded HH:MM string.
   const formatHourMinute = () => `${hour.padStart(2, "0")}:${min.padStart(2, "0")}`;
   const daysFr = ["dimanche", "lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi"];
   const daysEn = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
