@@ -23,6 +23,7 @@ function JobModal({ jobId, defaults, onClose }) {
   const [form, setForm] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
   const [userModifiedDumpOptions, setUserModifiedDumpOptions] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
   const {
     dbTypeOptions,
@@ -77,6 +78,7 @@ function JobModal({ jobId, defaults, onClose }) {
   };
 
   const handleDelete = async () => {
+    if (isSaving) return;
     if (!window.confirm(t("modal.deleteConfirm"))) return;
 
     try {
@@ -89,6 +91,9 @@ function JobModal({ jobId, defaults, onClose }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (isSaving) return;
+
+    setIsSaving(true);
 
     try {
       const url = isEditMode ? `/api/jobs/${jobId}` : "/api/jobs";
@@ -108,6 +113,7 @@ function JobModal({ jobId, defaults, onClose }) {
       onClose();
     } catch (error) {
       console.error("Erreur API:", error);
+      setIsSaving(false);
     }
   };
 
@@ -116,7 +122,10 @@ function JobModal({ jobId, defaults, onClose }) {
   const inputClass = "w-full bg-slate-900 border border-slate-600 p-3 pt-5 rounded-lg text-slate-100 placeholder:text-slate-400 focus:border-indigo-400";
 
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex justify-center items-center z-50 animate-fadeIn sm:p-4" onClick={onClose}>
+    <div
+      className="fixed inset-0 bg-black/60 backdrop-blur-sm flex justify-center items-center z-50 animate-fadeIn sm:p-4"
+      onClick={() => !isSaving && onClose()}
+    >
       <div
         className="bg-slate-800 text-slate-100 w-full h-full max-w-none max-h-none rounded-none border-0 shadow-2xl flex flex-col sm:h-auto sm:max-w-xl sm:max-h-[92vh] sm:rounded-2xl sm:border sm:border-slate-700"
         onClick={(e) => e.stopPropagation()}
@@ -126,7 +135,11 @@ function JobModal({ jobId, defaults, onClose }) {
           <p className="text-sm text-slate-300 mt-1">{t("modal.intro")}</p>
         </div>
 
-        <form id="job-form" onSubmit={handleSubmit} className="custom-scrollbar flex-1 overflow-y-auto p-4 sm:p-6 pb-24 sm:pb-28 space-y-5">
+        <form
+          id="job-form"
+          onSubmit={handleSubmit}
+          className={`custom-scrollbar flex-1 overflow-y-auto p-4 sm:p-6 pb-24 sm:pb-28 space-y-5 ${isSaving ? "pointer-events-none opacity-80" : ""}`}
+        >
           <IdentitySection form={form} handleChange={handleChange} dbTypeOptions={dbTypeOptions} isEditMode={isEditMode} inputClass={inputClass} t={t} />
 
           <ConnectionSection
@@ -168,7 +181,8 @@ function JobModal({ jobId, defaults, onClose }) {
               <button
                 type="button"
                 onClick={handleDelete}
-                className="px-3 py-1.5 text-sm bg-red-600 hover:bg-red-500 rounded-lg transition"
+                disabled={isSaving}
+                className="px-3 py-1.5 text-sm bg-red-600 hover:bg-red-500 rounded-lg transition disabled:opacity-60 disabled:cursor-not-allowed"
               >
                 {t("common.delete")}
               </button>
@@ -177,11 +191,22 @@ function JobModal({ jobId, defaults, onClose }) {
             )}
 
             <div className="flex gap-3 ml-auto">
-              <button type="button" onClick={onClose} className="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg transition">
+              <button
+                type="button"
+                onClick={onClose}
+                disabled={isSaving}
+                className="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg transition disabled:opacity-60 disabled:cursor-not-allowed"
+              >
                 {t("common.cancel")}
               </button>
-              <button type="submit" form="job-form" className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 rounded-lg transition font-medium">
-                {isEditMode ? t("common.update") : t("common.save")}
+              <button
+                type="submit"
+                form="job-form"
+                disabled={isSaving}
+                className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 rounded-lg transition font-medium disabled:opacity-80 disabled:cursor-not-allowed inline-flex items-center gap-2"
+              >
+                {isSaving && <span className="w-4 h-4 border-2 border-white/50 border-t-white rounded-full animate-spin" aria-hidden="true" />}
+                {isSaving ? t("common.loading") : isEditMode ? t("common.update") : t("common.save")}
               </button>
             </div>
           </div>
