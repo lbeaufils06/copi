@@ -23,6 +23,7 @@ function ExecutionModal({ jobId, onClose }) {
     query,
     setQuery,
     downloadError,
+    downloadingExecutionId,
     isInitialLoading,
     filteredExecutions,
     statusOptions,
@@ -88,6 +89,7 @@ function ExecutionModal({ jobId, onClose }) {
                 locale={locale}
                 t={t}
                 onDownload={() => downloadExecutionFile(exec)}
+                isDownloading={downloadingExecutionId === exec.id}
               />
             ))
           )}

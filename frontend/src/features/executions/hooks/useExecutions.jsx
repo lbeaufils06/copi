@@ -11,6 +11,7 @@ export function useExecutions(jobId, t) {
   const [periodFilter, setPeriodFilter] = useState("7D");
   const [query, setQuery] = useState("");
   const [downloadError, setDownloadError] = useState(null);
+  const [downloadingExecutionId, setDownloadingExecutionId] = useState(null);
   const [isInitialLoading, setIsInitialLoading] = useState(true);
   const intervalRef = useRef(null);
 
@@ -90,11 +91,19 @@ export function useExecutions(jobId, t) {
 
   // handleDownloadExecutionFile: Downloads the selected execution artifact and exposes download errors.
   const handleDownloadExecutionFile = async (exec) => {
+    if (!exec?.id || downloadingExecutionId) return;
+
     setDownloadError(null);
-    const ok = await downloadExecutionFile(exec);
-    if (!ok) {
-      setDownloadError(t("executions.downloadError"));
-      window.setTimeout(() => setDownloadError(null), 3000);
+    setDownloadingExecutionId(exec.id);
+
+    try {
+      const ok = await downloadExecutionFile(exec);
+      if (!ok) {
+        setDownloadError(t("executions.downloadError"));
+        window.setTimeout(() => setDownloadError(null), 3000);
+      }
+    } finally {
+      setDownloadingExecutionId(null);
     }
   };
 
@@ -108,6 +117,7 @@ export function useExecutions(jobId, t) {
     query,
     setQuery,
     downloadError,
+    downloadingExecutionId,
     isInitialLoading,
     filteredExecutions,
     statusOptions,
@@ -116,5 +126,3 @@ export function useExecutions(jobId, t) {
     downloadExecutionFile: handleDownloadExecutionFile,
   };
 }
-
-
