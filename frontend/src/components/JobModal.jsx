@@ -191,12 +191,12 @@ function JobModal({ jobId, defaults, onClose }) {
   const inputClass = "w-full bg-slate-900 border border-slate-600 p-3 pt-5 rounded-lg text-slate-100 placeholder:text-slate-400 focus:border-indigo-400";
 
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex justify-center items-center z-50 animate-fadeIn p-2 sm:p-4" onClick={onClose}>
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex justify-center items-center z-50 animate-fadeIn sm:p-4" onClick={onClose}>
       <div
-        className="bg-slate-800 text-slate-100 rounded-2xl w-full max-w-xl shadow-2xl border border-slate-700 max-h-[92vh] flex flex-col"
+        className="bg-slate-800 text-slate-100 w-full h-full max-w-none max-h-none rounded-none border-0 shadow-2xl flex flex-col sm:h-auto sm:max-w-xl sm:max-h-[92vh] sm:rounded-2xl sm:border sm:border-slate-700"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="sticky top-0 z-10 p-4 sm:p-6 border-b border-slate-700 bg-slate-800 rounded-t-2xl">
+        <div className="sticky top-0 z-10 p-4 sm:p-6 border-b border-slate-700 bg-slate-800 sm:rounded-t-2xl">
           <h2 className="text-xl font-semibold tracking-tight">{isEditMode ? t("modal.editJob") : t("modal.addJob")}</h2>
           <p className="text-sm text-slate-300 mt-1">{t("modal.intro")}</p>
         </div>
@@ -471,19 +471,16 @@ function JobModal({ jobId, defaults, onClose }) {
           </section>
         </form>
 
-        <div className="sticky bottom-0 z-10 p-4 sm:p-6 border-t border-slate-700 bg-slate-800 rounded-b-2xl">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div className="sticky bottom-0 z-10 p-4 sm:p-6 border-t border-slate-700 bg-slate-800 sm:rounded-b-2xl">
+          <div className="flex items-center justify-between gap-3">
             {isEditMode ? (
-              <div className="flex items-center gap-3 bg-red-950/30 border border-red-800/60 rounded-lg px-3 py-2">
-                <span className="text-xs text-red-300">{t("common.dangerZone")}</span>
-                <button
-                  type="button"
-                  onClick={handleDelete}
-                  className="px-3 py-1.5 text-sm bg-red-600 hover:bg-red-500 rounded-lg transition"
-                >
-                  {t("common.delete")}
-                </button>
-              </div>
+              <button
+                type="button"
+                onClick={handleDelete}
+                className="px-3 py-1.5 text-sm bg-red-600 hover:bg-red-500 rounded-lg transition"
+              >
+                {t("common.delete")}
+              </button>
             ) : (
               <span className="text-xs text-slate-400">{t("modal.createHint")}</span>
             )}
@@ -504,3 +501,5 @@ function JobModal({ jobId, defaults, onClose }) {
 }
 
 export default JobModal;
+
+

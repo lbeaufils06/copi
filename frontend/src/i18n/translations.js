@@ -46,6 +46,7 @@ export const translations = {
     executions: {
       title: "Executions",
       empty: "Aucune execution trouvee",
+      filters: "Filtres",
       allStatuses: "Tous statuts",
       allModes: "Tous modes",
       period24h: "Dernieres 24h",
@@ -65,6 +66,8 @@ export const translations = {
       file: "Fichier",
       path: "Chemin",
       log: "Log",
+      download: "Telecharger",
+      downloadError: "Telechargement impossible pour cette execution",
       mode_manual: "Manuel",
       mode_cron: "Cron",
     },
@@ -214,6 +217,7 @@ export const translations = {
     executions: {
       title: "Executions",
       empty: "No executions found",
+      filters: "Filters",
       allStatuses: "All statuses",
       allModes: "All modes",
       period24h: "Last 24h",
@@ -233,6 +237,8 @@ export const translations = {
       file: "File",
       path: "Path",
       log: "Log",
+      download: "Download",
+      downloadError: "Unable to download this execution",
       mode_manual: "Manual",
       mode_cron: "Cron",
     },
@@ -336,3 +342,6 @@ export const translations = {
     },
   },
 };
+
+
+
