@@ -2,6 +2,7 @@ import { formatFutureTime, formatRelativeTime, getReadableCron, getScheduleStyle
 
 import { useI18n } from "../../../i18n/I18nContext";
 
+// JobList: Renders all job cards with schedule, status, and action controls.
 function JobList({ jobs, serverOffline, startJob, openEditModal, openExecutions }) {
   const { locale, t } = useI18n();
 
@@ -19,6 +20,7 @@ function JobList({ jobs, serverOffline, startJob, openEditModal, openExecutions 
         ) : (
           jobs.map((job) => {
             const isRunning = job.lastStatus === "RUNNING";
+            // versionLabel: Chooses singular or plural version text based on the backup count.
             const versionLabel = (job.versionCount ?? 0) > 1 ? t("jobs.version_other") : t("jobs.version_one");
 
             return (

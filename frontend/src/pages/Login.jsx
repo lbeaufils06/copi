@@ -11,6 +11,7 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
+  // handleSubmit: Submits job creation or update payload and closes modal on success.
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");

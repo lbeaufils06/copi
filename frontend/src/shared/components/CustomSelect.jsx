@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 
+// CustomSelect: Renders a fully custom select widget with keyboard navigation and controlled selection.
 function CustomSelect({
   id,
   name,
@@ -20,6 +21,7 @@ function CustomSelect({
   const selected = selectedIndex >= 0 ? options[selectedIndex] : options[0];
 
   useEffect(() => {
+    // handlePointerDown: Closes the dropdown when a click occurs outside the component.
     const handlePointerDown = (event) => {
       if (!rootRef.current) return;
       if (!rootRef.current.contains(event.target)) {
@@ -27,6 +29,7 @@ function CustomSelect({
       }
     };
 
+    // handleEscape: Closes the dropdown when the Escape key is pressed.
     const handleEscape = (event) => {
       if (event.key === "Escape") setOpen(false);
     };
@@ -46,11 +49,13 @@ function CustomSelect({
     selectedEl?.scrollIntoView({ block: "nearest" });
   }, [open, selectedIndex]);
 
+  // emitChange: Emits a select-like change event with the new value and closes the dropdown.
   const emitChange = (nextValue) => {
     onChange({ target: { name, value: nextValue, type: "select-one" } });
     setOpen(false);
   };
 
+  // handleButtonKeyDown: Handles keyboard interactions for opening, navigating, and selecting options.
   const handleButtonKeyDown = (event) => {
     if (disabled) return;
 

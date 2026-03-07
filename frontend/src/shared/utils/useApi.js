@@ -1,5 +1,6 @@
 export const useApi = () => {
 
+  // apiFetch: Sends authenticated API requests, parses JSON responses, and redirects on unauthorized sessions.
   const apiFetch = async (url, options = {}) => {
 
     const response = await fetch(url, {
@@ -20,7 +21,6 @@ export const useApi = () => {
       throw new Error("API error");
     }
 
-    // ðŸ”¥ PARSE JSON automatiquement
     const contentType = response.headers.get("content-type");
 
     if (contentType && contentType.includes("application/json")) {

@@ -1,9 +1,11 @@
 import { CustomSelect } from "../../../../shared/components";
 
+// SectionTitle: Renders a consistent section heading style inside modal form sections.
 function SectionTitle({ children }) {
   return <h3 className="text-sm font-semibold text-slate-200">{children}</h3>;
 }
 
+// LabeledInput: Renders an input field paired with a consistent inline label.
 function LabeledInput({ id, name, value, onChange, label, className, ...props }) {
   return (
     <div className="relative">

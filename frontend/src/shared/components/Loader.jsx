@@ -1,5 +1,6 @@
 import { useI18n } from "../../i18n/I18nContext";
 
+// Loader: Displays a centered loading spinner with localized loading text.
 function Loader({ text }) {
   const { t } = useI18n();
   const content = text ?? t("common.loading");

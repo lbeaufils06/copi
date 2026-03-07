@@ -1,5 +1,6 @@
 import { CustomSelect } from "../../../shared/components";
 
+// ExecutionFilters: Renders execution search and filter controls for both mobile and desktop layouts.
 function ExecutionFilters({
   query,
   setQuery,

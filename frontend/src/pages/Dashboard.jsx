@@ -10,6 +10,7 @@ import { useJobDefaults } from "../hooks/useJobDefaults";
 import { Loader } from "../shared/components";
 import { useI18n } from "../i18n/I18nContext";
 
+// Dashboard: Loads jobs, synchronizes server time, and renders the main monitoring dashboard.
 function Dashboard() {
   const { defaults, loading, error } = useJobDefaults();
   const [jobs, setJobs] = useState([]);
@@ -20,10 +21,14 @@ function Dashboard() {
   const navigate = useNavigate();
   const { locale, t } = useI18n();
 
+  // openAddModal: Navigates to the route that opens the create-job modal.
   const openAddModal = () => navigate("/job/new");
+  // openEditModal: Navigates to the route that opens the edit modal for a selected job.
   const openEditModal = (job) => navigate(`/job/${job.id}`);
+  // openExecutions: Navigates to the route that opens execution history for a selected job.
   const openExecutions = (job) => navigate(`/job/executions/${job.id}`);
 
+  // fetchJobs: Fetches jobs and server time from the backend, then updates dashboard state.
   const fetchJobs = async () => {
     try {
       const data = await apiFetch("/api/jobs");
@@ -38,6 +43,7 @@ function Dashboard() {
     }
   };
 
+  // formatClock: Formats server time using the active locale for date and time parts.
   const formatClock = (date) => {
     const day = date.toLocaleDateString(locale === "fr" ? "fr-FR" : "en-US", {
       day: "2-digit",
@@ -55,6 +61,7 @@ function Dashboard() {
     return `${day} ${locale === "fr" ? "a" : "at"} ${time}`;
   };
 
+  // startJob: Starts a manual backup run, updates optimistic status, and refreshes jobs.
   const startJob = async (id) => {
     try {
       setJobs((prev) => prev.map((job) => (job.id === id ? { ...job, lastStatus: "RUNNING" } : job)));
