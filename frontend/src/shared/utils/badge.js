@@ -14,13 +14,13 @@ export function statusLabel(status, t) {
 export function statusStyle(status) {
   switch (status) {
     case "SUCCESS":
-      return "bg-emerald-900/40 text-emerald-300 border border-emerald-700/60";
+      return "bg-emerald-900/40 text-emerald-300";
     case "FAILED":
-      return "bg-red-900/40 text-red-300 border border-red-700/60";
+      return "bg-red-900/40 text-red-300";
     case "RUNNING":
-      return "bg-amber-900/40 text-amber-300 border border-amber-700/60";
+      return "bg-amber-900/40 text-amber-300";
     default:
-      return "bg-slate-700/60 text-slate-200 border border-slate-600";
+      return "bg-slate-700/60 text-slate-200";
   }
 }
 
