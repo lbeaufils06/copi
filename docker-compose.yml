@@ -8,8 +8,6 @@ services:
       dockerfile: Dockerfile
     image: copi:latest
 
-    user: "99:100"
-
     ports:
       - "8092:8080"
 
@@ -30,6 +28,10 @@ services:
 
       # Create files with strict permissions
       UMASK: "077"
+
+      # Target uid/gid for mounted folders (used by entrypoint)
+      PUID: "99"
+      PGID: "100"
 
       # SQLite
       SPRING_DATASOURCE_URL: jdbc:sqlite:/config/copi.db
