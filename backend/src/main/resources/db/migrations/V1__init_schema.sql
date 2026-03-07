@@ -34,16 +34,16 @@ CREATE TABLE IF NOT EXISTS backup_execution (
     FOREIGN KEY (job_id)
         REFERENCES backup_job(id)
         ON DELETE CASCADE
-)
+);
 
 CREATE INDEX IF NOT EXISTS idx_backup_job_enabled
-ON backup_job(enabled)
+ON backup_job(enabled);
 
 CREATE INDEX IF NOT EXISTS idx_backup_job_next_execution
-ON backup_job(next_execution_time)
+ON backup_job(next_execution_time);
 
 CREATE INDEX IF NOT EXISTS idx_backup_execution_job
-ON backup_execution(job_id)
+ON backup_execution(job_id);
 
 CREATE INDEX IF NOT EXISTS idx_backup_execution_status
-ON backup_execution(status)
+ON backup_execution(status);

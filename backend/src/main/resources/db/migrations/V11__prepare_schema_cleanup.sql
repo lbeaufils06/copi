@@ -1,2 +1,2 @@
 ALTER TABLE backup_job
-ADD COLUMN retention_days INTEGER
+ADD COLUMN retention_days INTEGER;
