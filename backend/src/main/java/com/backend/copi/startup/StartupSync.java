@@ -24,6 +24,7 @@ public class StartupSync {
     }
 
     @EventListener(ApplicationReadyEvent.class)
+    // onStartup: Handles the startup lifecycle event and updates runtime flags.
     public void onStartup() {
         backupStorageService.synchronize();
         backupJobService.recoverInterruptedExecutions();

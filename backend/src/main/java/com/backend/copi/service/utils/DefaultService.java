@@ -22,6 +22,7 @@ public class DefaultService {
     private static final String DEFAULT_CRON = "0 0 * * * *";
     private static final int DEFAULT_RETENTION = 5;
 
+    // getDefaults: Returns defaults for the current request context.
     public BackupJob getDefaults() {
         BackupJob job = new BackupJob();
 
@@ -37,10 +38,12 @@ public class DefaultService {
         return job;
     }
 
+    // getDefaultOptions: Returns default options for the current request context.
     public String getDefaultOptions(DatabaseType type) {
         return DEFAULT_DUMP_OPTIONS.getOrDefault(type, "");
     }
 
+    // getAllDefaultDumpOptions: Returns all default dump options for the current request context.
     public Map<DatabaseType, String> getAllDefaultDumpOptions() {
         return DEFAULT_DUMP_OPTIONS;
     }

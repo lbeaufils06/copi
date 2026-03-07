@@ -36,37 +36,44 @@ public class BackupJobController {
     private final DefaultService defaultService;
 
     @GetMapping
+    // getJobs: Returns jobs for the current request context.
     public JobsResponse getJobs() {
         return new JobsResponse(LocalDateTime.now(clock), service.getAllJobs());
     }
     
     @GetMapping("/{id}")
+    // getJob: Returns job for the current request context.
     public BackupJobResponseDTO getJob(@PathVariable UUID id) {
         return service.getJobById(id);
     }
 
     @PostMapping
+    // create: Creates the related data and persists the new state.
     public BackupJobResponseDTO create(@RequestBody BackupJobRequestDTO dto) {
         return service.createJob(dto);
     }
     
     @PutMapping("/{id}")
+    // update: Updates the related data with validated incoming values.
     public BackupJobResponseDTO update(@PathVariable UUID id, @RequestBody BackupJobRequestDTO dto) throws IOException {
         return service.updateJob(id, dto);
     }
     
     @DeleteMapping("/{id}")
+    // delete: Deletes the related data and cleans up linked resources.
     public void delete(@PathVariable UUID id) throws IOException {
         service.deleteJob(id);
     }
     
     @PostMapping("/{id}/start")
+    // startJob: Starts job and initializes required runtime state.
     public ResponseEntity<Void> startJob(@PathVariable UUID id) {
         backupJobScheduler.runManually(id);
         return ResponseEntity.accepted().build();
     }
 
     @GetMapping("/defaults")
+    // getDefaults: Returns defaults for the current request context.
     public DefaultsResponse getDefaults() {
         return new DefaultsResponse(defaultService.getDefaults(), defaultService.getAllDefaultDumpOptions());
     }

@@ -31,11 +31,13 @@ public class MySqlDumpService extends AbstractDumpService implements DatabaseDum
     private final DefaultService defaultService;
 
     @Override
+    // supports: Handles supports in the current backend workflow.
     public boolean supports(String dbType) {
         return "MYSQL".equalsIgnoreCase(dbType);
     }
 
     @Override
+    // executeDump: Executes dump and coordinates the full processing pipeline.
     public String executeDump(BackupJob job) throws Exception {
 
         if (!canConnect(job.getHost(), job.getPort(), 2000)) {
@@ -58,14 +60,14 @@ public class MySqlDumpService extends AbstractDumpService implements DatabaseDum
         command.add("-u");
         command.add(job.getUsername());
 
-        // Options dynamiques
+        // Dynamic options
         if(job.getDumpOptionsMode().equals(DumpOptionsMode.CUSTOM) && job.getDumpOptions() != null && !job.getDumpOptions().isBlank()) {
             command.addAll(parseDumpOptions(defaultService.getDefaultOptions(job.getDbType())));
         } else {
             command.addAll(parseDumpOptions(job.getDumpOptions()));
         }
 
-        // 🔹 Base ciblée
+        // Target base
         if (job.getDbNameOptionsMode().equals(DbNameOptionsMode.ALL)) {
             command.add("--all-databases");
         } else if(job.getDbName() != null && !job.getDbName().trim().isEmpty()) {
@@ -78,6 +80,7 @@ public class MySqlDumpService extends AbstractDumpService implements DatabaseDum
         return runProcess(pb, filePath, "Mysql dump", true);
     }
 
+    // buildFilePath: Builds file path from source fields and computed values.
     private String buildFilePath(BackupJob job) throws IOException {
     	Path jobDirectory = backupStorageService.resolveJobDirectory(job);
         String timestamp = LocalDateTime.now()

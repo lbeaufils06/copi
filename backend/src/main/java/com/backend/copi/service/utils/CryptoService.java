@@ -26,6 +26,7 @@ public class CryptoService {
         }
     }
 
+    // encrypt: Handles encrypt in the current backend workflow.
     public String encrypt(String value) {
 
         try {
@@ -42,6 +43,7 @@ public class CryptoService {
         }
     }
 
+    // decrypt: Handles decrypt in the current backend workflow.
     public String decrypt(String encryptedValue) {
 
         try {

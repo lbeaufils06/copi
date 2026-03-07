@@ -33,11 +33,13 @@ public class PostgresDumpService extends AbstractDumpService implements Database
     private final DefaultService defaultService;
 
     @Override
+    // supports: Handles supports in the current backend workflow.
     public boolean supports(String dbType) {
         return "POSTGRESQL".equalsIgnoreCase(dbType);
     }
 
     @Override
+    // executeDump: Executes dump and coordinates the full processing pipeline.
     public String executeDump(BackupJob job) throws Exception {
 
         if (!canConnect(job.getHost(), job.getPort(), 2000)) {
@@ -85,7 +87,7 @@ public class PostgresDumpService extends AbstractDumpService implements Database
             command.add(job.getDbName());
         }
 
-        // Options dynamiques
+        // Dynamic options
         if(job.getDumpOptionsMode().equals(DumpOptionsMode.CUSTOM) && job.getDumpOptions() != null && !job.getDumpOptions().isBlank()) {
             command.addAll(parseDumpOptions(defaultService.getDefaultOptions(job.getDbType())));
         } else {
@@ -98,6 +100,7 @@ public class PostgresDumpService extends AbstractDumpService implements Database
         return runProcess(pb, filePath, "Postgresql dump", false);
     }
 
+    // buildFilePath: Builds file path from source fields and computed values.
     private String buildFilePath(BackupJob job) throws IOException {
     	
     	Path jobDirectory = backupStorageService.resolveJobDirectory(job);
@@ -115,6 +118,7 @@ public class PostgresDumpService extends AbstractDumpService implements Database
                 + ".dump";
     }
 
+    // readStream: Handles read stream in the current backend workflow.
     private String readStream(Process process) throws Exception {
 
         BufferedReader reader =

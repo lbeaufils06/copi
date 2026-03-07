@@ -36,6 +36,7 @@ public class BackupJobService {
     private final BackupStorageService backupStorageService;
     private final Clock clock;
 
+    // getAllJobs: Returns all jobs for the current request context.
     public List<BackupJobResponseDTO> getAllJobs() {
 
         return repository.findAll()
@@ -47,6 +48,7 @@ public class BackupJobService {
                 .toList();
     }
 
+    // createJob: Creates job and persists the new state.
     public BackupJobResponseDTO createJob(BackupJobRequestDTO dto) {
         BackupJob job = backupJobMapper.toEntity(dto);
         if (dto.getPasswordEncrypted() != null && !dto.getPasswordEncrypted().isBlank()) {
@@ -58,6 +60,7 @@ public class BackupJobService {
         return backupJobMapper.toResponseDto(saved);
     }
 
+    // updateJob: Updates job with validated incoming values.
     public BackupJobResponseDTO updateJob(UUID id, BackupJobRequestDTO dto) throws IOException {
         BackupJob job = repository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Job not found"));
         backupJobMapper.updateEntityFromDto(dto, job);
@@ -69,6 +72,7 @@ public class BackupJobService {
         return backupJobMapper.toResponseDto(saved);
     }
 
+    // recomputeNextExecutionTime: Handles recompute next execution time in the current backend workflow.
     private void recomputeNextExecutionTime(BackupJob job) {
 
         if (job.getExecutionMode() == ExecutionMode.MANUAL) {
@@ -92,6 +96,7 @@ public class BackupJobService {
     }
 
     @Transactional
+    // updateJobScheduler: Updates job scheduler with validated incoming values.
     public BackupJob updateJobScheduler(UUID id, BackupJob updatedJob) {
 
         BackupJob existing = repository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Job not found"));
@@ -115,6 +120,7 @@ public class BackupJobService {
         repository.save(job);
     }
 
+    // getEnabledJobs: Returns enabled jobs for the current request context.
     public List<BackupJob> getEnabledJobs() {
         return repository.findAll()
                 .stream()
@@ -123,6 +129,7 @@ public class BackupJobService {
     }
 
     @Transactional
+    // deleteJob: Deletes job and cleans up linked resources.
     public void deleteJob(UUID id) throws IOException {
         BackupJob existing = repository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Job not found"));
         backupStorageService.deleteJobRepository(existing);
@@ -130,17 +137,20 @@ public class BackupJobService {
         repository.delete(existing);
     }
 
+    // getJobById: Returns job by id for the current request context.
     public BackupJobResponseDTO getJobById(UUID id) {
         BackupJob job = repository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Job not found"));
         return backupJobMapper.toResponseDto(job);
     }
 
+    // getEntityById: Returns entity by id for the current request context.
     public BackupJob getEntityById(UUID id) {
         return repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Job not found"));
     }
 
     @Transactional
+    // recoverInterruptedExecutions: Recovers interrupted executions from interrupted or invalid runtime states.
     public void recoverInterruptedExecutions() {
 
         List<BackupExecution> runningExecutions = repositoryExecution.findByStatus(ExecutionStatus.RUNNING);

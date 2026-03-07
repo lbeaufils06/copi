@@ -14,6 +14,7 @@ public class SessionController {
     private Duration sessionTimeout;
 
     @GetMapping("/api/session/config")
+    // getSessionTimeout: Returns session timeout for the current request context.
     public ResponseEntity<Long> getSessionTimeout() {
         return ResponseEntity.ok(sessionTimeout.toMillis());
     }

@@ -32,6 +32,7 @@ public class BackupExecutionService {
     private final BackupExecutionRepository repository;
     private final Clock clock;
     
+    // getAllExecutions: Returns all executions for the current request context.
     public List<BackupExecutionResponseDTO> getAllExecutions() {
         return repository.findAllByOrderByStartTimeDesc()
                 .stream()
@@ -39,6 +40,7 @@ public class BackupExecutionService {
                 .toList();
     }
     
+    // getExecutionsByJob: Returns executions by job for the current request context.
     public List<BackupExecutionResponseDTO> getExecutionsByJob(UUID jobId) {
         return repository
                 .findByJobIdOrderByStartTimeDesc(jobId)
@@ -48,6 +50,7 @@ public class BackupExecutionService {
     }
 
     @Transactional
+    // startExecution: Starts execution and initializes required runtime state.
     public BackupExecution startExecution(BackupExecution execution) {
         execution.setStatus(ExecutionStatus.RUNNING);
         execution.setStartTime(LocalDateTime.now().withNano(0));
@@ -97,6 +100,7 @@ public class BackupExecutionService {
     }
     
     @Transactional
+    // applyRetentionByCount: Applies retention by count policy to the current dataset.
     public void applyRetentionByCount(BackupJob job) {
 
         Integer retentionCount = job.getRetentionCount();
@@ -123,6 +127,7 @@ public class BackupExecutionService {
         }
     }
     
+    // deleteFileIfExists: Deletes file if exists and cleans up linked resources.
     private void deleteFileIfExists(String filePath) {
 
         if (filePath == null || filePath.isBlank()) {
@@ -137,15 +142,18 @@ public class BackupExecutionService {
         }
     }
     
+    // getVersionCountByJob: Returns version count by job for the current request context.
     public long getVersionCountByJob(UUID jobId) {
         return repository.countByJob_IdAndStatus(jobId, ExecutionStatus.SUCCESS);
     }
     
+    // findByStatus: Finds by status in persistence using the provided criteria.
     public List<BackupExecution> findByStatus(ExecutionStatus status) {
     	return repository.findByStatus(status);
     }
     
     @Transactional
+    // deleteMissingExecutions: Deletes missing executions and cleans up linked resources.
     public void deleteMissingExecutions() {
 
         long deleted = repository.deleteByStatus(ExecutionStatus.MISSING);
@@ -154,6 +162,7 @@ public class BackupExecutionService {
     }
 
     @Transactional
+    // purgeByDays: Purges by days according to configured retention rules.
     public void purgeByDays(BackupJob job) {
 
         if (job.getRetentionCount() == null) {
@@ -172,6 +181,7 @@ public class BackupExecutionService {
     }
 
     @Transactional
+    // purgeFailedAndMissingOlderThan7Days: Purges failed and missing older than7 days according to configured retention rules.
     public void purgeFailedAndMissingOlderThan7Days() {
 
         LocalDateTime limit = LocalDateTime.now(clock).minusDays(7);

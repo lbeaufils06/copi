@@ -36,6 +36,7 @@ public class BackupStorageService {
     private final AppProperties appProperties;
     private final AtomicBoolean running = new AtomicBoolean(false);
 
+    // resolveJobDirectory: Resolves job directory using fallback and validation rules.
     public Path resolveJobDirectory(BackupJob job) throws IOException {
 
         Path basePath = Paths.get(appProperties.getBackup().getDirectory())
@@ -58,6 +59,7 @@ public class BackupStorageService {
         return jobPath;
     }
 
+    // sanitizeRepo: Sanitizes repo to ensure safe and consistent values.
     private String sanitizeRepo(String input) {
 
         if (input == null || input.isBlank()) {
@@ -70,6 +72,7 @@ public class BackupStorageService {
                 .toLowerCase();
     }
     
+    // sanitizeFile: Sanitizes file to ensure safe and consistent values.
     public String sanitizeFile(String input) {
 
         if (input == null || input.isBlank()) {
@@ -78,16 +81,17 @@ public class BackupStorageService {
 
         String cleaned = input.trim();
 
-        // Supprime tout séparateur de chemin
+        // Remove all path separators
         cleaned = cleaned.replace("\\", "")
                          .replace("/", "");
 
-        // Remplace caractères non autorisés
+        // Replaces unauthorized characters
         cleaned = cleaned.replaceAll("[^a-zA-Z0-9._-]", "_");
 
         return cleaned.toLowerCase();
     }
     
+    // deleteJobRepository: Deletes job repository and cleans up linked resources.
     public void deleteJobRepository(BackupJob job) throws IOException {
 
         Path basePath = Paths.get(appProperties.getBackup().getDirectory())
@@ -104,10 +108,10 @@ public class BackupStorageService {
         }
 
         if (!Files.exists(jobPath)) {
-            return; // rien à supprimer
+            return; // nothing to delete
         }
 
-        // Suppression récursive
+        // Recursive deletion
         Files.walk(jobPath)
                 .sorted((a, b) -> b.compareTo(a)) // supprime fichiers avant dossiers
                 .forEach(path -> {
@@ -118,24 +122,17 @@ public class BackupStorageService {
                     }
                 });
     }
-    
-    /**
-     * Synchronise les BackupExecution avec le filesystem.
-     *
-     * Règles :
-     * - SUCCESS -> MISSING si fichier absent
-     * - MISSING -> SUCCESS si fichier réapparaît
-     * - Ne touche pas aux autres statuts
-     */
+
     @Transactional
+    // synchronize: Handles synchronize in the current backend workflow.
     public void synchronize() {
     	
     	if (!running.compareAndSet(false, true)) {
-            return; // déjà en cours
+            return; // already in progress
         }
 
     	try {
-	        // On ne vérifie que SUCCESS et MISSING
+            //We only check SUCCESS and MISSING
 	        List<BackupExecution> executions =
 	                backupExecutionRepository.findByStatusIn(
 	                        List.of(ExecutionStatus.SUCCESS, ExecutionStatus.MISSING)
@@ -175,6 +172,7 @@ public class BackupStorageService {
         }
     }
     
+    // compress: Compresses the related data using the configured compression strategy.
     public String compress(String inputFilePath, CompressionType type) throws IOException {
     	
     	if(type == null) return inputFilePath;
@@ -187,6 +185,7 @@ public class BackupStorageService {
 
 	}
     
+    // compressGzip: Compresses gzip using the configured compression strategy.
     private String compressGzip(String inputFilePath) throws IOException {
 
         Path inputFile = Path.of(inputFilePath);
@@ -203,6 +202,7 @@ public class BackupStorageService {
         return outputFile.toString();
     }
     
+    // compressZip: Compresses zip using the configured compression strategy.
     private String compressZip(String inputFilePath) throws IOException {
 
         Path inputFile = Path.of(inputFilePath);
@@ -226,6 +226,7 @@ public class BackupStorageService {
     }
 
     @Transactional
+    // deleteFailedExecutionFiles: Deletes failed execution files and cleans up linked resources.
     public void deleteFailedExecutionFiles() {
 
         List<BackupExecution> failedExecutions =
@@ -251,6 +252,7 @@ public class BackupStorageService {
         log.info("Deleted files for {} failed executions", deletedCount);
     }
     
+    // deleteExecutionFiles: Deletes execution files and cleans up linked resources.
     private void deleteExecutionFiles(BackupExecution exec) throws IOException {
 
         BackupJob job = exec.getJob();

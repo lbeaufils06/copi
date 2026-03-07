@@ -100,6 +100,7 @@ public abstract class AbstractDumpService implements DatabaseDumpService {
         }
     }
 
+    // canConnect: Handles can connect in the current backend workflow.
     protected boolean canConnect(String host, int port, int timeoutMs) {
 
         try (java.net.Socket socket = new java.net.Socket()) {
