@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+﻿import { useEffect, useMemo, useRef, useState } from "react";
 import { useApi } from "../utils/useApi";
 import { useLockBodyScroll } from "../hooks/useLockBodyScroll";
 import { executionModeLabel, executionModeStyle, statusLabel, statusStyle } from "../utils/badge";
@@ -19,6 +19,7 @@ function ExecutionModal({ jobId, onClose }) {
   const [query, setQuery] = useState("");
   const [showMobileFilters, setShowMobileFilters] = useState(false);
   const [downloadError, setDownloadError] = useState(null);
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
   const intervalRef = useRef(null);
 
   const statusOptions = useMemo(
@@ -50,18 +51,26 @@ function ExecutionModal({ jobId, onClose }) {
     [t]
   );
 
-  const fetchExecutions = async () => {
+  const fetchExecutions = async ({ silent = false } = {}) => {
+    if (!silent) {
+      setIsInitialLoading(true);
+    }
+
     try {
       const data = await apiFetch(`/api/executions/${jobId}`);
       setExecutions(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error("Failed to fetch executions", error);
+    } finally {
+      if (!silent) {
+        setIsInitialLoading(false);
+      }
     }
   };
 
   useEffect(() => {
-    fetchExecutions();
-    intervalRef.current = setInterval(fetchExecutions, 3000);
+    fetchExecutions({ silent: false });
+    intervalRef.current = setInterval(() => fetchExecutions({ silent: true }), 3000);
 
     return () => clearInterval(intervalRef.current);
   }, [jobId]);
@@ -192,19 +201,26 @@ function ExecutionModal({ jobId, onClose }) {
         {downloadError && <div className="px-4 sm:px-6 py-2 text-xs bg-red-900/40 border-b border-red-700/60 text-red-200">{downloadError}</div>}
 
         <div className="custom-scrollbar overflow-y-auto p-4 sm:p-6 pt-3 space-y-2">
-          {filteredExecutions.length === 0 && <p className="text-slate-300 text-sm">{t("executions.empty")}</p>}
-
-          {filteredExecutions.map((exec) => (
-            <ExecutionRow
-              key={exec.id}
-              exec={exec}
-              open={openId === exec.id}
-              onToggle={() => setOpenId((prev) => (prev === exec.id ? null : exec.id))}
-              locale={locale}
-              t={t}
-              onDownload={() => downloadExecutionFile(exec)}
-            />
-          ))}
+          {isInitialLoading ? (
+            <div className="flex flex-col items-center justify-center py-10">
+              <div className="w-8 h-8 border-4 border-slate-700 border-t-blue-500 rounded-full animate-spin" />
+              <p className="mt-3 text-slate-300 text-sm">{t("common.loading")}</p>
+            </div>
+          ) : filteredExecutions.length === 0 ? (
+            <p className="text-slate-300 text-sm">{t("executions.empty")}</p>
+          ) : (
+            filteredExecutions.map((exec) => (
+              <ExecutionRow
+                key={exec.id}
+                exec={exec}
+                open={openId === exec.id}
+                onToggle={() => setOpenId((prev) => (prev === exec.id ? null : exec.id))}
+                locale={locale}
+                t={t}
+                onDownload={() => downloadExecutionFile(exec)}
+              />
+            ))
+          )}
         </div>
       </div>
     </div>
