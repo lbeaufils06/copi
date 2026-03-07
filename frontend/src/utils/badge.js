@@ -1,3 +1,16 @@
+export function statusLabel(status, t) {
+  switch (status) {
+    case "SUCCESS":
+      return t("jobs.status_success");
+    case "FAILED":
+      return t("jobs.status_failed");
+    case "RUNNING":
+      return t("jobs.status_running");
+    default:
+      return t("jobs.status_never_run");
+  }
+}
+
 export function statusStyle(status) {
   switch (status) {
     case "SUCCESS":
@@ -11,22 +24,9 @@ export function statusStyle(status) {
   }
 }
 
-export function statusLabel(status) {
-  switch (status) {
-    case "SUCCESS":
-      return "Succes";
-    case "FAILED":
-      return "Echec";
-    case "RUNNING":
-      return "En cours";
-    default:
-      return "Non execute";
-  }
-}
-
-export function executionModeLabel(mode) {
-  if (mode === "MANUAL") return "Manuel";
-  return "Cron";
+export function executionModeLabel(mode, t) {
+  if (mode === "MANUAL") return t("executions.mode_manual");
+  return t("executions.mode_cron");
 }
 
 export function executionModeStyle(mode) {

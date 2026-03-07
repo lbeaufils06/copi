@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useApi } from "../utils/useApi";
 import { useLockBodyScroll } from "../hooks/useLockBodyScroll";
 import Loader from "./Loader";
+import { useI18n } from "../i18n/I18nContext";
 
 function JobModal({ jobId, defaults, onClose }) {
   useLockBodyScroll();
@@ -9,10 +10,28 @@ function JobModal({ jobId, defaults, onClose }) {
   const jobDefaults = defaults?.jobDefaults ?? {};
   const dumpOptions = defaults?.dumpOptions ?? {};
   const { apiFetch } = useApi();
+  const { t, locale } = useI18n();
   const isEditMode = jobId !== "new";
   const [form, setForm] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
   const [userModifiedDumpOptions, setUserModifiedDumpOptions] = useState(false);
+
+  const cronOptions = useMemo(
+    () => [
+      { value: "*/30 * * * * *", label: locale === "fr" ? "Toutes les 30 secondes" : "Every 30 seconds" },
+      { value: "0 * * * * *", label: locale === "fr" ? "Toutes les minutes" : "Every minute" },
+      { value: "0 */30 * * * *", label: locale === "fr" ? "Toutes les 30 minutes" : "Every 30 minutes" },
+      { value: "0 0 * * * *", label: locale === "fr" ? "Toutes les heures" : "Every hour" },
+      { value: "0 0 */3 * * *", label: locale === "fr" ? "Toutes les 3 heures" : "Every 3 hours" },
+      { value: "0 0 */6 * * *", label: locale === "fr" ? "Toutes les 6 heures" : "Every 6 hours" },
+      { value: "0 0 */12 * * *", label: locale === "fr" ? "Toutes les 12 heures" : "Every 12 hours" },
+      ...Array.from({ length: 24 }).map((_, hour) => ({
+        value: `0 0 ${hour} * * *`,
+        label: locale === "fr" ? `Tous les jours a ${String(hour).padStart(2, "0")}h` : `Every day at ${String(hour).padStart(2, "0")}:00`,
+      })),
+    ],
+    [locale]
+  );
 
   const sanitizeForm = (data) => ({
     ...data,
@@ -79,7 +98,7 @@ function JobModal({ jobId, defaults, onClose }) {
   };
 
   const handleDelete = async () => {
-    if (!window.confirm("Supprimer ce job ?")) return;
+    if (!window.confirm(t("modal.deleteConfirm"))) return;
 
     try {
       await apiFetch(`/api/jobs/${jobId}`, { method: "DELETE" });
@@ -113,7 +132,7 @@ function JobModal({ jobId, defaults, onClose }) {
     }
   };
 
-  if (!form) return <Loader text="Chargement..." />;
+  if (!form) return <Loader text={t("common.loading")} />;
 
   const inputClass = "w-full bg-slate-900 border border-slate-600 p-3 pt-5 rounded-lg text-slate-100 placeholder:text-slate-400 focus:border-indigo-400";
 
@@ -124,13 +143,13 @@ function JobModal({ jobId, defaults, onClose }) {
         onClick={(e) => e.stopPropagation()}
       >
         <div className="sticky top-0 z-10 p-4 sm:p-6 border-b border-slate-700 bg-slate-800 rounded-t-2xl">
-          <h2 className="text-xl font-semibold tracking-tight">{isEditMode ? "Modifier le job de backup" : "Ajouter un job de backup"}</h2>
-          <p className="text-sm text-slate-300 mt-1">Renseignez les informations par section pour reduire les erreurs.</p>
+          <h2 className="text-xl font-semibold tracking-tight">{isEditMode ? t("modal.editJob") : t("modal.addJob")}</h2>
+          <p className="text-sm text-slate-300 mt-1">{t("modal.intro")}</p>
         </div>
 
         <form id="job-form" onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-5">
           <section className="space-y-3">
-            <h3 className="text-sm font-semibold text-slate-200">Identification</h3>
+            <h3 className="text-sm font-semibold text-slate-200">{t("modal.sectionIdentity")}</h3>
 
             <div className="relative">
               <input
@@ -144,7 +163,7 @@ function JobModal({ jobId, defaults, onClose }) {
                 className={`${inputClass} ${isEditMode ? "opacity-60 cursor-not-allowed pointer-events-none" : ""}`}
               />
               <label htmlFor="job-name" className="absolute left-3 top-2 text-xs text-slate-300 pointer-events-none">
-                Nom du job
+                {t("modal.jobName")}
               </label>
             </div>
 
@@ -163,25 +182,25 @@ function JobModal({ jobId, defaults, onClose }) {
                 <option value="POSTGRESQL">PostgreSQL</option>
               </select>
               <label htmlFor="job-dbType" className="absolute left-3 top-2 text-xs text-slate-300 pointer-events-none">
-                Type de base de donnees
+                {t("modal.dbType")}
               </label>
             </div>
           </section>
 
           <section className="space-y-3">
-            <h3 className="text-sm font-semibold text-slate-200">Connexion</h3>
+            <h3 className="text-sm font-semibold text-slate-200">{t("modal.sectionConnection")}</h3>
 
             <div className="relative">
               <input id="job-host" name="host" value={form.host} onChange={handleChange} required placeholder=" " className={inputClass} />
               <label htmlFor="job-host" className="absolute left-3 top-2 text-xs text-slate-300 pointer-events-none">
-                Hote
+                {t("modal.host")}
               </label>
             </div>
 
             <div className="relative">
               <input id="job-number" type="number" name="port" value={form.port} onChange={handleChange} required placeholder=" " className={inputClass} />
               <label htmlFor="job-number" className="absolute left-3 top-2 text-xs text-slate-300 pointer-events-none">
-                Port
+                {t("modal.port")}
               </label>
             </div>
 
@@ -197,7 +216,7 @@ function JobModal({ jobId, defaults, onClose }) {
                 className={inputClass}
               />
               <label htmlFor="job-username" className="absolute left-3 top-2 text-xs text-slate-300">
-                Nom utilisateur
+                {t("modal.username")}
               </label>
             </div>
 
@@ -214,7 +233,7 @@ function JobModal({ jobId, defaults, onClose }) {
                 className={`${inputClass} pr-10`}
               />
               <label htmlFor="job-password" className="absolute left-3 top-2 text-xs text-slate-300">
-                Mot de passe
+                {t("modal.password")}
               </label>
 
               <button
@@ -223,7 +242,7 @@ function JobModal({ jobId, defaults, onClose }) {
                 onMouseDown={(e) => e.preventDefault()}
               className="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-white transition"
               >
-                <span className="icon-tooltip-text">{showPassword ? "Masquer" : "Afficher"}</span>
+                <span className="icon-tooltip-text">{showPassword ? t("modal.hidePassword") : t("modal.showPassword")}</span>
                 {showPassword ? (
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path
@@ -257,22 +276,22 @@ function JobModal({ jobId, defaults, onClose }) {
                   className={inputClass}
                 />
                 <label htmlFor="job-authDb" className="absolute left-3 top-2 text-xs text-slate-300 pointer-events-none">
-                  Base d authentification
+                  {t("modal.authDb")}
                 </label>
               </div>
             )}
           </section>
 
           <section className="space-y-3">
-            <h3 className="text-sm font-semibold text-slate-200">Base de donnees</h3>
+            <h3 className="text-sm font-semibold text-slate-200">{t("modal.sectionDatabase")}</h3>
 
             <div className="relative">
               <select id="job-dbNameOptionsMode" name="dbNameOptionsMode" value={form.dbNameOptionsMode} onChange={handleChange} className={inputClass}>
-                <option value="ALL">Toutes</option>
-                <option value="CUSTOM">Personnalisee</option>
+                <option value="ALL">{t("modal.allDbs")}</option>
+                <option value="CUSTOM">{t("modal.customDbs")}</option>
               </select>
               <label htmlFor="job-dbNameOptionsMode" className="absolute left-3 top-2 text-xs text-slate-300 pointer-events-none">
-                Selection des bases
+                {t("modal.dbSelection")}
               </label>
             </div>
 
@@ -280,18 +299,18 @@ function JobModal({ jobId, defaults, onClose }) {
               <div className="relative border-l-4 rounded-lg border-l-indigo-500">
                 <input id="job-dbName" name="dbName" value={form.dbName} onChange={handleChange} placeholder=" " className={inputClass} />
                 <label htmlFor="job-dbName" className="absolute left-3 top-2 text-xs text-slate-300 pointer-events-none">
-                  Nom de la base
+                  {t("modal.dbName")}
                 </label>
               </div>
             )}
 
             <div className="relative">
               <select id="job-dumpOptionsMode" name="dumpOptionsMode" value={form.dumpOptionsMode} onChange={handleChange} className={inputClass}>
-                <option value="DEFAULT">Par defaut</option>
-                <option value="CUSTOM">Personnalise</option>
+                <option value="DEFAULT">{t("modal.defaultOptions")}</option>
+                <option value="CUSTOM">{t("modal.customOptions")}</option>
               </select>
               <label htmlFor="job-dumpOptionsMode" className="absolute left-3 top-2 text-xs text-slate-300 pointer-events-none">
-                Options de dump
+                {t("modal.dumpOptionsMode")}
               </label>
             </div>
 
@@ -299,34 +318,34 @@ function JobModal({ jobId, defaults, onClose }) {
               <div className="relative border-l-4 rounded-lg border-l-indigo-500">
                 <input id="job-dumpOptions" name="dumpOptions" value={form.dumpOptions} onChange={handleChange} placeholder=" " className={inputClass} />
                 <label htmlFor="job-dumpOptions" className="absolute left-3 top-2 text-xs text-slate-300 pointer-events-none">
-                  Options avancees
+                  {t("modal.advancedOptions")}
                 </label>
               </div>
             )}
 
             <div className="relative">
               <select id="job-compressionType" name="compressionType" value={form.compressionType} onChange={handleChange} className={inputClass}>
-                <option value="NONE">Aucune</option>
+                <option value="NONE">{t("modal.noCompression")}</option>
                 <option value="GZIP">GZIP (.gz)</option>
                 <option value="ZIP">ZIP (.zip)</option>
               </select>
               <label htmlFor="job-compressionType" className="absolute left-3 top-2 text-xs text-slate-300 pointer-events-none">
-                Compression
+                {t("modal.compression")}
               </label>
             </div>
           </section>
 
           <section className="space-y-3">
-            <h3 className="text-sm font-semibold text-slate-200">Planification</h3>
+            <h3 className="text-sm font-semibold text-slate-200">{t("modal.sectionSchedule")}</h3>
 
             <div className="relative">
               <select id="job-executionMode" name="executionMode" value={form.executionMode} onChange={handleChange} className={inputClass}>
-                <option value="SCHEDULED">Cron</option>
-                <option value="SCHEDULED_CUSTOM">Cron personnalise</option>
-                <option value="MANUAL">Manuel</option>
+                <option value="SCHEDULED">{t("modal.cron")}</option>
+                <option value="SCHEDULED_CUSTOM">{t("modal.customCron")}</option>
+                <option value="MANUAL">{t("modal.manual")}</option>
               </select>
               <label htmlFor="job-executionMode" className="absolute left-3 top-2 text-xs text-slate-300 pointer-events-none">
-                Mode d execution
+                {t("modal.modeExecution")}
               </label>
             </div>
 
@@ -339,40 +358,14 @@ function JobModal({ jobId, defaults, onClose }) {
                   required
                   onChange={(e) => setForm({ ...form, cronExpression: e.target.value })}
                 >
-                  <option value="*/30 * * * * *">Toutes les 30 secondes</option>
-                  <option value="0 * * * * *">Toutes les minutes</option>
-                  <option value="0 */30 * * * *">Toutes les 30 minutes</option>
-                  <option value="0 0 * * * *">Toutes les heures</option>
-                  <option value="0 0 */3 * * *">Toutes les 3 heures</option>
-                  <option value="0 0 */6 * * *">Toutes les 6 heures</option>
-                  <option value="0 0 */12 * * *">Toutes les 12 heures</option>
-                  <option value="0 0 0 * * *">Tous les jours a 00h</option>
-                  <option value="0 0 1 * * *">Tous les jours a 01h</option>
-                  <option value="0 0 2 * * *">Tous les jours a 02h</option>
-                  <option value="0 0 3 * * *">Tous les jours a 03h</option>
-                  <option value="0 0 4 * * *">Tous les jours a 04h</option>
-                  <option value="0 0 5 * * *">Tous les jours a 05h</option>
-                  <option value="0 0 6 * * *">Tous les jours a 06h</option>
-                  <option value="0 0 7 * * *">Tous les jours a 07h</option>
-                  <option value="0 0 8 * * *">Tous les jours a 08h</option>
-                  <option value="0 0 9 * * *">Tous les jours a 09h</option>
-                  <option value="0 0 10 * * *">Tous les jours a 10h</option>
-                  <option value="0 0 11 * * *">Tous les jours a 11h</option>
-                  <option value="0 0 12 * * *">Tous les jours a 12h</option>
-                  <option value="0 0 13 * * *">Tous les jours a 13h</option>
-                  <option value="0 0 14 * * *">Tous les jours a 14h</option>
-                  <option value="0 0 15 * * *">Tous les jours a 15h</option>
-                  <option value="0 0 16 * * *">Tous les jours a 16h</option>
-                  <option value="0 0 17 * * *">Tous les jours a 17h</option>
-                  <option value="0 0 18 * * *">Tous les jours a 18h</option>
-                  <option value="0 0 19 * * *">Tous les jours a 19h</option>
-                  <option value="0 0 20 * * *">Tous les jours a 20h</option>
-                  <option value="0 0 21 * * *">Tous les jours a 21h</option>
-                  <option value="0 0 22 * * *">Tous les jours a 22h</option>
-                  <option value="0 0 23 * * *">Tous les jours a 23h</option>
+                  {cronOptions.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
                 </select>
                 <label htmlFor="job-cron" className="absolute left-3 top-2 text-xs text-slate-300 pointer-events-none">
-                  Frequence de backup
+                  {t("modal.backupFrequency")}
                 </label>
               </div>
             )}
@@ -389,23 +382,23 @@ function JobModal({ jobId, defaults, onClose }) {
                   className={inputClass}
                 />
                 <label htmlFor="job-cronExpression" className="absolute left-3 top-2 text-xs text-slate-300 pointer-events-none">
-                  Expression cron personnalisee
+                  {t("modal.customCronExpr")}
                 </label>
               </div>
             )}
           </section>
 
           <section className="space-y-3">
-            <h3 className="text-sm font-semibold text-slate-200">Retention</h3>
+            <h3 className="text-sm font-semibold text-slate-200">{t("modal.sectionRetention")}</h3>
 
             <div className="relative">
               <select id="job-retentionPolicy" name="retentionPolicy" value={form.retentionPolicy} onChange={handleChange} className={inputClass}>
-                <option value="NONE">Aucune suppression automatique</option>
-                <option value="COUNT">Limiter le nombre de sauvegardes</option>
-                <option value="DAYS">Supprimer apres un nombre de jours</option>
+                <option value="NONE">{t("modal.noAutoDelete")}</option>
+                <option value="COUNT">{t("modal.limitBackupCount")}</option>
+                <option value="DAYS">{t("modal.deleteAfterDays")}</option>
               </select>
               <label htmlFor="job-retentionPolicy" className="absolute left-3 top-2 text-xs text-slate-300 pointer-events-none">
-                Politique de retention
+                {t("modal.retentionPolicy")}
               </label>
             </div>
 
@@ -423,7 +416,7 @@ function JobModal({ jobId, defaults, onClose }) {
                   className={inputClass}
                 />
                 <label htmlFor="job-numberRetention" className="absolute left-3 top-2 text-xs text-slate-300 pointer-events-none">
-                  Nombre de sauvegardes a conserver
+                  {t("modal.backupCountToKeep")}
                 </label>
               </div>
             )}
@@ -442,7 +435,7 @@ function JobModal({ jobId, defaults, onClose }) {
                   className={inputClass}
                 />
                 <label htmlFor="job-retentionDays" className="absolute left-3 top-2 text-xs text-slate-300 pointer-events-none">
-                  Nombre de jours a conserver
+                  {t("modal.retentionDays")}
                 </label>
               </div>
             )}
@@ -453,25 +446,25 @@ function JobModal({ jobId, defaults, onClose }) {
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             {isEditMode ? (
               <div className="flex items-center gap-3 bg-red-950/30 border border-red-800/60 rounded-lg px-3 py-2">
-                <span className="text-xs text-red-300">Zone dangereuse</span>
+                <span className="text-xs text-red-300">{t("common.dangerZone")}</span>
                 <button
                   type="button"
                   onClick={handleDelete}
                   className="px-3 py-1.5 text-sm bg-red-600 hover:bg-red-500 rounded-lg transition"
                 >
-                  Supprimer
+                  {t("common.delete")}
                 </button>
               </div>
             ) : (
-              <span className="text-xs text-slate-400">Le job sera cree apres validation.</span>
+              <span className="text-xs text-slate-400">{t("modal.createHint")}</span>
             )}
 
             <div className="flex gap-3 ml-auto">
               <button type="button" onClick={onClose} className="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg transition">
-                Annuler
+                {t("common.cancel")}
               </button>
               <button type="submit" form="job-form" className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 rounded-lg transition font-medium">
-                {isEditMode ? "Mettre a jour" : "Sauvegarder"}
+                {isEditMode ? t("common.update") : t("common.save")}
               </button>
             </div>
           </div>
