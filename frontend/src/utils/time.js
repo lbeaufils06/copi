@@ -1,4 +1,3 @@
-// 🔥 Offset serveur interne au module
 let serverOffset = 0;
 
 export function syncServerTime(serverTime) {
@@ -7,7 +6,6 @@ export function syncServerTime(serverTime) {
   const before = Date.now();
   const serverDate = new Date(serverTime);
   const after = Date.now();
-
   const latency = (after - before) / 2;
 
   serverOffset = serverDate - (after - latency);
@@ -19,7 +17,6 @@ export function syncServerTimeNow() {
 
 function plural(value, unit) {
   if (unit === "mois") return `${value} mois`;
-  if (unit === "an") return `${value} an${value > 1 ? "s" : ""}`;
   return `${value} ${unit}${value > 1 ? "s" : ""}`;
 }
 
@@ -49,7 +46,7 @@ function buildTimeParts(diffInSeconds) {
 }
 
 function formatTime(dateString, isFuture = false, isRunning = false) {
-  if (!dateString) return "—";
+  if (!dateString) return "-";
 
   const now = syncServerTimeNow();
   const target = new Date(dateString);
@@ -67,19 +64,15 @@ function formatTime(dateString, isFuture = false, isRunning = false) {
   }
 
   const diffInSeconds = Math.floor(diffMs / 1000);
-
   const parts = buildTimeParts(diffInSeconds);
-
   const limit = isFuture ? 2 : 1;
 
   const formatted = parts
     .slice(0, limit)
-    .map(p => plural(p.value, p.unit))
+    .map((p) => plural(p.value, p.unit))
     .join(" ");
 
-  return isFuture
-    ? `dans ${formatted}`
-    : `il y a ${formatted}`;
+  return isFuture ? `dans ${formatted}` : `il y a ${formatted}`;
 }
 
 export function formatRelativeTime(dateString, isRunning = false) {
@@ -90,29 +83,49 @@ export function formatFutureTime(dateString, isRunning = false) {
   return formatTime(dateString, true, isRunning);
 }
 
+export function formatDateTimeFr(dateString) {
+  if (!dateString) return "-";
+
+  const date = new Date(dateString);
+
+  const day = date.toLocaleDateString("fr-FR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  });
+
+  const time = date.toLocaleTimeString("fr-FR", {
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false,
+  });
+
+  return `${day} a ${time}`;
+}
+
 export function getReadableCron(cronExpression) {
   if (!cronExpression) return "Manuel";
 
   const parts = cronExpression.trim().split(" ");
+  let sec;
+  let min;
+  let hour;
+  let day;
+  let month;
+  let weekDay;
 
-  let sec, min, hour, day, month, weekDay;
-
-  // 6 champs (Spring)
   if (parts.length === 6) {
     [sec, min, hour, day, month, weekDay] = parts;
-  }
-  // 5 champs (cron standard)
-  else if (parts.length === 5) {
+  } else if (parts.length === 5) {
     sec = "0";
     [min, hour, day, month, weekDay] = parts;
   } else {
-    return "Planification personnalisée";
+    return "Planification personnalisee";
   }
 
-  const formatTime = () =>
-    `${hour.padStart(2, "0")}:${min.padStart(2, "0")}`;
+  const formatHourMinute = () => `${hour.padStart(2, "0")}:${min.padStart(2, "0")}`;
 
-  // 🔹 Toutes les X secondes
   if (
     sec.startsWith("*/") &&
     min === "*" &&
@@ -124,105 +137,66 @@ export function getReadableCron(cronExpression) {
     return `Toutes les ${sec.replace("*/", "")} secondes`;
   }
 
-  // 🔹 Toutes les minutes (Spring: 0 * * * * *)
-  if (
-    (sec === "0") &&
-    min === "*" &&
-    hour === "*" &&
-    day === "*" &&
-    month === "*" &&
-    weekDay === "*"
-  ) {
+  if (sec === "0" && min === "*" && hour === "*" && day === "*" && month === "*" && weekDay === "*") {
     return "Toutes les minutes";
   }
 
-  // 🔹 Toutes les X minutes
-  if (
-    min.startsWith("*/") &&
-    hour === "*" &&
-    day === "*" &&
-    month === "*" &&
-    weekDay === "*"
-  ) {
+  if (min.startsWith("*/") && hour === "*" && day === "*" && month === "*" && weekDay === "*") {
     return `Toutes les ${min.replace("*/", "")} minutes`;
   }
 
-  // 🔹 Toutes les X heures
-  if (
-    hour.startsWith("*/") &&
-    day === "*" &&
-    month === "*" &&
-    weekDay === "*"
-  ) {
+  if (hour.startsWith("*/") && day === "*" && month === "*" && weekDay === "*") {
     return `Toutes les ${hour.replace("*/", "")} heures`;
   }
 
-  // 🔹 Toutes les heures
-  if (
-    hour === "*" &&
-    day === "*" &&
-    month === "*" &&
-    weekDay === "*"
-  ) {
-    return min === "0"
-      ? "Toutes les heures"
-      : `Toutes les heures à ${min} minute${min > 1 ? "s" : ""}`;
+  if (hour === "*" && day === "*" && month === "*" && weekDay === "*") {
+    return min === "0" ? "Toutes les heures" : `Toutes les heures a ${min} minute${min > 1 ? "s" : ""}`;
   }
 
-  // 🔹 Hebdomadaire
   if (weekDay !== "*" && weekDay !== "?") {
-    const days = [
-      "dimanche",
-      "lundi",
-      "mardi",
-      "mercredi",
-      "jeudi",
-      "vendredi",
-      "samedi",
-    ];
-    return `Chaque ${days[parseInt(weekDay)]} à ${formatTime()}`;
+    const days = ["dimanche", "lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi"];
+    return `Chaque ${days[parseInt(weekDay, 10)]} a ${formatHourMinute()}`;
   }
 
-  // 🔹 Mensuel
   if (day !== "*" && month === "*") {
-    return `Chaque ${day} du mois à ${formatTime()}`;
+    return `Chaque ${day} du mois a ${formatHourMinute()}`;
   }
 
-  // 🔹 Annuel
   if (day !== "*" && month !== "*") {
     const months = [
       "janvier",
-      "février",
+      "fevrier",
       "mars",
       "avril",
       "mai",
       "juin",
       "juillet",
-      "août",
+      "aout",
       "septembre",
       "octobre",
       "novembre",
-      "décembre",
+      "decembre",
     ];
-    return `Chaque ${day} ${months[parseInt(month) - 1]} à ${formatTime()}`;
+    return `Chaque ${day} ${months[parseInt(month, 10) - 1]} a ${formatHourMinute()}`;
   }
 
-  // 🔹 Quotidien
   if (day === "*" && month === "*" && weekDay === "*") {
-    return `Tous les jours à ${formatTime()}`;
+    return `Tous les jours a ${formatHourMinute()}`;
   }
 
-  return "Planification personnalisée";
+  return "Planification personnalisee";
 }
 
 export function getScheduleStyle(cronExpression) {
   const label = getReadableCron(cronExpression);
 
-  if (label.includes("secondes") || label.includes("minutes") || label.includes("heures"))
-    return "bg-blue-900/40 text-blue-400";
+  if (label.includes("seconde") || label.includes("minute") || label.includes("heure")) {
+    return "bg-blue-900/40 text-blue-300 border border-blue-700/60";
+  }
 
-  if (label.includes("jours"))
-    return "bg-emerald-900/40 text-emerald-400";
+  if (label.includes("jour")) {
+    return "bg-emerald-900/40 text-emerald-300 border border-emerald-700/60";
+  }
 
   if (
     label.includes("lundi") ||
@@ -232,14 +206,13 @@ export function getScheduleStyle(cronExpression) {
     label.includes("vendredi") ||
     label.includes("samedi") ||
     label.includes("dimanche")
-  )
-    return "bg-purple-900/40 text-purple-400";
+  ) {
+    return "bg-violet-900/40 text-violet-300 border border-violet-700/60";
+  }
 
-  if (label.includes("mois"))
-    return "bg-amber-900/40 text-amber-400";
+  if (label.includes("mois") || label.includes("janvier")) {
+    return "bg-amber-900/40 text-amber-300 border border-amber-700/60";
+  }
 
-  if (label.includes("janvier"))
-    return "bg-rose-900/40 text-rose-400";
-
-  return "bg-slate-700 text-slate-300";
+  return "bg-slate-700/60 text-slate-200 border border-slate-600";
 }
