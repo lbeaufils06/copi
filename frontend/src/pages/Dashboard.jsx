@@ -1,11 +1,11 @@
-﻿import { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Routes, Route, useNavigate } from "react-router-dom";
 import { JobList, JobModalWrapper } from "../features/jobs";
 import { ExecutionModalWrapper } from "../features/executions";
-import { useApi } from "../utils/useApi";
+import { useApi } from "../shared/utils";
 import Header from "../components/Header";
 
-import { syncServerTime, syncServerTimeNow } from "../utils/time";
+import { syncServerTime, syncServerTimeNow } from "../shared/utils";
 import { useJobDefaults } from "../hooks/useJobDefaults";
 import { Loader } from "../shared/components";
 import { useI18n } from "../i18n/I18nContext";

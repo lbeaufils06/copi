@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
-import { useApi } from "../utils/useApi";
+import { useApi } from "../shared/utils";
 
 export function useJobDefaults() {
   const { apiFetch } = useApi();
@@ -24,7 +24,7 @@ export function useJobDefaults() {
         setLoading(false);
       });
 
-  }, []); // 🔥 PAS de dépendance
+  }, []); // ðŸ”¥ PAS de dÃ©pendance
 
   return {
     defaults,
