@@ -26,6 +26,6 @@
   <Config Name="MASTER_KEY" Target="MASTER_KEY" Default="change-me" Mode="" Description="Encryption master key" Type="Variable" Display="advanced" Required="false" Mask="true">change-me</Config>
   <Config Name="Admin Password" Target="COPI_ADMIN_PASSWORD" Default="" Mode="" Description="Mot de passe administrateur : copi" Type="Variable" Display="always" Required="true" Mask="true">copi</Config>
   <Config Name="Session Timeout (minutes)" Target="SESSION_TIMEOUT" Default="30" Mode="" Description="Durée de session en minutes avant déconnexion automatique" Type="Variable" Display="advanced" Required="false" Mask="false">30</Config>
-  <Config Name="Spring Profile" Target="SPRING_PROFILES_ACTIVE" Default="prod" Mode="" Description="Spring active profile" Type="Variable" Display="never" Required="true" Mask="false">prod</Config>
+  <Config Name="Spring Profile" Target="SPRING_PROFILES_ACTIVE" Default="prod" Mode="" Description="Spring active profile" Type="Variable" Display="advanced" Required="true" Mask="false">prod</Config>
   <TailscaleStateDir/>
 </Container>
