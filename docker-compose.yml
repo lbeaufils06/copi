@@ -12,29 +12,28 @@ services:
       - "8092:8080"
 
     environment:
-    
       SPRING_PROFILES_ACTIVE: prod
-      
-      # 🔐 Admin
+
+      # Admin
       COPI_ADMIN_PASSWORD: copi
 
-      # 🔑 Master crypto key
+      # Master crypto key
       MASTER_KEY: change-this-secret-key
 
-      # 🌍 Port serveur
+      # Server port
       SERVER_PORT: 8080
 
-      # 🕒 Session timeout
+      # Session timeout
       SESSION_TIMEOUT: 30
 
-      # 📦 SQLite (par défaut)
+      # SQLite
       SPRING_DATASOURCE_URL: jdbc:sqlite:/config/copi.db
       SPRING_DATASOURCE_DRIVER: org.sqlite.JDBC
 
-      # 📁 Dossier backups
+      # Backup directory
       APP_BACKUP_DIR: backups
 
-      # 🔧 Paths des outils (ceux installés dans ton Dockerfile)
+      # Dump tools paths
       MYSQLDUMP_PATH: mysqldump
       MARIADUMP_PATH: mariadb-dump
       PGDUMP_PATH: pg_dump
@@ -42,14 +41,13 @@ services:
       MONGODUMP_PATH: mongodump
 
     volumes:
-      # 📦 Base SQLite persistante
-      - copi_config:/config
+      # SQLite database persisted on host
+      - ./config:/config
 
-      # 💾 Backups persistants
+      # Backups persisted in docker volume
       - copi_backups:/app/backups
 
     restart: unless-stopped
 
 volumes:
-  copi_config:
   copi_backups:

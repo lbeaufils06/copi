@@ -44,6 +44,7 @@ INSERT INTO backup_job (
     cron_expression,
     next_execution_time,
     retention_count,
+    retention_days,
     retention_policy,
     last_success_time,
     version_count,
@@ -55,8 +56,7 @@ INSERT INTO backup_job (
     authentication_database,
     dump_options_mode,
     db_name_options_mode
-);
-
+)
 SELECT
     id,
     name,
@@ -68,19 +68,20 @@ SELECT
     password_encrypted,
     enabled,
     cron_expression,
-    next_execution_time,
+    NULL AS next_execution_time,
     retention_count,
+    retention_days,
     retention_policy,
-    last_success_time,
-    version_count,
-    last_status,
-    last_status_message,
+    NULL AS last_success_time,
+    0 AS version_count,
+    NULL AS last_status,
+    NULL AS last_status_message,
     compression_type,
     execution_mode,
     dump_options,
     authentication_database,
-    dump_options_mode,
-    db_name_options_mode
+    COALESCE(dump_options_mode, 'DEFAULT') AS dump_options_mode,
+    COALESCE(db_name_options_mode, 'ALL') AS db_name_options_mode
 FROM backup_job_old;
 
 DROP TABLE backup_job_old;

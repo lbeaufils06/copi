@@ -16,3 +16,5 @@ target/
 # OS
 .DS_Store
 Thumbs.db
+# Local persistent config (SQLite, host-mounted)
+config/
