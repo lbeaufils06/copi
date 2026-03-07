@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useApi } from "../utils/useApi";
-import { downloadExecutionFile } from "../utils/executionDownload";
+import { useApi } from "../../../utils/useApi";
+import { downloadExecutionFile } from "../lib/executionDownload";
 
 export function useExecutions(jobId, t) {
   const { apiFetch } = useApi();
@@ -114,3 +114,4 @@ export function useExecutions(jobId, t) {
     downloadExecutionFile: handleDownloadExecutionFile,
   };
 }
+

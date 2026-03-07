@@ -1,9 +1,9 @@
 import { useState } from "react";
-import { useLockBodyScroll } from "../hooks/useLockBodyScroll";
-import { executionModeLabel, executionModeStyle, statusLabel, statusStyle } from "../utils/badge";
-import { formatDateTimeLocale } from "../utils/time";
-import { useI18n } from "../i18n/I18nContext";
-import CustomSelect from "./CustomSelect";
+import { useLockBodyScroll } from "../../../hooks/useLockBodyScroll";
+import { executionModeLabel, executionModeStyle, statusLabel, statusStyle } from "../../../utils/badge";
+import { formatDateTimeLocale } from "../../../utils/time";
+import { useI18n } from "../../../i18n/I18nContext";
+import CustomSelect from "../../../components/CustomSelect";
 import { useExecutions } from "../hooks/useExecutions";
 
 function ExecutionModal({ jobId, onClose }) {
@@ -190,3 +190,4 @@ function ExecutionRow({ exec, open, onToggle, locale, t, onDownload }) {
 }
 
 export default ExecutionModal;
+

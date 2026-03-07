@@ -9,12 +9,7 @@ function ExecutionModalWrapper() {
     navigate(-1);
   };
 
-  return (
-    <ExecutionModal
-      jobId={id}
-      onClose={handleClose}
-    />
-  );
+  return <ExecutionModal jobId={id} onClose={handleClose} />;
 }
 
 export default ExecutionModalWrapper;

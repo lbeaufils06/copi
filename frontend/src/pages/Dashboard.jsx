@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import { Routes, Route, useNavigate } from "react-router-dom";
-import JobModalWrapper from "../components/JobModalWrapper";
-import ExecutionModalWrapper from "../components/ExecutionModalWrapper";
+import { JobList, JobModalWrapper } from "../features/jobs";
+import { ExecutionModalWrapper } from "../features/executions";
 import { useApi } from "../utils/useApi";
 import Header from "../components/Header";
-import JobList from "../components/JobList";
+
 import { syncServerTime, syncServerTimeNow } from "../utils/time";
 import { useJobDefaults } from "../hooks/useJobDefaults";
 import Loader from "../components/Loader";
@@ -129,3 +129,4 @@ function Dashboard() {
 }
 
 export default Dashboard;
+
