@@ -9,7 +9,7 @@ PGID="${PGID:-100}"
 mkdir -p /config /app/backups
 
 # Try to align permissions on mounted host paths (Unraid style).
-chown -R "${PUID}:${PGID}" /config /app/backups 2>/dev/null || true
+chown -R "${PUID}:${PGID}" /config 2>/dev/null || true
 chmod -R 700 /config 2>/dev/null || true
 
 # Tighten sqlite file permissions when it exists.
