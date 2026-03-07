@@ -201,7 +201,7 @@ function JobModal({ jobId, defaults, onClose }) {
           <p className="text-sm text-slate-300 mt-1">{t("modal.intro")}</p>
         </div>
 
-        <form id="job-form" onSubmit={handleSubmit} className="custom-scrollbar flex-1 overflow-y-auto p-4 sm:p-6 space-y-5">
+        <form id="job-form" onSubmit={handleSubmit} className="custom-scrollbar flex-1 overflow-y-auto p-4 sm:p-6 pb-24 sm:pb-28 space-y-5">
           <section className="space-y-3">
             <h3 className="text-sm font-semibold text-slate-200">{t("modal.sectionIdentity")}</h3>
 
@@ -501,5 +501,6 @@ function JobModal({ jobId, defaults, onClose }) {
 }
 
 export default JobModal;
+
 
 

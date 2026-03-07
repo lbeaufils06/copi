@@ -275,7 +275,12 @@ function ExecutionRow({ exec, open, onToggle, locale, t, onDownload }) {
 
   return (
     <div className="bg-slate-800 rounded-xl overflow-hidden border border-slate-700">
-      <div className="w-full flex flex-col sm:grid sm:grid-cols-[2fr,1fr,1fr,auto] gap-2 sm:gap-3 items-start sm:items-center p-3 hover:bg-slate-700/60 transition">
+      <button
+        type="button"
+        onClick={onToggle}
+        aria-expanded={open}
+        className="w-full text-left flex flex-col sm:grid sm:grid-cols-[2fr,1fr,1fr,auto] gap-2 sm:gap-3 items-start sm:items-center p-3 hover:bg-slate-700/60 transition"
+      >
         <span className="text-sm text-slate-100">{executionTime}</span>
         <div className="flex items-center gap-2">
           <span className={`inline-flex justify-center text-xs px-2 py-1 rounded-full ${executionModeStyle(exec.executionMode)}`}>
@@ -286,21 +291,7 @@ function ExecutionRow({ exec, open, onToggle, locale, t, onDownload }) {
           </span>
         </div>
         <span className="hidden sm:block" />
-        <div className="flex items-center gap-2">
-          {canDownload && (
-            <button
-              type="button"
-              onClick={onDownload}
-              className="px-2 py-1 text-xs rounded-md bg-indigo-600 hover:bg-indigo-500 text-white"
-            >
-              {t("executions.download")}
-            </button>
-          )}
-          <button type="button" onClick={onToggle} className="text-slate-300 text-xs hover:text-white transition">
-            {open ? t("executions.hide") : t("executions.show")}
-          </button>
-        </div>
-      </div>
+      </button>
 
       {open && (
         <div className="border-t border-slate-700 p-3 text-xs text-slate-200 space-y-2">
@@ -336,6 +327,17 @@ function ExecutionRow({ exec, open, onToggle, locale, t, onDownload }) {
               <pre className="custom-scrollbar mt-1 whitespace-pre-wrap text-slate-100 bg-slate-950 border border-slate-700 p-2 rounded max-h-48 overflow-auto">
                 {exec.logMessage}
               </pre>
+            </div>
+          )}
+          {canDownload && (
+            <div className="flex justify-end pt-2">
+              <button
+                type="button"
+                onClick={onDownload}
+                className="px-2 py-1 text-xs rounded-md bg-indigo-600 hover:bg-indigo-500 text-white"
+              >
+                {t("executions.download")}
+              </button>
             </div>
           )}
         </div>
