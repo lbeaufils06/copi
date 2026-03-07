@@ -1,124 +1,129 @@
 ﻿# Copi
 
-Copi est une application web auto-hébergée permettant de planifier, exécuter et superviser des sauvegardes de bases de données.
+Copi is a self-hosted web application to schedule, run, and monitor database backups.
 
-Le projet est compose de:
+This product is built for people running personal infrastructure (NAS, homelab, mini-PC, VPS, local server) who want reliable database backups without maintaining many manual scripts.
 
-- un backend Java/Spring Boot (API, planification, execution des dumps)
-- un frontend React/Vite (interface de gestion des jobs)
-- un packaging Docker pour un deploiement simple
+It was also created from a real need on my own server: centralizing and automating backups for multiple database engines through a simple interface.
 
-## Fonctionnalites
+## Who Copi Is For
 
-- Gestion de jobs de sauvegarde (creation, edition, suppression)
-- Execution manuelle ou planifiee (cron)
-- Historique des executions
-- Compression des dumps (`NONE`, `GZIP`, `ZIP`)
-- Politiques de retention (`NONE`, `COUNT`, `DAYS`)
-- Support: MySQL, MariaDB, PostgreSQL, MongoDB
-- Authentification par session (login `admin`)
+- NAS users (Synology, QNAP, Unraid, TrueNAS, etc.)
+- Homelab/self-hosted admins
+- Freelancers, small teams, or developers hosting their own services
+- Anyone who wants a clear UI to manage DB backups
 
-## Stack technique
+## Features
 
-- Backend: Java 21, Spring Boot 4, Spring Security, JPA, SQLite
-- Frontend: React 19, Vite 7, Tailwind CSS
-- Runtime backup tools: `mysqldump`, `mariadb-dump`, `pg_dump`, `pg_dumpall`, `mongodump`
+- Backup job management (create, edit, delete)
+- Manual or scheduled runs (cron)
+- Execution history
+- Dump compression (`NONE`, `GZIP`, `ZIP`)
+- Retention policies (`NONE`, `COUNT`, `DAYS`)
+- MySQL, MariaDB, PostgreSQL, MongoDB support
+- Session-based authentication (`admin` account)
 
-## Arborescence
+## Tech Stack
+
+- Backend: Java 21, Spring Boot, Spring Security, JPA, SQLite
+- Frontend: React, Vite, Tailwind CSS
+- Dump tools: `mysqldump`, `mariadb-dump`, `pg_dump`, `pg_dumpall`, `mongodump`
+
+## Project Structure
 
 ```text
 copi/
-|- backend/      # API Spring Boot + logique metier + migrations
-|- frontend/     # UI React
+|- backend/         # Spring Boot API + business logic + migrations
+|- frontend/        # React UI
 |- Dockerfile
 |- docker-compose.yml
-`- .bash/build.sh # build frontend -> copy static -> package backend
+`- .bash/build.sh   # Build frontend -> copy static -> package backend
 ```
 
-## Prerequis
+## Prerequisites
 
-### Option 1 - Docker (recommande)
+### Option 1 - Docker (recommended)
 
 - Docker
 - Docker Compose
 
-### Option 2 - Developpement local
+### Option 2 - Local Development
 
 - Java 21
 - Maven 3.9+
-- Node.js 20+ et npm
-- Outils de dump installes localement et accessibles dans le PATH
+- Node.js 20+ and npm
+- Dump tools installed locally and available in `PATH`
 
-## Demarrage rapide (Docker)
+## Quick Start (Docker)
 
-Depuis la racine du projet:
+From the project root:
 
 ```bash
 docker compose up -d --build
 ```
 
-Application disponible sur:
+Application URL:
 
 - [http://localhost:8092](http://localhost:8092)
 
-Identifiants par defaut:
+Default credentials:
 
-- utilisateur: `admin`
-- mot de passe: `copi` (via `COPI_ADMIN_PASSWORD` dans `docker-compose.yml`)
+- username: `admin`
+- password: `copi` (via `COPI_ADMIN_PASSWORD` in `docker-compose.yml`)
 
-Arret:
+Stop:
 
 ```bash
 docker compose down
 ```
 
-## Developpement local
+## Local Development
 
 ### 1) Backend
 
-Depuis `backend/`:
+From `backend/`:
 
 ```bash
 ./mvnw spring-boot:run -Dspring-boot.run.profiles=dev
 ```
 
-Sous Windows PowerShell:
+On Windows PowerShell:
 
 ```powershell
 .\mvnw.cmd spring-boot:run "-Dspring-boot.run.profiles=dev"
 ```
 
-Backend expose par defaut sur `http://localhost:8080`.
+Backend runs by default at `http://localhost:8080`.
 
 ### 2) Frontend
 
-Depuis `frontend/`:
+From `frontend/`:
 
 ```bash
 npm install
 npm run dev
 ```
 
-Frontend dispo sur `http://localhost:5173`.
-Le proxy Vite redirige `/api` vers `http://localhost:8080`.
+Frontend runs at `http://localhost:5173`.
+Vite proxy forwards `/api` to `http://localhost:8080`.
 
-## Build de production
+## Production Build
 
-### Build complet via script bash
+### Full build via bash script
 
-Le script `.bash/build.sh`:
+The `.bash/build.sh` script:
 
-1. build le frontend (`npm run build`)
-2. copie `frontend/dist` dans `backend/src/main/resources/static`
-3. package le backend (`mvn clean package -DskipTests`)
+1. Builds frontend (`npm run build`)
+2. Copies `frontend/dist` into `backend/src/main/resources/static`
+3. Packages backend (`mvn clean package -DskipTests`)
 
-Commande:
+Command:
 
 ```bash
 bash .bash/build.sh
 ```
 
-### Build manuel
+### Manual build
 
 ```bash
 # frontend
@@ -126,55 +131,56 @@ cd frontend
 npm install
 npm run build
 
-# copier dist/* vers backend/src/main/resources/static
+# copy dist/* to backend/src/main/resources/static
 
 # backend
 cd ../backend
 ./mvnw clean package -DskipTests
 ```
 
-## Configuration (variables d'environnement)
+## Configuration (Environment Variables)
 
-Variables principales:
+Main variables:
 
-- `SPRING_PROFILES_ACTIVE` (`dev` ou `prod`)
-- `COPI_ADMIN_PASSWORD` (mot de passe admin)
-- `MASTER_KEY` (cle de chiffrement interne)
-- `SERVER_PORT` (port backend, defaut `8080`)
-- `SESSION_TIMEOUT` (minutes, defaut `30`)
-- `SPRING_DATASOURCE_URL` (defaut `jdbc:sqlite:data/copi.db`)
-- `APP_BACKUP_DIR` (defaut `backups`)
+- `SPRING_PROFILES_ACTIVE` (`dev` or `prod`)
+- `COPI_ADMIN_PASSWORD` (admin password)
+- `MASTER_KEY` (internal encryption key)
+- `SERVER_PORT` (backend port, default `8080`)
+- `SESSION_TIMEOUT` (minutes, default `30`)
+- `SPRING_DATASOURCE_URL` (default `jdbc:sqlite:data/copi.db`)
+- `APP_BACKUP_DIR` (default `backups`)
 - `MYSQLDUMP_PATH`, `MARIADUMP_PATH`, `PGDUMP_PATH`, `PGDUMPALL_PATH`, `MONGODUMP_PATH`
 
-En Docker, ces variables sont deja preconfigurees dans `docker-compose.yml`.
+In Docker, these variables are preconfigured in `docker-compose.yml`.
 
-## API principale
+## Main API Endpoints
 
-- `POST /api/login` : connexion
-- `POST /api/logout` : deconnexion
-- `GET /api/auth/check` : verification de session
-- `GET /api/session/config` : timeout de session
-- `GET /api/jobs` : liste des jobs
-- `POST /api/jobs` : creation d'un job
-- `PUT /api/jobs/{id}` : mise a jour d'un job
-- `DELETE /api/jobs/{id}` : suppression d'un job
-- `POST /api/jobs/{id}/start` : execution manuelle
-- `GET /api/executions` : historique global
-- `GET /api/executions/{jobId}` : historique d'un job
+- `POST /api/login`: login
+- `POST /api/logout`: logout
+- `GET /api/auth/check`: session check
+- `GET /api/session/config`: session timeout config
+- `GET /api/jobs`: list jobs
+- `POST /api/jobs`: create job
+- `PUT /api/jobs/{id}`: update job
+- `DELETE /api/jobs/{id}`: delete job
+- `POST /api/jobs/{id}/start`: manual run
+- `GET /api/executions`: global execution history
+- `GET /api/executions/{jobId}`: job execution history
 
-## Donnees persistantes
+## Persistent Data
 
-- Metadonnees applicatives SQLite:
+- SQLite app metadata:
   - local: `backend/data/copi.db`
-  - docker: volume `copi_data`
-- Fichiers de sauvegarde:
+  - docker: `copi_data` volume
+- Backup files:
   - local: `backend/backups/`
-  - docker: volume `copi_backups`
+  - docker: `copi_backups` volume
 
-## Notes
+## Production Best Practices
 
-- Le frontend est servi par Spring Boot en production (fichiers statiques dans `backend/src/main/resources/static`).
-- Les sessions HTTP sont basees sur cookie (`JSESSIONID`).
-- En environnement de prod, changez au minimum:
+- At minimum, change:
   - `COPI_ADMIN_PASSWORD`
   - `MASTER_KEY`
+- Protect network access (VPN, reverse proxy, firewall)
+- Regularly test backup restoration
+- On NAS setups, mount dedicated persistent storage for backup files
