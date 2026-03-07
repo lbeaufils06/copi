@@ -6,7 +6,7 @@ Ce produit s'adresse aux personnes qui administrent un serveur personnel (NAS, h
 
 Ce projet a aussi ete concu pour un besoin concret sur mon propre serveur: centraliser et automatiser les sauvegardes de plusieurs moteurs de bases de donnees avec une interface simple.
 
-![Dashboard](docs/screenshot001.png)
+![Dashboard](docs/screenshot001.PNG)
 
 ## A qui s'adresse Copi
 
