@@ -3,6 +3,7 @@ import { useApi } from "../utils/useApi";
 import { useLockBodyScroll } from "../hooks/useLockBodyScroll";
 import Loader from "./Loader";
 import { useI18n } from "../i18n/I18nContext";
+import CustomSelect from "./CustomSelect";
 
 function JobModal({ jobId, defaults, onClose }) {
   useLockBodyScroll();
@@ -15,6 +16,59 @@ function JobModal({ jobId, defaults, onClose }) {
   const [form, setForm] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
   const [userModifiedDumpOptions, setUserModifiedDumpOptions] = useState(false);
+
+  const dbTypeOptions = useMemo(
+    () => [
+      { value: "MARIADB", label: "MariaDB" },
+      { value: "MONGODB", label: "MongoDB" },
+      { value: "MYSQL", label: "MySQL" },
+      { value: "POSTGRESQL", label: "PostgreSQL" },
+    ],
+    []
+  );
+
+  const dbSelectionOptions = useMemo(
+    () => [
+      { value: "ALL", label: t("modal.allDbs") },
+      { value: "CUSTOM", label: t("modal.customDbs") },
+    ],
+    [t]
+  );
+
+  const dumpOptionsModeOptions = useMemo(
+    () => [
+      { value: "DEFAULT", label: t("modal.defaultOptions") },
+      { value: "CUSTOM", label: t("modal.customOptions") },
+    ],
+    [t]
+  );
+
+  const compressionOptions = useMemo(
+    () => [
+      { value: "NONE", label: t("modal.noCompression") },
+      { value: "GZIP", label: "GZIP (.gz)" },
+      { value: "ZIP", label: "ZIP (.zip)" },
+    ],
+    [t]
+  );
+
+  const executionModeOptions = useMemo(
+    () => [
+      { value: "SCHEDULED", label: t("modal.cron") },
+      { value: "SCHEDULED_CUSTOM", label: t("modal.customCron") },
+      { value: "MANUAL", label: t("modal.manual") },
+    ],
+    [t]
+  );
+
+  const retentionOptions = useMemo(
+    () => [
+      { value: "NONE", label: t("modal.noAutoDelete") },
+      { value: "COUNT", label: t("modal.limitBackupCount") },
+      { value: "DAYS", label: t("modal.deleteAfterDays") },
+    ],
+    [t]
+  );
 
   const cronOptions = useMemo(
     () => [
@@ -36,23 +90,23 @@ function JobModal({ jobId, defaults, onClose }) {
   const sanitizeForm = (data) => ({
     ...data,
     name: data.name ?? "",
-    dbType: data.dbType ?? "",
+    dbType: data.dbType ?? "POSTGRESQL",
     host: data.host ?? "",
     port: data.port ?? "",
     dbName: data.dbName ?? "",
     username: data.username ?? "",
     passwordEncrypted: "",
     authenticationDatabase: data.authenticationDatabase ?? "",
-    cronExpression: data.cronExpression ?? "",
-    executionMode: data.executionMode ?? "",
-    retentionPolicy: data.retentionPolicy ?? "",
+    cronExpression: data.cronExpression ?? "0 0 * * * *",
+    executionMode: data.executionMode ?? "SCHEDULED",
+    retentionPolicy: data.retentionPolicy ?? "NONE",
     cronPurgeExpression: data.cronPurgeExpression ?? "",
     retentionCount: data.retentionCount ?? 0,
     retentionDays: data.retentionDays ?? 1,
-    compressionType: data.compressionType ?? "",
+    compressionType: data.compressionType ?? "GZIP",
     dumpOptions: data.dumpOptions ?? "",
-    dumpOptionsMode: data.dumpOptionsMode ?? "",
-    dbNameOptionsMode: data.dbNameOptionsMode ?? "",
+    dumpOptionsMode: data.dumpOptionsMode ?? "DEFAULT",
+    dbNameOptionsMode: data.dbNameOptionsMode ?? "ALL",
   });
 
   useEffect(() => {
@@ -137,7 +191,7 @@ function JobModal({ jobId, defaults, onClose }) {
   const inputClass = "w-full bg-slate-900 border border-slate-600 p-3 pt-5 rounded-lg text-slate-100 placeholder:text-slate-400 focus:border-indigo-400";
 
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex justify-center items-center z-50 animate-fadeIn" onClick={onClose}>
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex justify-center items-center z-50 animate-fadeIn p-2 sm:p-4" onClick={onClose}>
       <div
         className="bg-slate-800 text-slate-100 rounded-2xl w-full max-w-xl shadow-2xl border border-slate-700 max-h-[92vh] flex flex-col"
         onClick={(e) => e.stopPropagation()}
@@ -147,7 +201,7 @@ function JobModal({ jobId, defaults, onClose }) {
           <p className="text-sm text-slate-300 mt-1">{t("modal.intro")}</p>
         </div>
 
-        <form id="job-form" onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-5">
+        <form id="job-form" onSubmit={handleSubmit} className="custom-scrollbar flex-1 overflow-y-auto p-4 sm:p-6 space-y-5">
           <section className="space-y-3">
             <h3 className="text-sm font-semibold text-slate-200">{t("modal.sectionIdentity")}</h3>
 
@@ -167,24 +221,15 @@ function JobModal({ jobId, defaults, onClose }) {
               </label>
             </div>
 
-            <div className="relative">
-              <select
-                id="job-dbType"
-                name="dbType"
-                value={form.dbType}
-                onChange={handleChange}
-                disabled={isEditMode}
-                className={`${inputClass} ${isEditMode ? "opacity-60 cursor-not-allowed pointer-events-none" : ""}`}
-              >
-                <option value="MARIADB">MariaDB</option>
-                <option value="MONGODB">MongoDB</option>
-                <option value="MYSQL">MySQL</option>
-                <option value="POSTGRESQL">PostgreSQL</option>
-              </select>
-              <label htmlFor="job-dbType" className="absolute left-3 top-2 text-xs text-slate-300 pointer-events-none">
-                {t("modal.dbType")}
-              </label>
-            </div>
+            <CustomSelect
+              id="job-dbType"
+              name="dbType"
+              value={form.dbType}
+              options={dbTypeOptions}
+              onChange={handleChange}
+              disabled={isEditMode}
+              label={t("modal.dbType")}
+            />
           </section>
 
           <section className="space-y-3">
@@ -240,9 +285,9 @@ function JobModal({ jobId, defaults, onClose }) {
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
                 onMouseDown={(e) => e.preventDefault()}
-              className="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-white transition"
+                className="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-300 hover:text-white transition"
+                aria-label={showPassword ? t("modal.hidePassword") : t("modal.showPassword")}
               >
-                <span className="icon-tooltip-text">{showPassword ? t("modal.hidePassword") : t("modal.showPassword")}</span>
                 {showPassword ? (
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path
@@ -285,15 +330,14 @@ function JobModal({ jobId, defaults, onClose }) {
           <section className="space-y-3">
             <h3 className="text-sm font-semibold text-slate-200">{t("modal.sectionDatabase")}</h3>
 
-            <div className="relative">
-              <select id="job-dbNameOptionsMode" name="dbNameOptionsMode" value={form.dbNameOptionsMode} onChange={handleChange} className={inputClass}>
-                <option value="ALL">{t("modal.allDbs")}</option>
-                <option value="CUSTOM">{t("modal.customDbs")}</option>
-              </select>
-              <label htmlFor="job-dbNameOptionsMode" className="absolute left-3 top-2 text-xs text-slate-300 pointer-events-none">
-                {t("modal.dbSelection")}
-              </label>
-            </div>
+            <CustomSelect
+              id="job-dbNameOptionsMode"
+              name="dbNameOptionsMode"
+              value={form.dbNameOptionsMode}
+              options={dbSelectionOptions}
+              onChange={handleChange}
+              label={t("modal.dbSelection")}
+            />
 
             {form.dbNameOptionsMode === "CUSTOM" && (
               <div className="relative border-l-4 rounded-lg border-l-indigo-500">
@@ -304,15 +348,14 @@ function JobModal({ jobId, defaults, onClose }) {
               </div>
             )}
 
-            <div className="relative">
-              <select id="job-dumpOptionsMode" name="dumpOptionsMode" value={form.dumpOptionsMode} onChange={handleChange} className={inputClass}>
-                <option value="DEFAULT">{t("modal.defaultOptions")}</option>
-                <option value="CUSTOM">{t("modal.customOptions")}</option>
-              </select>
-              <label htmlFor="job-dumpOptionsMode" className="absolute left-3 top-2 text-xs text-slate-300 pointer-events-none">
-                {t("modal.dumpOptionsMode")}
-              </label>
-            </div>
+            <CustomSelect
+              id="job-dumpOptionsMode"
+              name="dumpOptionsMode"
+              value={form.dumpOptionsMode}
+              options={dumpOptionsModeOptions}
+              onChange={handleChange}
+              label={t("modal.dumpOptionsMode")}
+            />
 
             {form.dumpOptionsMode === "CUSTOM" && (
               <div className="relative border-l-4 rounded-lg border-l-indigo-500">
@@ -323,50 +366,38 @@ function JobModal({ jobId, defaults, onClose }) {
               </div>
             )}
 
-            <div className="relative">
-              <select id="job-compressionType" name="compressionType" value={form.compressionType} onChange={handleChange} className={inputClass}>
-                <option value="NONE">{t("modal.noCompression")}</option>
-                <option value="GZIP">GZIP (.gz)</option>
-                <option value="ZIP">ZIP (.zip)</option>
-              </select>
-              <label htmlFor="job-compressionType" className="absolute left-3 top-2 text-xs text-slate-300 pointer-events-none">
-                {t("modal.compression")}
-              </label>
-            </div>
+            <CustomSelect
+              id="job-compressionType"
+              name="compressionType"
+              value={form.compressionType}
+              options={compressionOptions}
+              onChange={handleChange}
+              label={t("modal.compression")}
+            />
           </section>
 
           <section className="space-y-3">
             <h3 className="text-sm font-semibold text-slate-200">{t("modal.sectionSchedule")}</h3>
 
-            <div className="relative">
-              <select id="job-executionMode" name="executionMode" value={form.executionMode} onChange={handleChange} className={inputClass}>
-                <option value="SCHEDULED">{t("modal.cron")}</option>
-                <option value="SCHEDULED_CUSTOM">{t("modal.customCron")}</option>
-                <option value="MANUAL">{t("modal.manual")}</option>
-              </select>
-              <label htmlFor="job-executionMode" className="absolute left-3 top-2 text-xs text-slate-300 pointer-events-none">
-                {t("modal.modeExecution")}
-              </label>
-            </div>
+            <CustomSelect
+              id="job-executionMode"
+              name="executionMode"
+              value={form.executionMode}
+              options={executionModeOptions}
+              onChange={handleChange}
+              label={t("modal.modeExecution")}
+            />
 
             {form.executionMode === "SCHEDULED" && (
               <div className="relative border-l-4 rounded-lg border-l-indigo-500">
-                <select
+                <CustomSelect
                   id="job-cron"
-                  className={inputClass}
+                  name="cronExpression"
                   value={form.cronExpression}
-                  required
-                  onChange={(e) => setForm({ ...form, cronExpression: e.target.value })}
-                >
-                  {cronOptions.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
-                <label htmlFor="job-cron" className="absolute left-3 top-2 text-xs text-slate-300 pointer-events-none">
-                  {t("modal.backupFrequency")}
-                </label>
+                  options={cronOptions}
+                  onChange={(e) => setForm((prev) => ({ ...prev, cronExpression: e.target.value }))}
+                  label={t("modal.backupFrequency")}
+                />
               </div>
             )}
 
@@ -391,16 +422,14 @@ function JobModal({ jobId, defaults, onClose }) {
           <section className="space-y-3">
             <h3 className="text-sm font-semibold text-slate-200">{t("modal.sectionRetention")}</h3>
 
-            <div className="relative">
-              <select id="job-retentionPolicy" name="retentionPolicy" value={form.retentionPolicy} onChange={handleChange} className={inputClass}>
-                <option value="NONE">{t("modal.noAutoDelete")}</option>
-                <option value="COUNT">{t("modal.limitBackupCount")}</option>
-                <option value="DAYS">{t("modal.deleteAfterDays")}</option>
-              </select>
-              <label htmlFor="job-retentionPolicy" className="absolute left-3 top-2 text-xs text-slate-300 pointer-events-none">
-                {t("modal.retentionPolicy")}
-              </label>
-            </div>
+            <CustomSelect
+              id="job-retentionPolicy"
+              name="retentionPolicy"
+              value={form.retentionPolicy}
+              options={retentionOptions}
+              onChange={handleChange}
+              label={t("modal.retentionPolicy")}
+            />
 
             {form.retentionPolicy === "COUNT" && (
               <div className="relative border-l-4 rounded-lg border-l-indigo-500">
