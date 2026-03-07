@@ -13,6 +13,12 @@ export async function downloadExecutionFile(exec) {
         throw new Error(`Download failed (${response.status})`);
       }
 
+      const contentType = (response.headers.get("content-type") || "").toLowerCase();
+      if (contentType.includes("text/html")) {
+        // Backend route fallback returned the SPA HTML instead of a file.
+        continue;
+      }
+
       const blob = await response.blob();
       const fileName = extractFileName(response, exec.fileName || `backup-${exec.id}`);
 
