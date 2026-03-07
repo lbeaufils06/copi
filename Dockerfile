@@ -29,7 +29,7 @@ RUN apt-get update && \
     \
     rm -rf /var/lib/apt/lists/*
 
-RUN mkdir -p /app/data /app/backups
+RUN mkdir -p /config /app/backups
 
 COPY --from=build /app/target/*.jar app.jar
 

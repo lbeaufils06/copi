@@ -28,7 +28,7 @@ services:
       SESSION_TIMEOUT: 30
 
       # 📦 SQLite (par défaut)
-      SPRING_DATASOURCE_URL: jdbc:sqlite:data/copi.db
+      SPRING_DATASOURCE_URL: jdbc:sqlite:/config/copi.db
       SPRING_DATASOURCE_DRIVER: org.sqlite.JDBC
 
       # 📁 Dossier backups
@@ -43,7 +43,7 @@ services:
 
     volumes:
       # 📦 Base SQLite persistante
-      - copi_data:/app/data
+      - copi_config:/config
 
       # 💾 Backups persistants
       - copi_backups:/app/backups
@@ -51,5 +51,5 @@ services:
     restart: unless-stopped
 
 volumes:
-  copi_data:
+  copi_config:
   copi_backups:
