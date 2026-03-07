@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS backup_job (
     last_status TEXT,
     last_status_message TEXT,
     compression_type TEXT
-)
+);
 
 CREATE TABLE IF NOT EXISTS backup_execution (
     id TEXT PRIMARY KEY,
