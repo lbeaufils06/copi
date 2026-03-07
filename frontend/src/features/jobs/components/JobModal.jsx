@@ -121,6 +121,15 @@ function JobModal({ jobId, defaults, onClose }) {
     }
   };
 
+
+  // handleBackdropMouseDown: Closes the modal only when mouse press starts on the backdrop.
+  const handleBackdropMouseDown = (e) => {
+    if (isSaving) return;
+    if (e.target === e.currentTarget) {
+      onClose();
+    }
+  };
+  
   if (!form) return <Loader text={t("common.loading")} />;
 
   const inputClass = "w-full bg-slate-900 border border-slate-600 p-3 pt-5 rounded-lg text-slate-100 placeholder:text-slate-400 focus:border-indigo-400";
@@ -128,11 +137,11 @@ function JobModal({ jobId, defaults, onClose }) {
   return (
     <div
       className="fixed inset-0 bg-black/60 backdrop-blur-sm flex justify-center items-center z-50 animate-fadeIn sm:p-4"
-      onClick={() => !isSaving && onClose()}
+      onMouseDown={handleBackdropMouseDown}
     >
       <div
         className="bg-slate-800 text-slate-100 w-full h-full max-w-none max-h-none rounded-none border-0 shadow-2xl flex flex-col sm:h-auto sm:max-w-xl sm:max-h-[92vh] sm:rounded-2xl sm:border sm:border-slate-700"
-        onClick={(e) => e.stopPropagation()}
+        onMouseDown={(e) => e.stopPropagation()}
       >
         <div className="sticky top-0 z-10 p-4 sm:p-6 border-b border-slate-700 bg-slate-800 sm:rounded-t-2xl">
           <h2 className="text-xl font-semibold tracking-tight">{isEditMode ? t("modal.editJob") : t("modal.addJob")}</h2>

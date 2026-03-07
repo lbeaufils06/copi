@@ -31,11 +31,18 @@ function ExecutionModal({ jobId, onClose }) {
     downloadExecutionFile,
   } = useExecutions(jobId, t);
 
+  // handleBackdropMouseDown: Closes the modal only when mouse press starts on the backdrop.
+  const handleBackdropMouseDown = (e) => {
+    if (e.target === e.currentTarget) {
+      onClose();
+    }
+  };
+
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 animate-fadeIn sm:p-4" onClick={onClose}>
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 animate-fadeIn sm:p-4" onMouseDown={handleBackdropMouseDown}>
       <div
         className="bg-slate-900 w-full h-full max-w-none max-h-none rounded-none border-0 shadow-xl flex flex-col sm:w-[96vw] sm:max-w-4xl sm:max-h-[88vh] sm:rounded-2xl sm:border sm:border-slate-700"
-        onClick={(e) => e.stopPropagation()}
+        onMouseDown={(e) => e.stopPropagation()}
       >
         <div className="sticky top-0 z-10 p-4 sm:p-6 border-b border-slate-700 bg-slate-900 sm:rounded-t-2xl">
           <div className="flex justify-between items-center gap-4">
