@@ -3,8 +3,14 @@ import { useApi } from "../../../shared/utils";
 import { useLockBodyScroll } from "../../../hooks/useLockBodyScroll";
 import { Loader } from "../../../shared/components";
 import { useI18n } from "../../../i18n/I18nContext";
-import { CustomSelect } from "../../../shared/components";
 import { sanitizeJobForm, useJobFormOptions } from "../hooks/useJobFormOptions";
+import {
+  ConnectionSection,
+  DatabaseSection,
+  IdentitySection,
+  RetentionSection,
+  ScheduleSection,
+} from "./job-modal/JobModalSections";
 
 function JobModal({ jobId, defaults, onClose }) {
   useLockBodyScroll();
@@ -121,273 +127,39 @@ function JobModal({ jobId, defaults, onClose }) {
         </div>
 
         <form id="job-form" onSubmit={handleSubmit} className="custom-scrollbar flex-1 overflow-y-auto p-4 sm:p-6 pb-24 sm:pb-28 space-y-5">
-          <section className="space-y-3">
-            <h3 className="text-sm font-semibold text-slate-200">{t("modal.sectionIdentity")}</h3>
+          <IdentitySection form={form} handleChange={handleChange} dbTypeOptions={dbTypeOptions} isEditMode={isEditMode} inputClass={inputClass} t={t} />
 
-            <div className="relative">
-              <input
-                id="job-name"
-                name="name"
-                value={form.name}
-                onChange={handleChange}
-                disabled={isEditMode}
-                required
-                placeholder=" "
-                className={`${inputClass} ${isEditMode ? "opacity-60 cursor-not-allowed pointer-events-none" : ""}`}
-              />
-              <label htmlFor="job-name" className="absolute left-3 top-2 text-xs text-slate-300 pointer-events-none">
-                {t("modal.jobName")}
-              </label>
-            </div>
+          <ConnectionSection
+            form={form}
+            handleChange={handleChange}
+            showPassword={showPassword}
+            setShowPassword={setShowPassword}
+            inputClass={inputClass}
+            t={t}
+          />
 
-            <CustomSelect
-              id="job-dbType"
-              name="dbType"
-              value={form.dbType}
-              options={dbTypeOptions}
-              onChange={handleChange}
-              disabled={isEditMode}
-              label={t("modal.dbType")}
-            />
-          </section>
+          <DatabaseSection
+            form={form}
+            handleChange={handleChange}
+            setUserModifiedDumpOptions={setUserModifiedDumpOptions}
+            dbSelectionOptions={dbSelectionOptions}
+            dumpOptionsModeOptions={dumpOptionsModeOptions}
+            compressionOptions={compressionOptions}
+            inputClass={inputClass}
+            t={t}
+          />
 
-          <section className="space-y-3">
-            <h3 className="text-sm font-semibold text-slate-200">{t("modal.sectionConnection")}</h3>
+          <ScheduleSection
+            form={form}
+            handleChange={handleChange}
+            setForm={setForm}
+            executionModeOptions={executionModeOptions}
+            cronOptions={cronOptions}
+            inputClass={inputClass}
+            t={t}
+          />
 
-            <div className="relative">
-              <input id="job-host" name="host" value={form.host} onChange={handleChange} required placeholder=" " className={inputClass} />
-              <label htmlFor="job-host" className="absolute left-3 top-2 text-xs text-slate-300 pointer-events-none">
-                {t("modal.host")}
-              </label>
-            </div>
-
-            <div className="relative">
-              <input id="job-number" type="number" name="port" value={form.port} onChange={handleChange} required placeholder=" " className={inputClass} />
-              <label htmlFor="job-number" className="absolute left-3 top-2 text-xs text-slate-300 pointer-events-none">
-                {t("modal.port")}
-              </label>
-            </div>
-
-            <div className="relative">
-              <input
-                id="job-username"
-                name="username"
-                value={form.username}
-                onChange={handleChange}
-                required
-                autoComplete="off"
-                placeholder=" "
-                className={inputClass}
-              />
-              <label htmlFor="job-username" className="absolute left-3 top-2 text-xs text-slate-300">
-                {t("modal.username")}
-              </label>
-            </div>
-
-            <div className="relative">
-              <input
-                id="job-password"
-                type={showPassword ? "text" : "password"}
-                name="passwordEncrypted"
-                value={form.passwordEncrypted}
-                onChange={handleChange}
-                required
-                autoComplete="new-password"
-                placeholder=" "
-                className={`${inputClass} pr-10`}
-              />
-              <label htmlFor="job-password" className="absolute left-3 top-2 text-xs text-slate-300">
-                {t("modal.password")}
-              </label>
-
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                onMouseDown={(e) => e.preventDefault()}
-                className="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-300 hover:text-white transition"
-                aria-label={showPassword ? t("modal.hidePassword") : t("modal.showPassword")}
-              >
-                {showPassword ? (
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M13.875 18.825A10.05 10.05 0 0112 19c-5 0-9.27-3.11-11-7 1.02-2.29 2.74-4.18 4.86-5.4M9.88 9.88A3 3 0 0114.12 14.12M6.1 6.1l11.8 11.8"
-                    />
-                  </svg>
-                ) : (
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0zm7.07 0C20.93 16.06 16.94 19 12 19S3.07 16.06 1.93 12C3.07 7.94 7.06 5 12 5s8.93 2.94 10.07 7z"
-                    />
-                  </svg>
-                )}
-              </button>
-            </div>
-
-            {form.dbType === "MONGODB" && (
-              <div className="relative">
-                <input
-                  id="job-authDb"
-                  name="authenticationDatabase"
-                  value={form.authenticationDatabase}
-                  onChange={handleChange}
-                  placeholder=" "
-                  className={inputClass}
-                />
-                <label htmlFor="job-authDb" className="absolute left-3 top-2 text-xs text-slate-300 pointer-events-none">
-                  {t("modal.authDb")}
-                </label>
-              </div>
-            )}
-          </section>
-
-          <section className="space-y-3">
-            <h3 className="text-sm font-semibold text-slate-200">{t("modal.sectionDatabase")}</h3>
-
-            <CustomSelect
-              id="job-dbNameOptionsMode"
-              name="dbNameOptionsMode"
-              value={form.dbNameOptionsMode}
-              options={dbSelectionOptions}
-              onChange={handleChange}
-              label={t("modal.dbSelection")}
-            />
-
-            {form.dbNameOptionsMode === "CUSTOM" && (
-              <div className="relative border-l-4 rounded-lg border-l-indigo-500">
-                <input id="job-dbName" name="dbName" value={form.dbName} onChange={handleChange} placeholder=" " className={inputClass} />
-                <label htmlFor="job-dbName" className="absolute left-3 top-2 text-xs text-slate-300 pointer-events-none">
-                  {t("modal.dbName")}
-                </label>
-              </div>
-            )}
-
-            <CustomSelect
-              id="job-dumpOptionsMode"
-              name="dumpOptionsMode"
-              value={form.dumpOptionsMode}
-              options={dumpOptionsModeOptions}
-              onChange={handleChange}
-              label={t("modal.dumpOptionsMode")}
-            />
-
-            {form.dumpOptionsMode === "CUSTOM" && (
-              <div className="relative border-l-4 rounded-lg border-l-indigo-500">
-                <input id="job-dumpOptions" name="dumpOptions" value={form.dumpOptions} onChange={handleChange} placeholder=" " className={inputClass} />
-                <label htmlFor="job-dumpOptions" className="absolute left-3 top-2 text-xs text-slate-300 pointer-events-none">
-                  {t("modal.advancedOptions")}
-                </label>
-              </div>
-            )}
-
-            <CustomSelect
-              id="job-compressionType"
-              name="compressionType"
-              value={form.compressionType}
-              options={compressionOptions}
-              onChange={handleChange}
-              label={t("modal.compression")}
-            />
-          </section>
-
-          <section className="space-y-3">
-            <h3 className="text-sm font-semibold text-slate-200">{t("modal.sectionSchedule")}</h3>
-
-            <CustomSelect
-              id="job-executionMode"
-              name="executionMode"
-              value={form.executionMode}
-              options={executionModeOptions}
-              onChange={handleChange}
-              label={t("modal.modeExecution")}
-            />
-
-            {form.executionMode === "SCHEDULED" && (
-              <div className="relative border-l-4 rounded-lg border-l-indigo-500">
-                <CustomSelect
-                  id="job-cron"
-                  name="cronExpression"
-                  value={form.cronExpression}
-                  options={cronOptions}
-                  onChange={(e) => setForm((prev) => ({ ...prev, cronExpression: e.target.value }))}
-                  label={t("modal.backupFrequency")}
-                />
-              </div>
-            )}
-
-            {form.executionMode === "SCHEDULED_CUSTOM" && (
-              <div className="relative border-l-4 rounded-lg border-l-indigo-500">
-                <input
-                  id="job-cronExpression"
-                  name="cronExpression"
-                  value={form.cronExpression}
-                  onChange={handleChange}
-                  required
-                  placeholder=" "
-                  className={inputClass}
-                />
-                <label htmlFor="job-cronExpression" className="absolute left-3 top-2 text-xs text-slate-300 pointer-events-none">
-                  {t("modal.customCronExpr")}
-                </label>
-              </div>
-            )}
-          </section>
-
-          <section className="space-y-3">
-            <h3 className="text-sm font-semibold text-slate-200">{t("modal.sectionRetention")}</h3>
-
-            <CustomSelect
-              id="job-retentionPolicy"
-              name="retentionPolicy"
-              value={form.retentionPolicy}
-              options={retentionOptions}
-              onChange={handleChange}
-              label={t("modal.retentionPolicy")}
-            />
-
-            {form.retentionPolicy === "COUNT" && (
-              <div className="relative border-l-4 rounded-lg border-l-indigo-500">
-                <input
-                  id="job-numberRetention"
-                  type="number"
-                  name="retentionCount"
-                  value={form.retentionCount}
-                  onChange={handleChange}
-                  min="1"
-                  required
-                  placeholder=" "
-                  className={inputClass}
-                />
-                <label htmlFor="job-numberRetention" className="absolute left-3 top-2 text-xs text-slate-300 pointer-events-none">
-                  {t("modal.backupCountToKeep")}
-                </label>
-              </div>
-            )}
-
-            {form.retentionPolicy === "DAYS" && (
-              <div className="relative border-l-4 rounded-lg border-l-indigo-500">
-                <input
-                  id="job-retentionDays"
-                  type="number"
-                  name="retentionDays"
-                  value={form.retentionDays}
-                  onChange={handleChange}
-                  min="1"
-                  required
-                  placeholder=" "
-                  className={inputClass}
-                />
-                <label htmlFor="job-retentionDays" className="absolute left-3 top-2 text-xs text-slate-300 pointer-events-none">
-                  {t("modal.retentionDays")}
-                </label>
-              </div>
-            )}
-          </section>
+          <RetentionSection form={form} handleChange={handleChange} retentionOptions={retentionOptions} inputClass={inputClass} t={t} />
         </form>
 
         <div className="sticky bottom-0 z-10 p-4 sm:p-6 border-t border-slate-700 bg-slate-800 sm:rounded-b-2xl">
@@ -420,6 +192,3 @@ function JobModal({ jobId, defaults, onClose }) {
 }
 
 export default JobModal;
-
-
-
