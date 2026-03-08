@@ -49,7 +49,7 @@ services:
 
     volumes:
       # SQLite database persisted on host
-      - ./config:/config
+      - ./backend/config:/config
 
       # Backups persisted in docker volume
       - copi_backups:/app/backups
@@ -58,3 +58,4 @@ services:
 
 volumes:
   copi_backups:
+
