@@ -158,7 +158,7 @@ En Docker, ces variables sont preconfigurees dans `docker-compose.yml`.
 
 - Metadonnees applicatives SQLite:
   - local: `backend/data/copi.db`
-  - docker: bind mount `./config:/config` vers `/config/copi.db`
+  - docker: bind mount `./backend/config:/config` vers `/config/copi.db`
 - Fichiers de sauvegarde:
   - local: `backend/backups/`
   - docker: volume `copi_backups` monte sur `/app/backups`
@@ -171,3 +171,4 @@ En Docker, ces variables sont preconfigurees dans `docker-compose.yml`.
 - Proteger l'acces reseau (VPN, reverse proxy, firewall)
 - Verifier regulierement la restauration des dumps
 - Sur NAS, monter un stockage persistant dedie aux sauvegardes
+
