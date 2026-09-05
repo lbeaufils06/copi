@@ -1,6 +1,7 @@
 package com.backend.copi.service.dump;
 
 import com.backend.copi.entity.BackupJob;
+import com.backend.copi.enums.DumpOptionsMode;
 
 import java.util.Arrays;
 import java.util.List;
@@ -10,6 +11,14 @@ public interface DatabaseDumpService {
     boolean supports(String dbType);
 
     String executeDump(BackupJob job) throws Exception;
+
+    default List<String> resolveDumpOptions(BackupJob job, String defaultOptions) {
+        String options = job.getDumpOptionsMode() == DumpOptionsMode.CUSTOM
+                ? job.getDumpOptions()
+                : defaultOptions;
+
+        return parseDumpOptions(options);
+    }
 
     default List<String> parseDumpOptions(String options) {
 

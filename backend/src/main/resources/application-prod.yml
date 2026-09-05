@@ -25,7 +25,7 @@ app:
     secret: ${MASTER_KEY:test-secret}
 
   mysqldump:
-    path: ${MYSQLDUMP_PATH:mysqldump}
+    path: ${MYSQLDUMP_PATH:mysql-mysqldump}
 
   pgdump:
     path: ${PGDUMP_PATH:pg_dump}

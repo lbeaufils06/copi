@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.backend.copi.enums.DbNameOptionsMode;
-import com.backend.copi.enums.DumpOptionsMode;
 import com.backend.copi.service.utils.DefaultService;
 import org.springframework.stereotype.Service;
 
@@ -60,17 +59,15 @@ public class MariaDbDumpService extends AbstractDumpService implements DatabaseD
         command.add("-u");
         command.add(job.getUsername());
 
-        // Dynamic options
-        if(job.getDumpOptionsMode().equals(DumpOptionsMode.CUSTOM) && job.getDumpOptions() != null && !job.getDumpOptions().isBlank()) {
-            command.addAll(parseDumpOptions(defaultService.getDefaultOptions(job.getDbType())));
-        } else {
-            command.addAll(parseDumpOptions(job.getDumpOptions()));
-        }
+        command.addAll(resolveDumpOptions(
+                job,
+                defaultService.getDefaultOptions(job.getDbType())
+        ));
 
         // Target base
         if (job.getDbNameOptionsMode().equals(DbNameOptionsMode.ALL)) {
             command.add("--all-databases");
-        } else if(job.getDbName() == null || job.getDbName().trim().isEmpty()) {
+        } else if(job.getDbName() != null && !job.getDbName().trim().isEmpty()) {
             command.add(job.getDbName());
         }
 

@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   copi:
     container_name: copi
@@ -41,7 +39,7 @@ services:
       APP_BACKUP_DIR: /app/backups
 
       # Dump tools paths
-      MYSQLDUMP_PATH: mysqldump
+      MYSQLDUMP_PATH: mysql-mysqldump
       MARIADUMP_PATH: mariadb-dump
       PGDUMP_PATH: pg_dump
       PGDUMPALL_PATH: pg_dumpall
