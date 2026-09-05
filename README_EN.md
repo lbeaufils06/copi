@@ -172,6 +172,7 @@ In Docker, variables are loaded from `.env`. Copy `.env.example`, then set at le
   - `COPI_ADMIN_PASSWORD`
   - `MASTER_KEY`
 - Protect network access (VPN, reverse proxy, firewall)
+- Configure the reverse proxy to forward `Host`, `X-Forwarded-Host`, `X-Forwarded-Proto`, and `X-Forwarded-For`
 - Regularly test backup restoration
 - On NAS setups, mount dedicated persistent storage for backup files
 

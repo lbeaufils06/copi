@@ -174,6 +174,7 @@ En Docker, les variables sont chargees depuis `.env`. Copier `.env.example`, pui
   - `COPI_ADMIN_PASSWORD`
   - `MASTER_KEY`
 - Proteger l'acces reseau (VPN, reverse proxy, firewall)
+- Configurer le reverse proxy pour transmettre les en-tetes `Host`, `X-Forwarded-Host`, `X-Forwarded-Proto` et `X-Forwarded-For`
 - Verifier regulierement la restauration des dumps
 - Sur NAS, monter un stockage persistant dedie aux sauvegardes
 

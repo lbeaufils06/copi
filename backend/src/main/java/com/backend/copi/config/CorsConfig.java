@@ -1,24 +1,21 @@
 package com.backend.copi.config;
 
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
+@Profile("dev")
 public class CorsConfig implements WebMvcConfigurer {
 
     @Override
     // addCorsMappings: Handles add cors mappings in the current backend workflow.
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/api/**")
-                .allowedOrigins(
-                        "http://localhost:3000",
-                        "http://192.168.0.15:3000",
-                        "http://192.168.0.172:3000",
-                        "http://192.168.0.118:3000",
-                        "http://192.168.0.15:3322",
-                        "http://192.168.0.172:5173",
-                        "http://localhost:5173"
+                .allowedOriginPatterns(
+                        "http://localhost:*",
+                        "http://127.0.0.1:*"
                 )
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .allowedHeaders("*")
