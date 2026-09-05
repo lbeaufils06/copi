@@ -12,6 +12,8 @@ RUN mvn clean package -DskipTests
 # ---------- Runtime stage ----------
 FROM eclipse-temurin:21-jre-jammy
 
+ARG POSTGRES_CLIENT_MAJOR=16
+
 WORKDIR /app
 
 RUN apt-get update && \
@@ -19,8 +21,22 @@ RUN apt-get update && \
         ca-certificates \
         gnupg \
         mariadb-client \
-        postgresql-client \
         wget && \
+    mkdir -p /usr/share/postgresql-common/pgdg && \
+    wget -qO /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc \
+        https://www.postgresql.org/media/keys/ACCC4CF8.asc && \
+    echo "deb [ signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc ] \
+        https://apt.postgresql.org/pub/repos/apt jammy-pgdg main" \
+        | tee /etc/apt/sources.list.d/pgdg.list && \
+    apt-get update && \
+    apt-get install -y --no-install-recommends \
+        "postgresql-client-${POSTGRES_CLIENT_MAJOR}" && \
+    ln -s "/usr/lib/postgresql/${POSTGRES_CLIENT_MAJOR}/bin/pg_dump" \
+        /usr/local/bin/postgresql-pg-dump && \
+    ln -s "/usr/lib/postgresql/${POSTGRES_CLIENT_MAJOR}/bin/pg_dumpall" \
+        /usr/local/bin/postgresql-pg-dumpall && \
+    postgresql-pg-dump --version && \
+    postgresql-pg-dumpall --version && \
     mkdir -p /opt/mysql-client && \
     cd /tmp && \
     apt-get download mysql-client-core-8.0 && \

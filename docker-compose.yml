@@ -4,6 +4,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        POSTGRES_CLIENT_MAJOR: ${POSTGRES_CLIENT_MAJOR:-16}
     image: copi:latest
 
     ports:
@@ -41,8 +43,8 @@ services:
       # Dump tools paths
       MYSQLDUMP_PATH: mysql-mysqldump
       MARIADUMP_PATH: mariadb-dump
-      PGDUMP_PATH: pg_dump
-      PGDUMPALL_PATH: pg_dumpall
+      PGDUMP_PATH: postgresql-pg-dump
+      PGDUMPALL_PATH: postgresql-pg-dumpall
       MONGODUMP_PATH: mongodump
 
     volumes:

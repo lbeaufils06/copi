@@ -138,6 +138,7 @@ Variables principales:
 - `SESSION_TIMEOUT` (minutes, defaut `30`)
 - `SPRING_DATASOURCE_URL` (defaut `jdbc:sqlite:/config/copi.db`)
 - `APP_BACKUP_DIR` (defaut `/app/backups`)
+- `POSTGRES_CLIENT_MAJOR` (version majeure du client PostgreSQL Docker, defaut `16`)
 - `MYSQLDUMP_PATH`, `MARIADUMP_PATH`, `PGDUMP_PATH`, `PGDUMPALL_PATH`, `MONGODUMP_PATH`
 
 En Docker, ces variables sont preconfigurees dans `docker-compose.yml`.

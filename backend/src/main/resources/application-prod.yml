@@ -28,10 +28,10 @@ app:
     path: ${MYSQLDUMP_PATH:mysql-mysqldump}
 
   pgdump:
-    path: ${PGDUMP_PATH:pg_dump}
+    path: ${PGDUMP_PATH:postgresql-pg-dump}
 
   pgdumpall:
-    path: ${PGDUMPALL_PATH:pg_dumpall}
+    path: ${PGDUMPALL_PATH:postgresql-pg-dumpall}
 
   mariadump:
     path: ${MARIADUMP_PATH:mariadb-dump}
