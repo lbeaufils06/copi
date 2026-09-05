@@ -107,12 +107,10 @@ public class PostgresDumpService extends AbstractDumpService implements Database
                         .format(DateTimeFormatter
                                 .ofPattern("yyyyMMdd_HHmmss"));
 
-        return jobDirectory.toString() + 
-        		"/"
-                + job.getName()
-                + "_"
-                + timestamp
-                + ".dump";
+        String safeName = backupStorageService.sanitizeFile(job.getName());
+        return jobDirectory.resolve(safeName + "_" + timestamp + ".dump")
+                .normalize()
+                .toString();
     }
 
     // readStream: Handles read stream in the current backend workflow.

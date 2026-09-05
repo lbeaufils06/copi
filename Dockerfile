@@ -19,6 +19,7 @@ WORKDIR /app
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
         ca-certificates \
+        gosu \
         gnupg \
         mariadb-client \
         wget && \

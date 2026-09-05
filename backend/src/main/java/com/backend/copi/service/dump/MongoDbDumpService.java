@@ -93,9 +93,9 @@ public class MongoDbDumpService extends AbstractDumpService implements DatabaseD
         String timestamp = LocalDateTime.now()
                 .format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
 
-        return jobDirectory.toString() + "/"
-                + job.getName() + "_"
-                + timestamp
-                + ".archive";
+        String safeName = backupStorageService.sanitizeFile(job.getName());
+        return jobDirectory.resolve(safeName + "_" + timestamp + ".archive")
+                .normalize()
+                .toString();
     }
 }

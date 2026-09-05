@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class DatabaseDumpServiceTest {
 
@@ -64,5 +65,29 @@ class DatabaseDumpServiceTest {
                 List.of("--default-option"),
                 service.resolveDumpOptions(job, "--default-option")
         );
+    }
+
+    @Test
+    void parseDumpOptionsRejectsOutputDestinations() {
+        List<String> dangerousOptions = List.of(
+                "--file=/tmp/dump",
+                "-f/tmp/dump",
+                "--result-file=/tmp/dump",
+                "-r/tmp/dump",
+                "--tab=/tmp/dump",
+                "-T/tmp/dump",
+                "--out=/tmp/dump",
+                "-o/tmp/dump",
+                "--archive=/tmp/dump"
+        );
+
+        for (String option : dangerousOptions) {
+            assertThrows(IllegalArgumentException.class, () -> service.parseDumpOptions(option));
+        }
+    }
+
+    @Test
+    void parseDumpOptionsKeepsCaseSensitiveSafeShortOptions() {
+        assertEquals(List.of("-Fc"), service.parseDumpOptions("-Fc"));
     }
 }

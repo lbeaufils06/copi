@@ -96,7 +96,9 @@ public class MariaDbDumpService extends AbstractDumpService implements DatabaseD
         String timestamp = LocalDateTime.now()
                 .format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
 
-        return jobDirectory.toString() + "/" +
-                job.getName() + "_" + timestamp + ".sql";
+        String safeName = backupStorageService.sanitizeFile(job.getName());
+        return jobDirectory.resolve(safeName + "_" + timestamp + ".sql")
+                .normalize()
+                .toString();
     }
 }

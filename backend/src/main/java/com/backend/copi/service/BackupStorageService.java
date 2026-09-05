@@ -262,7 +262,7 @@ public class BackupStorageService {
         String timestamp = exec.getStartTime()
                 .format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
 
-        String baseName = job.getName() + "_" + timestamp;
+        String baseName = sanitizeFile(job.getName()) + "_" + timestamp;
 
         try (DirectoryStream<Path> stream =
                      Files.newDirectoryStream(jobDirectory, baseName + "*")) {

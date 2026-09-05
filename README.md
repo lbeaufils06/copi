@@ -63,6 +63,8 @@ copi/
 Depuis la racine du projet:
 
 ```bash
+cp .env.example .env
+# Renseigner COPI_ADMIN_PASSWORD et MASTER_KEY dans .env
 docker compose up -d --build
 ```
 
@@ -70,10 +72,10 @@ Application disponible sur:
 
 - [http://localhost:8092](http://localhost:8092)
 
-Identifiants par defaut:
+Identifiant:
 
 - utilisateur: `admin`
-- mot de passe: `copi` (via `COPI_ADMIN_PASSWORD` dans `docker-compose.yml`)
+- mot de passe: valeur obligatoire de `COPI_ADMIN_PASSWORD` dans `.env`
 
 Arret:
 
@@ -132,8 +134,8 @@ bash .bash/build.sh
 Variables principales:
 
 - `SPRING_PROFILES_ACTIVE` (`dev` ou `prod`)
-- `COPI_ADMIN_PASSWORD` (mot de passe admin)
-- `MASTER_KEY` (cle de chiffrement interne)
+- `COPI_ADMIN_PASSWORD` (mot de passe admin, obligatoire en production)
+- `MASTER_KEY` (cle de chiffrement interne, obligatoire en production et a conserver)
 - `SERVER_PORT` (port backend, defaut `8080`)
 - `SESSION_TIMEOUT` (minutes, defaut `30`)
 - `SPRING_DATASOURCE_URL` (defaut `jdbc:sqlite:/config/copi.db`)
@@ -141,7 +143,7 @@ Variables principales:
 - `POSTGRES_CLIENT_MAJOR` (version majeure du client PostgreSQL Docker, defaut `16`)
 - `MYSQLDUMP_PATH`, `MARIADUMP_PATH`, `PGDUMP_PATH`, `PGDUMPALL_PATH`, `MONGODUMP_PATH`
 
-En Docker, ces variables sont preconfigurees dans `docker-compose.yml`.
+En Docker, les variables sont chargees depuis `.env`. Copier `.env.example`, puis renseigner au minimum `COPI_ADMIN_PASSWORD` et `MASTER_KEY` avant le premier demarrage.
 
 ## API principale
 
@@ -168,7 +170,7 @@ En Docker, ces variables sont preconfigurees dans `docker-compose.yml`.
 
 ## Bonnes pratiques en production
 
-- Changer au minimum:
+- Renseigner avec des valeurs fortes:
   - `COPI_ADMIN_PASSWORD`
   - `MASTER_KEY`
 - Proteger l'acces reseau (VPN, reverse proxy, firewall)

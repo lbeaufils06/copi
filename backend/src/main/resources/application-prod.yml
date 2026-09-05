@@ -18,11 +18,11 @@ spring:
   security:
     user:
       name: admin
-      password: ${COPI_ADMIN_PASSWORD:copi}
+      password: ${COPI_ADMIN_PASSWORD}
 
 app:
   crypto:
-    secret: ${MASTER_KEY:test-secret}
+    secret: ${MASTER_KEY}
 
   mysqldump:
     path: ${MYSQLDUMP_PATH:mysql-mysqldump}

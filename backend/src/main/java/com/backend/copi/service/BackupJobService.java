@@ -64,6 +64,9 @@ public class BackupJobService {
     public BackupJobResponseDTO updateJob(UUID id, BackupJobRequestDTO dto) throws IOException {
         BackupJob job = repository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Job not found"));
         backupJobMapper.updateEntityFromDto(dto, job);
+        if (dto.getName() != null) {
+            job.setName(backupStorageService.sanitizeFile(dto.getName()));
+        }
         if (dto.getPasswordEncrypted() != null && !dto.getPasswordEncrypted().isBlank()) {
             job.setPasswordEncrypted(cryptoService.encrypt(dto.getPasswordEncrypted()));
         }

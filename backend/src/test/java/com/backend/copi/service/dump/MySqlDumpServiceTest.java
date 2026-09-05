@@ -9,6 +9,7 @@ import java.util.UUID;
 import com.backend.copi.service.utils.DefaultService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import com.backend.copi.config.AppProperties;
 import com.backend.copi.entity.BackupJob;
@@ -68,5 +69,21 @@ class MySqlDumpServiceTest {
                 .thenReturn(Path.of(System.getProperty("java.io.tmpdir")));
 
         assertDoesNotThrow(() -> service.executeDump(job));
+    }
+
+    @Test
+    void buildFilePathUsesSanitizedJobName() throws Exception {
+        BackupJob job = new BackupJob();
+        job.setName("../../outside");
+        Path jobDirectory = Path.of(System.getProperty("java.io.tmpdir"), "copi-job");
+
+        when(backupStorageService.resolveJobDirectory(job)).thenReturn(jobDirectory);
+        when(backupStorageService.sanitizeFile(job.getName())).thenReturn("outside");
+
+        String filePath = ReflectionTestUtils.invokeMethod(service, "buildFilePath", job);
+        Path normalizedFile = Path.of(filePath).normalize();
+
+        assertTrue(normalizedFile.startsWith(jobDirectory));
+        assertTrue(normalizedFile.getFileName().toString().startsWith("outside_"));
     }
 }
